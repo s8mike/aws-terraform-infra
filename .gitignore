@@ -1,0 +1,19 @@
+cat > .gitignore << EOF
+# Terraform state - never commit
+*.tfstate
+*.tfstate.backup
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+#learnings
+learning_points.md
+Working_doc.md
+README.md
+# Secrets
+*.tfvars
+!*.tfvars.example
+
+# OS
+.DS_Store
+EOF
