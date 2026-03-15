@@ -8,7 +8,7 @@ terraform {
     }
   }
 
-  # We will activate this in Stage 7 when we set up S3 remote state
+  # # We will activate this in Stage 7 when we set up S3 remote state
   # backend "s3" {
   #   bucket = "webforx-tfstate-dev"
   #   key    = "dev/terraform.tfstate"
@@ -27,3 +27,29 @@ provider "aws" {
     }
   }
 }
+
+# Why are the below added to the backend.tf 
+variable "project_name" {
+  type = string
+}
+
+variable "environment" {
+  type = string
+}
+
+variable "vpc_cidr" {
+  type = string
+}
+
+variable "public_subnet_cidrs" {
+  type = list(string)
+}
+
+variable "private_subnet_cidrs" {
+  type = list(string)
+}
+
+variable "availability_zones" {
+  type = list(string)
+}
+
