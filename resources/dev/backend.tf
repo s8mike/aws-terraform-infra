@@ -53,3 +53,16 @@ variable "availability_zones" {
   type = list(string)
 }
 
+# Compute variables stage 3
+variable "instance_type" {
+  type    = string
+  default = "t2.micro"
+}
+
+variable "ami_id" {
+  type = string
+}
+
+variable "allowed_ssh_cidr" {
+  type = string
+}
