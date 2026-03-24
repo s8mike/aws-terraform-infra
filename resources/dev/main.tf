@@ -1,4 +1,3 @@
-# Stage 2 onwards: module calls will live here
 module "vpc" {
   source               = "../../modules/vpc"
   aws_region           = var.aws_region
@@ -10,17 +9,24 @@ module "vpc" {
   availability_zones   = var.availability_zones
 }
 
-# Compute module - stage 3
-module "compute" {
-  source = "../../modules/compute"
+module "security" {
+  source = "../../modules/security"
 
   project_name     = var.project_name
   environment      = var.environment
   vpc_id           = module.vpc.vpc_id
-  public_subnet_id = module.vpc.public_subnet_ids[0]
   allowed_ssh_cidr = var.allowed_ssh_cidr
-  instance_type    = var.instance_type
-  ami_id           = var.ami_id
+}
+
+module "compute" {
+  source = "../../modules/compute"
+
+  project_name      = var.project_name
+  environment       = var.environment
+  public_subnet_id  = module.vpc.public_subnet_ids[0]
+  security_group_id = module.security.ec2_security_group_id
+  instance_type     = var.instance_type
+  ami_id            = var.ami_id
 }
 
 output "ec2_public_ip" {
