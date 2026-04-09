@@ -101,7 +101,7 @@ resource "aws_ecs_service" "main" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
-  # network_configuration {            # commented out temporarily for testing with public subnets
+  # network_configuration {            # commented out temporarily for testing with public subnets. In production, we will use private subnets and NAT gateways for better security.
   #   subnets          = var.private_subnet_ids
   #   security_groups  = [var.ecs_security_group_id]
   #   assign_public_ip = false
@@ -113,10 +113,12 @@ resource "aws_ecs_service" "main" {
   assign_public_ip = true
 }
 
-  # Load balancer attachment will be added in Stage 6
-  # lifecycle {
-  #   ignore_changes = [task_definition]
-  # }
+ # ALB Block added at stage 6 to register ECS tasks with the ALB target group created in the load balancer module. This allows the ALB to route traffic to the ECS tasks.
+  load_balancer {
+    target_group_arn = var.target_group_arn
+    container_name   = "${var.project_name}-${var.environment}-container"
+    container_port   = var.container_port
+  }
 
   tags = {
     Name = "${var.project_name}-${var.environment}-service"

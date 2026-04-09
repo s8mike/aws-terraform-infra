@@ -72,3 +72,9 @@ variable "desired_count" {
 #   description = "List of public subnet IDs for ECS tasks"
 #   type        = list(string)
 # }
+
+# Added so ECS tasks can be registered with the ALB target group created in the load balancer module. This allows the ALB to route traffic to the ECS tasks.
+variable "target_group_arn" {
+  description = "ARN of the ALB target group to register ECS tasks with"
+  type        = string
+}

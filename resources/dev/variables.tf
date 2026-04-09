@@ -83,3 +83,9 @@ variable "desired_count" {
   type        = number
   default     = 2
 }
+
+variable "health_check_path" {
+  description = "Path for ALB health checks"
+  type        = string
+  default     = "/"
+}
