@@ -55,7 +55,29 @@ module "ecs" {
   task_cpu                    = var.task_cpu
   task_memory                 = var.task_memory
   desired_count               = var.desired_count
-  target_group_arn            = module.alb.target_group_arn # ecs references alb target group arn for service load balancing
+  target_group_arn            = module.alb.target_group_arn
+}
+
+# Auto Scaling Module stage 7
+module "remote_state" {
+  source = "../../modules/remote-state"
+
+  project_name = var.project_name
+  environment  = var.environment
+  aws_region   = var.aws_region
+}
+
+module "autoscaling" {
+  source = "../../modules/autoscaling"
+
+  project_name            = var.project_name
+  environment             = var.environment
+  ecs_cluster_name        = module.ecs.ecs_cluster_name
+  ecs_service_name        = module.ecs.ecs_service_name
+  min_capacity            = var.min_capacity
+  max_capacity            = var.max_capacity
+  scale_out_cpu_threshold = var.scale_out_cpu_threshold
+  scale_in_cpu_threshold  = var.scale_in_cpu_threshold
 }
 
 output "alb_dns_name" {
@@ -86,4 +108,14 @@ output "ecr_repository_url" {
 output "cloudwatch_log_group" {
   description = "CloudWatch log group for ECS"
   value       = module.ecs.cloudwatch_log_group_name
+}
+
+output "s3_state_bucket" {
+  description = "S3 bucket storing Terraform state"
+  value       = module.remote_state.s3_bucket_name
+}
+
+output "dynamodb_lock_table" {
+  description = "DynamoDB table for state locking"
+  value       = module.remote_state.dynamodb_table_name
 }

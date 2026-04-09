@@ -89,3 +89,28 @@ variable "health_check_path" {
   type        = string
   default     = "/"
 }
+
+# Remote State Variables — Stage 7
+variable "min_capacity" {
+  description = "Minimum number of ECS tasks"
+  type        = number
+  default     = 2
+}
+
+variable "max_capacity" {
+  description = "Maximum number of ECS tasks"
+  type        = number
+  default     = 6
+}
+
+variable "scale_out_cpu_threshold" {
+  description = "CPU percentage that triggers scale out"
+  type        = number
+  default     = 70
+}
+
+variable "scale_in_cpu_threshold" {
+  description = "CPU percentage that triggers scale in"
+  type        = number
+  default     = 30
+}

@@ -21,3 +21,5 @@ README.md
 # OS
 .DS_Store
 EOF
+
+*.tfplan
