@@ -4,10 +4,10 @@
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "${var.project_name}-${var.environment}-tfstate"
 
-  # Prevent accidental deletion of state bucket
-  lifecycle {
-    prevent_destroy = true      # Prevent accidental deletion of state bucket by terraform destroy
-  }
+  # # Prevent accidental deletion of state bucket
+  # lifecycle {
+  #   prevent_destroy = true      # Prevent accidental deletion of state bucket by terraform destroy
+  # }
 
   tags = {
     Name = "${var.project_name}-${var.environment}-tfstate"
@@ -63,9 +63,9 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     type = "S"
   }
 
-  lifecycle {
-    prevent_destroy = true    # Prevent accidental deletion of lock table by terraform destroy
-  }
+  # lifecycle {
+  #   prevent_destroy = true    # Prevent accidental deletion of lock table by terraform destroy
+  # }
 
   tags = {
     Name = "${var.project_name}-${var.environment}-tfstate-lock"
