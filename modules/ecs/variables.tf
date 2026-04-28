@@ -78,3 +78,23 @@ variable "target_group_arn" {
   description = "ARN of the ALB target group to register ECS tasks with"
   type        = string
 }
+
+## New application variables added
+
+variable "app_environment" {
+  description = "Application environment name passed to container"
+  type        = string
+  default     = "dev"
+}
+
+variable "app_project_name" {
+  description = "Project name passed to container"
+  type        = string
+  default     = "mecandjeo-infra"
+}
+
+variable "app_version" {
+  description = "Application version passed to container"
+  type        = string
+  default     = "1.0.0"
+}

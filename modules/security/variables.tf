@@ -17,3 +17,10 @@ variable "allowed_ssh_cidr" {
   description = "Trusted IP CIDR allowed to SSH into EC2 instances"
   type        = string
 }
+
+# New variables for application
+variable "container_port" {
+  description = "Port the container listens on"
+  type        = number
+  default     = 8000
+}

@@ -57,13 +57,13 @@ variable "allowed_ssh_cidr" {
 variable "container_image" {
   description = "Docker image to run in ECS"
   type        = string
-  default     = "nginx:latest"
+  default     = "776735193826.dkr.ecr.us-east-1.amazonaws.com/mecandjeo-infra-dev:v1.0.0"
 }
 
 variable "container_port" {
   description = "Port the container listens on"
   type        = number
-  default     = 80
+  default     = 8000
 }
 
 variable "task_cpu" {
@@ -87,7 +87,7 @@ variable "desired_count" {
 variable "health_check_path" {
   description = "Path for ALB health checks"
   type        = string
-  default     = "/"
+  default     = "/health"
 }
 
 # Remote State Variables — Stage 7
@@ -113,4 +113,10 @@ variable "scale_in_cpu_threshold" {
   description = "CPU percentage that triggers scale in"
   type        = number
   default     = 30
+}
+#New variables for application
+variable "app_version" {
+  description = "Application version"
+  type        = string
+  default     = "1.0.0"
 }

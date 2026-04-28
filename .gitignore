@@ -24,3 +24,6 @@ README.md
 EOF
 
 *.tfplan
+
+recovery-imports.sh
+README-recovery.sh

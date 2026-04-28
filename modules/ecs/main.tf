@@ -67,6 +67,26 @@ resource "aws_ecs_task_definition" "main" {
         }
       ]
 
+      # Environment variables passed to the FastAPI application
+      environment = [
+        {
+          name  = "ENVIRONMENT"
+          value = var.app_environment
+        },
+        {
+          name  = "PROJECT_NAME"
+          value = var.app_project_name
+        },
+        {
+          name  = "AWS_REGION"
+          value = var.aws_region
+        },
+        {
+          name  = "APP_VERSION"
+          value = var.app_version
+        }
+      ]
+
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -77,7 +97,7 @@ resource "aws_ecs_task_definition" "main" {
       }
 
       healthCheck = {
-        command     = ["CMD-SHELL", "curl -f http://localhost/ || exit 1"]
+        command     = ["CMD-SHELL", "curl -f http://localhost:${var.container_port}/health || exit 1"]
         interval    = 30
         timeout     = 5
         retries     = 3

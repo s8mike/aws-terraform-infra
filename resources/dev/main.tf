@@ -16,6 +16,7 @@ module "security" {
   environment      = var.environment
   vpc_id           = module.vpc.vpc_id
   allowed_ssh_cidr = var.allowed_ssh_cidr
+  container_port   = var.container_port
 }
 
 module "compute" {
@@ -56,6 +57,11 @@ module "ecs" {
   task_memory                 = var.task_memory
   desired_count               = var.desired_count
   target_group_arn            = module.alb.target_group_arn
+
+  # New — runtime environment variables for the application
+  app_environment  = var.environment
+  app_project_name = var.project_name
+  app_version      = "1.0.0"
 }
 
 # Auto Scaling Module stage 7
