@@ -65,13 +65,14 @@ module "ecs" {
 }
 
 # Auto Scaling Module stage 7
-module "remote_state" {
-  source = "../../modules/remote-state"
+## The remote state module will be activated when we set up S3 remote state. We will then pull the S3 bucket and DynamoDB table names from the remote state outputs and pass them to the
+# module "remote_state" {
+#   source = "../../modules/remote-state"
 
-  project_name = var.project_name
-  environment  = var.environment
-  aws_region   = var.aws_region
-}
+#   project_name = var.project_name
+#   environment  = var.environment
+#   aws_region   = var.aws_region
+# }
 
 module "autoscaling" {
   source = "../../modules/autoscaling"
@@ -106,22 +107,25 @@ output "ecs_cluster_name" {
   value       = module.ecs.ecs_cluster_name
 }
 
-output "ecr_repository_url" {
-  description = "ECR repository URL"
-  value       = module.ecs.ecr_repository_url
-}
+# Removed — ECR managed outside Terraform. This will uncommented later when we add ECR back.
+# output "ecr_repository_url" {
+#   description = "ECR repository URL"
+#   value       = module.ecs.ecr_repository_url
+# }
 
 output "cloudwatch_log_group" {
   description = "CloudWatch log group for ECS"
   value       = module.ecs.cloudwatch_log_group_name
 }
 
-output "s3_state_bucket" {
-  description = "S3 bucket storing Terraform state"
-  value       = module.remote_state.s3_bucket_name
-}
+## Below remote state outputs will be activated when we set up s3 remote state.
 
-output "dynamodb_lock_table" {
-  description = "DynamoDB table for state locking"
-  value       = module.remote_state.dynamodb_table_name
-}
+# output "s3_state_bucket" {
+#   description = "S3 bucket storing Terraform state"
+#   value       = module.remote_state.s3_bucket_name
+# }
+
+# output "dynamodb_lock_table" {
+#   description = "DynamoDB table for state locking"
+#   value       = module.remote_state.dynamodb_table_name
+# }

@@ -18,10 +18,11 @@ output "ecs_task_definition_arn" {
   value       = aws_ecs_task_definition.main.arn
 }
 
-output "ecr_repository_url" {
-  description = "ECR repository URL for pushing Docker images"
-  value       = aws_ecr_repository.main.repository_url
-}
+# Removed — ECR managed outside Terraform. This will uncommented if ECR is added back in.
+# output "ecr_repository_url" {
+#   description = "ECR repository URL for pushing Docker images"
+#   value       = aws_ecr_repository.main.repository_url
+# }
 
 output "cloudwatch_log_group_name" {
   description = "CloudWatch log group name for ECS tasks"

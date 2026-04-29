@@ -8,13 +8,12 @@ terraform {
     }
   }
 
-  # # We will activate this in Stage 7 when we set up S3 remote state
   backend "s3" {
-    bucket         = "mecandjeo-infra-dev-tfstate"
-    key            = "dev/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "mecandjeo-infra-dev-tfstate-lock"
-    encrypt        = true
+    bucket       = "mecandjeo-infra-dev-tfstate"
+    key          = "dev/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 

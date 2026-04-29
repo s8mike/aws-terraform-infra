@@ -1,18 +1,20 @@
 # ─────────────────────────────────────────
 # ECR Repository
 # ─────────────────────────────────────────
-resource "aws_ecr_repository" "main" {
-  name                 = "${var.project_name}-${var.environment}"
-  image_tag_mutability = "MUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.environment}-ecr"
-  }
-}
+# Removed from Terraform management — ECR repository created manually
+# and preserved permanently outside terraform destroy. This will be uncommented later.
+# resource "aws_ecr_repository" "main" {
+#   name                 = "${var.project_name}-${var.environment}"
+#   image_tag_mutability = "MUTABLE"
+#
+#   image_scanning_configuration {
+#     scan_on_push = true
+#   }
+#
+#   tags = {
+#     Name = "${var.project_name}-${var.environment}-ecr"
+#   }
+# }
 
 # ─────────────────────────────────────────
 # CloudWatch Log Group
