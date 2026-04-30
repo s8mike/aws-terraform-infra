@@ -29,3 +29,13 @@ EOF
 recovery-imports.sh
 README-recovery.sh
 AWS-Manual-Clean-up.md
+apps/mecandjeo-dashboard/phase1
+apps/mecandjeo-dashboard/phase2
+apps/mecandjeo-dashboard/phase3
+apps/mecandjeo-dashboard/phase4/generate-dockerhub-token.md
+apps/mecandjeo-dashboard/phase4/phase4-task.md
+
+apps/mecandjeo-dashboard/phase4/generate-dockerhub_token.md
+**/*token*
+**/*secret*
+**/*credential*
