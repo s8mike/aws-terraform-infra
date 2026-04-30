@@ -24,6 +24,8 @@ README.md
 EOF
 
 *.tfplan
+"plan-output*.txt"
 
 recovery-imports.sh
 README-recovery.sh
+AWS-Manual-Clean-up.md
