@@ -92,38 +92,6 @@ jobs:
         working-directory: resources/dev
 
 
-      - name: Terraform Plan
-        run: |
-          # FIX: Avoid piping terraform plan directly to tee because it can mask the real exit code (causing false CI failures)
-          terraform plan \
-            -var="aws_region=${{ env.AWS_REGION }}" \
-            -var="project_name=mecandjeo-infra" \
-            -var="environment=dev" \
-            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
-            -var="vpc_cidr=10.0.0.0/16" \
-            -var='public_subnet_cidrs=["10.0.1.0/24","10.0.2.0/24"]' \
-            -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
-            -var='availability_zones=["us-east-1a","us-east-1b"]' \
-            -var="instance_type=t3.micro" \
-            -var="public_key=${{ vars.PUBLIC_KEY }}" \
-            -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
-            -var="container_port=8000" \
-            -var="task_cpu=256" \
-            -var="task_memory=512" \
-            -var="desired_count=2" \
-            -var="health_check_path=/health" \
-            -var="min_capacity=2" \
-            -var="max_capacity=6" \
-            -var="scale_out_cpu_threshold=70" \
-            -var="scale_in_cpu_threshold=30" \
-            -out=tfplan-dev \
-            -no-color
-
-          # FIX: Generate readable plan output separately (safe and reliable)
-          terraform show -no-color tfplan-dev > plan-output-dev.txt
-        working-directory: resources/dev
-
-
       # - name: Terraform Plan
       #   run: |
       #     terraform plan \
@@ -150,6 +118,19 @@ jobs:
       #       -out=tfplan-dev \
       #       -no-color 2>&1 | tee plan-output-dev.txt
       #   working-directory: resources/dev
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
+            -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
+            -out=tfplan-dev \
+            -no-color 2>&1 | tee plan-output-dev.txt
+        working-directory: resources/dev
+
+
 
       - name: Upload Plan Output
         uses: actions/upload-artifact@v4
@@ -306,36 +287,55 @@ jobs:
             -backend-config="encrypt=true"
         working-directory: resources/dev
 
+      # - name: Terraform Apply
+      #   id: apply
+      #   run: |
+      #     terraform apply \
+      #       -auto-approve \
+      #       -var="aws_region=${{ env.AWS_REGION }}" \
+      #       -var="project_name=mecandjeo-infra" \
+      #       -var="environment=dev" \
+      #       -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+      #       -var="vpc_cidr=10.0.0.0/16" \
+      #       -var='public_subnet_cidrs=["10.0.1.0/24","10.0.2.0/24"]' \
+      #       -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
+      #       -var='availability_zones=["us-east-1a","us-east-1b"]' \
+      #       -var="instance_type=t3.micro" \
+      #       -var="public_key=${{ vars.PUBLIC_KEY }}" \
+      #       -var="container_image=${{ needs.docker.outputs.image_uri }}" \
+      #       -var="container_port=8000" \
+      #       -var="task_cpu=256" \
+      #       -var="task_memory=512" \
+      #       -var="desired_count=2" \
+      #       -var="health_check_path=/health" \
+      #       -var="min_capacity=2" \
+      #       -var="max_capacity=6" \
+      #       -var="scale_out_cpu_threshold=70" \
+      #       -var="scale_in_cpu_threshold=30" \
+      #       -no-color
+
+      #     echo "alb_dns_name=$(terraform output -raw alb_dns_name)" \
+      #       >> $GITHUB_OUTPUT
+      #   working-directory: resources/dev
+
+
       - name: Terraform Apply
         id: apply
         run: |
           terraform apply \
             -auto-approve \
-            -var="aws_region=${{ env.AWS_REGION }}" \
-            -var="project_name=mecandjeo-infra" \
-            -var="environment=dev" \
+            -var-file="terraform.tfvars.pipeline" \
             -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
-            -var="vpc_cidr=10.0.0.0/16" \
-            -var='public_subnet_cidrs=["10.0.1.0/24","10.0.2.0/24"]' \
-            -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
-            -var='availability_zones=["us-east-1a","us-east-1b"]' \
-            -var="instance_type=t3.micro" \
             -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
-            -var="container_port=8000" \
-            -var="task_cpu=256" \
-            -var="task_memory=512" \
-            -var="desired_count=2" \
-            -var="health_check_path=/health" \
-            -var="min_capacity=2" \
-            -var="max_capacity=6" \
-            -var="scale_out_cpu_threshold=70" \
-            -var="scale_in_cpu_threshold=30" \
             -no-color
 
           echo "alb_dns_name=$(terraform output -raw alb_dns_name)" \
             >> $GITHUB_OUTPUT
         working-directory: resources/dev
+
+     
+      
 
       - name: Wait for ECS Tasks
         run: |

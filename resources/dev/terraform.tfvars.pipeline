@@ -1,0 +1,20 @@
+aws_region   = "us-east-1"
+project_name = "mecandjeo-infra"
+environment  = "dev"
+
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+availability_zones   = ["us-east-1a", "us-east-1b"]
+
+instance_type     = "t3.micro"
+container_port    = 8000
+task_cpu          = 256
+task_memory       = 512
+desired_count     = 2
+health_check_path = "/health"
+min_capacity      = 2
+max_capacity      = 6
+scale_out_cpu_threshold = 70
+scale_in_cpu_threshold  = 30
+app_version       = "1.0.0"
