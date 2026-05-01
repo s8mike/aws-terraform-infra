@@ -23,7 +23,7 @@ variable "vpc_id" {
 #   type        = list(string)
 # }
 
-variable "public_subnet_ids" {                     # Added temporarily for testing with public subnets
+variable "public_subnet_ids" { # Added temporarily for testing with public subnets
   description = "List of public subnet IDs for ECS tasks"
   type        = list(string)
 }

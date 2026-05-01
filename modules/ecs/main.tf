@@ -129,13 +129,13 @@ resource "aws_ecs_service" "main" {
   #   assign_public_ip = false
   # }
 
-  network_configuration {                          # added temporarily for testing with public subnets
-  subnets          = var.public_subnet_ids
-  security_groups  = [var.ecs_security_group_id]
-  assign_public_ip = true
-}
+  network_configuration { # added temporarily for testing with public subnets
+    subnets          = var.public_subnet_ids
+    security_groups  = [var.ecs_security_group_id]
+    assign_public_ip = true
+  }
 
- # ALB Block added at stage 6 to register ECS tasks with the ALB target group created in the load balancer module. This allows the ALB to route traffic to the ECS tasks.
+  # ALB Block added at stage 6 to register ECS tasks with the ALB target group created in the load balancer module. This allows the ALB to route traffic to the ECS tasks.
   load_balancer {
     target_group_arn = var.target_group_arn
     container_name   = "${var.project_name}-${var.environment}-container"

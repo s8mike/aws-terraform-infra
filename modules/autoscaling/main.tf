@@ -21,7 +21,7 @@ resource "aws_appautoscaling_policy" "scale_out" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 60     # seconds-respond fast to traffic spikes
+    cooldown                = 60 # seconds-respond fast to traffic spikes
     metric_aggregation_type = "Average"
 
     step_adjustment {
@@ -43,7 +43,7 @@ resource "aws_appautoscaling_policy" "scale_in" {
 
   step_scaling_policy_configuration {
     adjustment_type         = "ChangeInCapacity"
-    cooldown                = 300      
+    cooldown                = 300
     metric_aggregation_type = "Average"
 
     step_adjustment {
@@ -59,10 +59,10 @@ resource "aws_appautoscaling_policy" "scale_in" {
 resource "aws_cloudwatch_metric_alarm" "scale_out" {
   alarm_name          = "${var.project_name}-${var.environment}-cpu-scale-out"
   comparison_operator = "GreaterThanThreshold"
-  evaluation_periods  = 2   # must exceed threshold for 2 minutes before scaling out  
+  evaluation_periods  = 2 # must exceed threshold for 2 minutes before scaling out  
   metric_name         = "CPUUtilization"
   namespace           = "AWS/ECS"
-  period              = 60   
+  period              = 60
   statistic           = "Average"
   threshold           = var.scale_out_cpu_threshold
   alarm_description   = "Scale out when CPU exceeds ${var.scale_out_cpu_threshold}%"

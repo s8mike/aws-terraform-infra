@@ -32,7 +32,7 @@ resource "aws_key_pair" "main" {
 # EC2 Instance
 # ─────────────────────────────────────────
 resource "aws_instance" "main" {
-  ami                         = data.aws_ami.amazon_linux_2023.id  # Now we are using the data source to fetch the latest Amazon Linux 2023 AMI dynamically
+  ami                         = data.aws_ami.amazon_linux_2023.id # Now we are using the data source to fetch the latest Amazon Linux 2023 AMI dynamically
   instance_type               = var.instance_type
   subnet_id                   = var.public_subnet_id
   vpc_security_group_ids      = [var.security_group_id]

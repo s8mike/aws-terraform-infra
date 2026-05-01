@@ -7,12 +7,12 @@ locals {
 # ─────────────────────────────────────────
 resource "aws_lb" "main" {
   name               = "${var.project_name}-${var.environment}-alb"
-  internal           = false  # Internet-facing ALB (set to true for internal ALB)
+  internal           = false # Internet-facing ALB (set to true for internal ALB)
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]
   subnets            = var.public_subnet_ids
 
-  enable_deletion_protection = false    # Allows terraform destory. Set to true (production) if you want to prevent accidental deletion
+  enable_deletion_protection = false # Allows terraform destory. Set to true (production) if you want to prevent accidental deletion
 
   tags = {
     Name = "${var.project_name}-${var.environment}-alb"
@@ -27,7 +27,7 @@ resource "aws_lb_target_group" "main" {
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
-  target_type = "ip"  #Required for ECS (Fargate)- tasks are registered by IP address not instance ID
+  target_type = "ip" #Required for ECS (Fargate)- tasks are registered by IP address not instance ID
 
   health_check {
     enabled             = true
