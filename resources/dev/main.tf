@@ -27,6 +27,7 @@ module "compute" {
   public_subnet_id  = module.vpc.public_subnet_ids[0]
   security_group_id = module.security.ec2_security_group_id
   instance_type     = var.instance_type
+  public_key        = var.public_key
 }
 
 module "alb" {

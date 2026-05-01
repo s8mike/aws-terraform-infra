@@ -51,6 +51,12 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
+variable "public_key" {
+  description = "SSH public key content for EC2 key pair"
+  type        = string
+}
+
+
 # Additional variables for Fargate and ECS
 
 # ECS Variables — Stage 5
