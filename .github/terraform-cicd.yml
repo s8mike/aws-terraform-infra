@@ -48,6 +48,7 @@ env:
   DOCKERHUB_REPO: "${{ vars.DOCKERHUB_USERNAME }}/mecandjeo-dashboard"
   APP_VERSION:    "1.0.0"
   IMAGE_TAG:      ${{ github.sha }}
+  
 # ─────────────────────────────────────────────────────────────
 # JOB 1 — VALIDATE
 # ─────────────────────────────────────────────────────────────
