@@ -24,6 +24,11 @@ variable "instance_type" {
   default     = "t3.micro"
 }
 
+variable "public_key" {
+  description = "SSH public key content for EC2 key pair"
+  type        = string
+}
+
 # This variable is commented out because at the later stage because od data source will be used to fetch the latest Amazon Linux 2 AMI ID, so it is not needed to be provided as an input variable.
 # variable "ami_id" {
 #   description = "AMI ID for the EC2 instance"

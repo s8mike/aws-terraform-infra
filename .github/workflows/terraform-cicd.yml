@@ -11,6 +11,7 @@
 #   DOCKERHUB_USERNAME    — s8mike
 #   ALLOWED_SSH_CIDR_DEV  — your IP/32
 #   ALLOWED_SSH_CIDR_PROD — your IP/32
+#   PUBLIC_KEY            — your SSH public key (for EC2 access)
 #
 # GitHub SECRETS (Settings → Secrets and variables → Secrets):
 #   AWS_ACCESS_KEY_ID     — IAM user access key
@@ -102,6 +103,7 @@ jobs:
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
             -var="container_port=8000" \
             -var="task_cpu=256" \
@@ -285,6 +287,7 @@ jobs:
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -var="container_port=8000" \
             -var="task_cpu=256" \
@@ -424,6 +427,7 @@ jobs:
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -var="container_port=8000" \
             -var="task_cpu=512" \
@@ -451,6 +455,7 @@ jobs:
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -var="container_port=8000" \
             -var="task_cpu=512" \
