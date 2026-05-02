@@ -1,0 +1,32 @@
+# ─────────────────────────────────────────────────────────────
+# Production Pipeline Variables — Non-sensitive only
+# Sensitive values come from GitHub Secrets and Variables
+# ─────────────────────────────────────────────────────────────
+
+# General
+aws_region   = "us-east-1"
+project_name = "mecandjeo-infra"
+environment  = "prod"
+
+# VPC — identical CIDR to dev (separate VPC, same ranges)
+vpc_cidr             = "10.0.0.0/16"
+public_subnet_cidrs  = ["10.0.1.0/24", "10.0.2.0/24"]
+private_subnet_cidrs = ["10.0.3.0/24", "10.0.4.0/24"]
+availability_zones   = ["us-east-1a", "us-east-1b"]
+
+# Compute — larger than dev
+instance_type = "t3.small"
+
+# ECS — larger than dev
+container_port    = 8000
+task_cpu          = 512
+task_memory       = 1024
+desired_count     = 2
+health_check_path = "/health"
+app_version       = "1.0.0"
+
+# Auto Scaling — higher ceiling than dev
+min_capacity            = 2
+max_capacity            = 10
+scale_out_cpu_threshold = 70
+scale_in_cpu_threshold  = 30
