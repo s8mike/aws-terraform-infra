@@ -39,3 +39,6 @@ apps/mecandjeo-dashboard/phase4/generate-dockerhub_token.md
 **/*token*
 **/*secret*
 **/*credential*
+resume.md
+
+docs/

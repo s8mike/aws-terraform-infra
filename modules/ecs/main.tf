@@ -1,8 +1,8 @@
-# ─────────────────────────────────────────
+## ─────────────────────────────────────────
 # ECR Repository
-# ─────────────────────────────────────────
-# Removed from Terraform management — ECR repository created manually
-# and preserved permanently outside terraform destroy. This will be uncommented later.
+## ─────────────────────────────────────────
+## Removed from Terraform management — ECR repository created manually
+## and preserved permanently outside terraform destroy. This will be uncommented later.
 # resource "aws_ecr_repository" "main" {
 #   name                 = "${var.project_name}-${var.environment}"
 #   image_tag_mutability = "MUTABLE"

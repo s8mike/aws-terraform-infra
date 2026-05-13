@@ -1,0 +1,14 @@
+version: '3.9'
+
+services:
+  portfolio:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "8001:8001"
+    environment:
+      - ENVIRONMENT=dev
+      - APP_VERSION=1.0.0
+    restart: unless-stopped

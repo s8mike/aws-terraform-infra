@@ -126,3 +126,152 @@ variable "app_version" {
   type        = string
   default     = "1.0.0"
 }
+
+
+
+##===============================================
+## FIRST WORKING VERSION OF VARIABLES FILE
+##===============================================
+
+# # resources/dev/variables.tf
+
+# variable "aws_region" {
+#   description = "AWS region to deploy resources"
+#   type        = string
+# }
+
+# variable "project_name" {
+#   description = "Project name prefix for all resources"
+#   type        = string
+# }
+
+# variable "environment" {
+#   description = "Environment name"
+#   type        = string
+# }
+
+# variable "vpc_cidr" {
+#   description = "CIDR block for the VPC"
+#   type        = string
+# }
+
+# variable "public_subnet_cidrs" {
+#   description = "List of CIDR blocks for public subnets"
+#   type        = list(string)
+# }
+
+# variable "private_subnet_cidrs" {
+#   description = "List of CIDR blocks for private subnets"
+#   type        = list(string)
+# }
+
+# variable "availability_zones" {
+#   description = "List of availability zones"
+#   type        = list(string)
+# }
+
+# variable "instance_type" {
+#   description = "EC2 instance type"
+#   type        = string
+#   default     = "t3.micro"
+# }
+
+# # variable "ami_id" {                          # Uncomment if you want to specify a custom AMI ID (Stage 3). Otherwise, you can use a data source to fetch the latest Amazon Linux 2 AMI.
+# #   description = "AMI ID for the EC2 instance"
+# #   type        = string
+# # }
+
+# variable "allowed_ssh_cidr" {
+#   description = "Trusted IP CIDR allowed to SSH into the EC2 instance"
+#   type        = string
+# }
+
+# variable "public_key" {
+#   description = "SSH public key content for EC2 key pair"
+#   type        = string
+# }
+
+
+# # Additional variables for Fargate and ECS
+
+# # ECS Variables — Stage 5
+# variable "container_image" {
+#   description = "Docker image to run in ECS"
+#   type        = string
+#   default     = "776735193826.dkr.ecr.us-east-1.amazonaws.com/mecandjeo-infra-dev:v1.0.0"
+# }
+
+# variable "container_port" {
+#   description = "Port the container listens on"
+#   type        = number
+#   default     = 8000
+# }
+
+# variable "task_cpu" {
+#   description = "CPU units for the ECS task"
+#   type        = number
+#   default     = 256
+# }
+
+# variable "task_memory" {
+#   description = "Memory in MB for the ECS task"
+#   type        = number
+#   default     = 512
+# }
+
+# variable "desired_count" {
+#   description = "Desired number of ECS tasks"
+#   type        = number
+#   default     = 2
+# }
+
+# variable "health_check_path" {
+#   description = "Path for ALB health checks"
+#   type        = string
+#   default     = "/health"
+# }
+
+# # Remote State Variables — Stage 7
+# variable "min_capacity" {
+#   description = "Minimum number of ECS tasks"
+#   type        = number
+#   default     = 2
+# }
+
+# variable "max_capacity" {
+#   description = "Maximum number of ECS tasks"
+#   type        = number
+#   default     = 6
+# }
+
+# variable "scale_out_cpu_threshold" {
+#   description = "CPU percentage that triggers scale out"
+#   type        = number
+#   default     = 70
+# }
+
+# variable "scale_in_cpu_threshold" {
+#   description = "CPU percentage that triggers scale in"
+#   type        = number
+#   default     = 30
+# }
+# #New variables for application
+# variable "app_version" {
+#   description = "Application version"
+#   type        = string
+#   default     = "1.0.0"
+# }
+
+# # New variables for mechandjeo portfolio application (new application)
+# # Portfolio App Variables
+# variable "portfolio_image" {
+#   description = "Docker image for the portfolio application"
+#   type        = string
+#   default     = "776735193826.dkr.ecr.us-east-1.amazonaws.com/mecandjeo-infra-portfolio:latest"
+# }
+
+# variable "portfolio_port" {
+#   description = "Port the portfolio container listens on"
+#   type        = number
+#   default     = 8001
+# }

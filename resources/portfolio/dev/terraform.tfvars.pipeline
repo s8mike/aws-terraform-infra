@@ -1,0 +1,17 @@
+# ─────────────────────────────────────────────────────────────
+# Portfolio Pipeline Variables — Non-sensitive only
+# Sensitive values come from GitHub Secrets and Variables
+# ─────────────────────────────────────────────────────────────
+
+aws_region   = "us-east-1"
+environment  = "dev"
+
+# Portfolio application
+portfolio_port          = 8001
+task_cpu                = 256
+task_memory             = 512
+desired_count           = 1
+min_capacity            = 1
+max_capacity            = 3
+scale_out_cpu_threshold = 70
+scale_in_cpu_threshold  = 30
