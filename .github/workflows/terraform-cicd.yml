@@ -458,3 +458,434 @@ jobs:
           echo "  Approved by : ${{ github.actor }}"
           echo "  Dashboard   : http://${{ steps.apply.outputs.alb_dns_name }}"
           echo "══════════════════════════════════════════"
+
+
+
+
+
+
+
+# # FUTURE ENHANCEMENTS OF PIPELINE, REMOVING HARDCODED VALUES AND USING VARIABLES INSTEAD:
+# # ─────────────────────────────────────────────────────────────
+# # GitHub Actions CI/CD Pipeline
+# # Project:     mecandjeo-infra
+# # Application: MecanjeoOps Dashboard
+# #
+# # GitHub VARIABLES (Settings → Secrets and variables → Variables):
+# #   AWS_REGION            — us-east-1
+# #   AWS_ACCOUNT_ID        — your AWS account ID (12-digit number)
+# #   TF_STATE_BUCKET_DEV   — mecandjeo-infra-dev-tfstate
+# #   TF_STATE_BUCKET_PROD  — mecandjeo-infra-prod-tfstate
+# #   DOCKERHUB_USERNAME    — your Docker Hub username
+# #   ALLOWED_SSH_CIDR_DEV  — your IP/32
+# #   ALLOWED_SSH_CIDR_PROD — your IP/32
+# #   PUBLIC_KEY            — your SSH public key (for EC2 access)
+# #
+# # GitHub SECRETS (Settings → Secrets and variables → Secrets):
+# #   AWS_ACCESS_KEY_ID     — IAM user access key
+# #   AWS_SECRET_ACCESS_KEY — IAM user secret key
+# #   DOCKERHUB_TOKEN       — Docker Hub access token
+# #
+# # Required GitHub Environment:
+# #   production            — with required reviewers set
+# # ─────────────────────────────────────────────────────────────
+
+# name: MecanjeoOps Dashboard CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - main
+#     paths:
+#       - 'apps/mecandjeo-dashboard/**'
+#       - 'modules/**'
+#       - 'resources/dev/**'
+#       - 'resources/prod/**'
+#       - '.github/workflows/terraform-cicd.yml'
+
+#   pull_request:
+#     branches:
+#       - main
+
+# concurrency:
+#   group: ${{ github.workflow }}-${{ github.ref }}
+#   cancel-in-progress: true
+
+# # ─────────────────────────────────────────────────────────────
+# # GLOBAL ENVIRONMENT VARIABLES
+# # Shared across all jobs
+# # ─────────────────────────────────────────────────────────────
+# env:
+#   # Terraform version
+#   TF_VERSION: "1.10.0"
+
+#   # AWS region
+#   AWS_REGION: "us-east-1"
+
+#   # ECR registry
+#   ECR_REGISTRY: "${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com"
+
+#   # ECR repository name
+#   ECR_REPOSITORY: "mecandjeo-infra-dev"
+
+#   # Docker Hub repository
+#   DOCKERHUB_REPO: "${{ vars.DOCKERHUB_USERNAME }}/mecandjeo-dashboard"
+
+#   # Static application version
+#   APP_VERSION: "1.0.0"
+
+#   # Commit SHA used as image tag
+#   IMAGE_TAG: ${{ github.sha }}
+
+#   # ─────────────────────────────────────────────
+#   # Terraform Backend Configuration — DEV
+#   # ─────────────────────────────────────────────
+#   TF_BACKEND_BUCKET_DEV: "${{ vars.TF_STATE_BUCKET_DEV }}"
+#   TF_BACKEND_KEY_DEV: "mecandjeo-dashboard/dev/terraform.tfstate"
+
+#   # ─────────────────────────────────────────────
+#   # Terraform Backend Configuration — PROD
+#   # ─────────────────────────────────────────────
+#   TF_BACKEND_BUCKET_PROD: "${{ vars.TF_STATE_BUCKET_PROD }}"
+#   TF_BACKEND_KEY_PROD: "mecandjeo-dashboard/prod/terraform.tfstate"
+
+#   # Shared backend settings
+#   TF_BACKEND_ENCRYPT: "true"
+#   TF_BACKEND_USE_LOCKFILE: "true"
+
+# # ─────────────────────────────────────────────────────────────
+# # JOB 1 — VALIDATE
+# # ─────────────────────────────────────────────────────────────
+# jobs:
+#   validate:
+#     name: Terraform Validate
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       # Pull repository contents into runner
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       # Install Terraform CLI
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: ${{ env.TF_VERSION }}
+
+#       # Configure AWS credentials for Terraform + AWS CLI
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region:            ${{ env.AWS_REGION }}
+
+#       # Validate Terraform formatting consistency
+#       - name: Terraform Format Check
+#         run: terraform fmt -check -recursive
+
+#       # Initialize Terraform backend + providers
+#       - name: Terraform Init
+#         run: |
+#           terraform init \
+#             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET_DEV }}" \
+#             -backend-config="key=${{ env.TF_BACKEND_KEY_DEV }}" \
+#             -backend-config="region=${{ env.AWS_REGION }}" \
+#             -backend-config="use_lockfile=${{ env.TF_BACKEND_USE_LOCKFILE }}" \
+#             -backend-config="encrypt=${{ env.TF_BACKEND_ENCRYPT }}"
+#         working-directory: resources/dev
+
+#       # Validate Terraform configuration syntax
+#       - name: Terraform Validate
+#         run: terraform validate
+#         working-directory: resources/dev
+
+#       # Generate Terraform execution plan
+#       - name: Terraform Plan
+#         run: |
+#           terraform plan \
+#             -var-file="terraform.tfvars.pipeline" \
+#             -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+#             -var="public_key=${{ vars.PUBLIC_KEY }}" \
+#             -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
+#             -out=tfplan-dev \
+#             -no-color 2>&1 | tee plan-output-dev.txt
+#         working-directory: resources/dev
+
+#       # Upload plan artifact for later inspection
+#       - name: Upload Plan Output
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: terraform-plan-dev
+#           path: resources/dev/plan-output-dev.txt
+#           retention-days: 5
+
+#       # Post Terraform plan to pull request comments
+#       - name: Post Plan to PR
+#         if: github.event_name == 'pull_request'
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const fs = require('fs');
+
+#             const plan = fs.readFileSync(
+#               'resources/dev/plan-output-dev.txt',
+#               'utf8'
+#             );
+
+#             const maxLength = 65000;
+
+#             const truncated = plan.length > maxLength
+#               ? plan.substring(0, maxLength) + '\n\n... truncated ...'
+#               : plan;
+
+#             github.rest.issues.createComment({
+#               issue_number: context.issue.number,
+#               owner: context.repo.owner,
+#               repo: context.repo.repo,
+#               body: `## Terraform Plan — Dev\n\`\`\`\n${truncated}\n\`\`\``
+#             });
+
+# # ─────────────────────────────────────────────────────────────
+# # JOB 2 — DOCKER BUILD & PUSH
+# # ─────────────────────────────────────────────────────────────
+#   docker:
+#     name: Build and Push Docker Image
+#     runs-on: ubuntu-latest
+#     needs: validate
+
+#     if: github.event_name == 'push' &&
+#         github.ref == 'refs/heads/main'
+
+#     outputs:
+#       image_uri: ${{ steps.build.outputs.image_uri }}
+#       image_tag: ${{ steps.build.outputs.image_tag }}
+
+#     steps:
+#       # Pull repository contents into runner
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       # Configure AWS credentials
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region:            ${{ env.AWS_REGION }}
+
+#       # Login to Docker Hub registry
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ vars.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+#       # Login to Amazon ECR
+#       - name: Login to Amazon ECR
+#         id: login-ecr
+#         uses: aws-actions/amazon-ecr-login@v2
+
+#       # Enable Docker Buildx
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
+
+#       # Build Docker image and push to registries
+#       - name: Build and Push Image
+#         id: build
+#         run: |
+#           SHORT_TAG="${IMAGE_TAG:0:8}"
+#           FULL_ECR_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}"
+
+#           echo "══════════════════════════════════════"
+#           echo "Building MecanjeoOps Dashboard"
+#           echo "══════════════════════════════════════"
+#           echo "Commit SHA : ${IMAGE_TAG}"
+#           echo "Short Tag  : ${SHORT_TAG}"
+#           echo "ECR URI    : ${FULL_ECR_URI}"
+#           echo "Docker Hub : ${{ env.DOCKERHUB_REPO }}"
+#           echo "══════════════════════════════════════"
+
+#           # Build Docker image
+#           docker build \
+#             --file apps/mecandjeo-dashboard/Dockerfile \
+#             --tag mecandjeo-dashboard:${SHORT_TAG} \
+#             --tag mecandjeo-dashboard:latest \
+#             apps/mecandjeo-dashboard/
+
+#           # Tag image for Docker Hub
+#           docker tag mecandjeo-dashboard:${SHORT_TAG} \
+#             ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+
+#           docker tag mecandjeo-dashboard:${SHORT_TAG} \
+#             ${{ env.DOCKERHUB_REPO }}:latest
+
+#           # Tag image for ECR
+#           docker tag mecandjeo-dashboard:${SHORT_TAG} \
+#             ${FULL_ECR_URI}:${SHORT_TAG}
+
+#           docker tag mecandjeo-dashboard:${SHORT_TAG} \
+#             ${FULL_ECR_URI}:latest
+
+#           # Push to Docker Hub
+#           echo "Pushing to Docker Hub..."
+#           docker push ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+#           docker push ${{ env.DOCKERHUB_REPO }}:latest
+
+#           # Push to ECR
+#           echo "Pushing to Amazon ECR..."
+#           docker push ${FULL_ECR_URI}:${SHORT_TAG}
+#           docker push ${FULL_ECR_URI}:latest
+
+#           # Export outputs for downstream jobs
+#           echo "image_uri=${FULL_ECR_URI}:${SHORT_TAG}" >> $GITHUB_OUTPUT
+#           echo "image_tag=${SHORT_TAG}" >> $GITHUB_OUTPUT
+
+# # ─────────────────────────────────────────────────────────────
+# # JOB 3 — DEPLOY DEV
+# # ─────────────────────────────────────────────────────────────
+#   deploy-dev:
+#     name: Deploy to Dev
+#     runs-on: ubuntu-latest
+
+#     needs:
+#       - validate
+#       - docker
+
+#     if: github.event_name == 'push' &&
+#         github.ref == 'refs/heads/main'
+
+#     environment:
+#       name: development
+#       url: http://${{ steps.apply.outputs.alb_dns_name }}
+
+#     steps:
+#       # Pull repository contents into runner
+#       - name: Checkout code
+#         uses: actions/checkout@v4
+
+#       # Install Terraform CLI
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: ${{ env.TF_VERSION }}
+#           terraform_wrapper: false
+
+#       # Configure AWS credentials
+#       - name: Configure AWS credentials
+#         uses: aws-actions/configure-aws-credentials@v4
+#         with:
+#           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+#           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#           aws-region:            ${{ env.AWS_REGION }}
+
+#       # Initialize Terraform backend + providers
+#       - name: Terraform Init
+#         run: |
+#           terraform init \
+#             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET_DEV }}" \
+#             -backend-config="key=${{ env.TF_BACKEND_KEY_DEV }}" \
+#             -backend-config="region=${{ env.AWS_REGION }}" \
+#             -backend-config="use_lockfile=${{ env.TF_BACKEND_USE_LOCKFILE }}" \
+#             -backend-config="encrypt=${{ env.TF_BACKEND_ENCRYPT }}"
+#         working-directory: resources/dev
+
+#       # Apply Terraform infrastructure
+#       - name: Terraform Apply
+#         id: apply
+#         run: |
+#           terraform apply \
+#             -auto-approve \
+#             -var-file="terraform.tfvars.pipeline" \
+#             -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+#             -var="public_key=${{ vars.PUBLIC_KEY }}" \
+#             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
+#             -no-color
+
+#           echo "alb_dns_name=$(terraform output -raw alb_dns_name)" \
+#             >> $GITHUB_OUTPUT
+#         working-directory: resources/dev
+
+#       # Wait until ECS tasks are fully running
+#       - name: Wait for ECS Tasks
+#         run: |
+#           echo "Waiting for ECS tasks to reach RUNNING state..."
+
+#           MAX_ATTEMPTS=20
+#           ATTEMPT=0
+
+#           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+
+#             RUNNING=$(aws ecs describe-services \
+#               --cluster mecandjeo-infra-dev-cluster \
+#               --services mecandjeo-infra-dev-service \
+#               --query "services[0].runningCount" \
+#               --output text)
+
+#             DESIRED=$(aws ecs describe-services \
+#               --cluster mecandjeo-infra-dev-cluster \
+#               --services mecandjeo-infra-dev-service \
+#               --query "services[0].desiredCount" \
+#               --output text)
+
+#             echo "Attempt ${ATTEMPT}/${MAX_ATTEMPTS}"
+#             echo "Running Tasks: ${RUNNING}/${DESIRED}"
+
+#             if [ "${RUNNING}" = "${DESIRED}" ]; then
+#               echo "All ECS tasks are healthy ✅"
+#               break
+#             fi
+
+#             ATTEMPT=$((ATTEMPT + 1))
+#             sleep 15
+#           done
+
+#           if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+#             echo "Timed out waiting for ECS tasks ❌"
+#             exit 1
+#           fi
+
+#       # Validate application health endpoint
+#       - name: Verify Application Health
+#         run: |
+#           ALB_DNS="${{ steps.apply.outputs.alb_dns_name }}"
+
+#           echo "Testing health endpoint..."
+#           echo "URL: http://${ALB_DNS}/health"
+
+#           STATUS="000"
+
+#           for i in $(seq 1 10); do
+
+#             STATUS=$(curl -s -o /dev/null \
+#               -w "%{http_code}" \
+#               http://${ALB_DNS}/health || echo "000")
+
+#             echo "Attempt ${i}: HTTP ${STATUS}"
+
+#             if [ "${STATUS}" = "200" ]; then
+#               echo "Application healthy ✅"
+#               break
+#             fi
+
+#             sleep 10
+#           done
+
+#           if [ "${STATUS}" != "200" ]; then
+#             echo "Health check failed ❌"
+#             exit 1
+#           fi
+
+#       # Deployment summary logs
+#       - name: Deployment Summary
+#         run: |
+#           echo "══════════════════════════════════════"
+#           echo "DEV DEPLOYMENT COMPLETE"
+#           echo "══════════════════════════════════════"
+#           echo "Environment : dev"
+#           echo "Image       : ${{ needs.docker.outputs.image_uri }}"
+#           echo "Tag         : ${{ needs.docker.outputs.image_tag }}"
+#           echo "Commit      : ${{ github.sha }}"
+#           echo "Branch      : ${{ github.ref_name }}"
+#           echo "Dashboard   : http://${{ steps.apply.outputs.alb_dns_name }}"
+#           echo "══════════════════════════════════════"
