@@ -18,3 +18,7 @@ max_capacity      = 6
 scale_out_cpu_threshold = 70
 scale_in_cpu_threshold  = 30
 app_version       = "1.0.0"
+
+
+# In pipeline env block or vars — no change needed here
+# The key is passed directly in the backend-config flag
