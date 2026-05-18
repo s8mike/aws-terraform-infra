@@ -25,6 +25,8 @@ locals {
   ecs_task_execution_role_arn = data.terraform_remote_state.dashboard.outputs.ecs_task_execution_role_arn
 }
 
+# Portfolio-specific variables in addition to shared ones
+
 # ── Portfolio ALB ─────────────────────────────────────────────
 module "alb_portfolio" {
   source = "../../../modules/alb"

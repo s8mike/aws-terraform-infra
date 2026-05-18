@@ -1,5 +1,5 @@
 # ─────────────────────────────────────────────────────────────
-# MecanjeoOps Portfolio — Dockerfile
+# MecandjeoOps Portfolio — Dockerfile
 # Multi-stage build — non-root user — port 8001
 # ─────────────────────────────────────────────────────────────
 

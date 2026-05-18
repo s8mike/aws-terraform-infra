@@ -22,7 +22,8 @@ module "security" {
   environment      = var.environment
   vpc_id           = module.vpc.vpc_id
   allowed_ssh_cidr = var.allowed_ssh_cidr
-  container_port   = var.container_port
+  # container_port   = var.container_port - Not needed as ports are now fetched dynamically from the modules/security/main.tf outputs. 
+  #This is because the security module is shared across multiple applications and we want to avoid hardcoding ports here.
 }
 
 module "compute" {

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// MecanjeoOps Portfolio — Frontend Logic
+// MecandjeoOps Portfolio — Frontend Logic
 // Effects: typing animation, scroll fade-in,
 //          floating particles, tech-grid background
 // ─────────────────────────────────────────────────────────────
@@ -385,7 +385,7 @@ document.addEventListener('DOMContentLoaded', init);
 
 
 // // ─────────────────────────────────────────────────────────────
-// // MecanjeoOps Portfolio — Frontend Logic
+// // MecandjeoOps Portfolio — Frontend Logic
 // // Effects: typing animation, scroll fade-in, particles, tech-grid
 // // ─────────────────────────────────────────────────────────────
 

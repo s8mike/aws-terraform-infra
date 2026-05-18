@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # ── App Initialization ────────────────────────────────────────
 app = FastAPI(
-    title="MecanjeoOps Portfolio",
+    title="MecandjeoOps Portfolio",
     description="Personal Portfolio — Platform/DevOps Engineer",
     version="1.0.0"
 )
@@ -93,7 +93,7 @@ PROJECTS = [
         "highlight": True
     },
     {
-        "title":       "MecanjeoOps Dashboard",
+        "title":       "MecandjeoOps Dashboard",
         "subtitle":    "Live DevOps status dashboard",
         "description": (
             "Real-time DevOps dashboard built with Python FastAPI and "

@@ -1,5 +1,8 @@
 locals {
   all_traffic_cidr = "0.0.0.0/0"
+  # All application ports that need access through the ECS security group
+  # Add a new port here when adding a new application
+  app_ports = [8000, 8001]
 }
 
 # ─────────────────────────────────────────
@@ -68,12 +71,16 @@ resource "aws_security_group" "ecs" {
   description = "Security group for ECS tasks - traffic from ALB only"
   vpc_id      = var.vpc_id
 
-  ingress {
-    description     = "Allow HTTP traffic from ALB only"
-    from_port       = var.container_port
-    to_port         = var.container_port
-    protocol        = "tcp"
-    security_groups = [aws_security_group.alb.id] # Only allow traffic from ALB security group
+# Dynamically create ingress rules for each application port defined in local.app_ports
+  dynamic "ingress" {
+    for_each = local.app_ports
+    content {
+      description     = "Allow port ${ingress.value} from ALB"
+      from_port       = ingress.value
+      to_port         = ingress.value
+      protocol        = "tcp"
+      security_groups = [aws_security_group.alb.id]
+    }
   }
 
   egress {

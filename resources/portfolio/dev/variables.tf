@@ -1,5 +1,9 @@
 # ─────────────────────────────────────────────────────────────
 # Portfolio Application Variables — Dev
+# Shared infrastructure values (VPC, security groups, IAM)
+# since we are using the dashboard state via terraform_remote_state to read these values automatically, 
+# they should not be required variables anymore — 
+# the main.tf reads them directly from the remote state via locals.
 # ─────────────────────────────────────────────────────────────
 
 variable "aws_region" {
@@ -9,34 +13,6 @@ variable "aws_region" {
 
 variable "environment" {
   description = "Environment name"
-  type        = string
-}
-
-# ── Shared Infrastructure Inputs ─────────────────────────────
-# These values come from the dashboard state via remote_state
-# or are passed directly as variables
-variable "vpc_id" {
-  description = "VPC ID from shared infrastructure"
-  type        = string
-}
-
-variable "public_subnet_ids" {
-  description = "Public subnet IDs from shared infrastructure"
-  type        = list(string)
-}
-
-variable "alb_security_group_id" {
-  description = "ALB security group ID from shared infrastructure"
-  type        = string
-}
-
-variable "ecs_security_group_id" {
-  description = "ECS security group ID from shared infrastructure"
-  type        = string
-}
-
-variable "ecs_task_execution_role_arn" {
-  description = "ECS task execution role ARN from shared infrastructure"
   type        = string
 }
 

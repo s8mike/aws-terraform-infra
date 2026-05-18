@@ -18,9 +18,10 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
-# New variables for application
-variable "container_port" {
-  description = "Port the container listens on"
-  type        = number
-  default     = 8000
-}
+# # New variables for application. Not needed since ports are addeded to locals & dynamically fetched in the security main.tf.
+# variable "http_port" {
+# variable "container_port" {
+#   description = "Port the container listens on"
+#   type        = number
+#   default     = 8000
+# }
