@@ -1,101 +1,353 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Portfolio — Platform / DevOps Engineer</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MecanjeoOps | Platform/DevOps Engineer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            color: #2d3748;
+        }
+
+        .role {
+            font-size: 1.2rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .tagline {
+            color: #718096;
+            margin-bottom: 1.5rem;
+        }
+
+        .availability {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 0.3rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Sections */
+        .section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .section h2 {
+            color: #2d3748;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            border-left: 4px solid #667eea;
+            padding-left: 1rem;
+        }
+
+        /* Skills */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .skill-category {
+            background: #f7fafc;
+            padding: 1.5rem;
+            border-radius: 12px;
+        }
+
+        .skill-category h3 {
+            color: #667eea;
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .skill-item {
+            margin-bottom: 1rem;
+        }
+
+        .skill-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+            font-size: 0.9rem;
+        }
+
+        .skill-bar {
+            background: #e2e8f0;
+            height: 6px;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .skill-level {
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+
+        /* Projects */
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .project-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .project-card.highlight {
+            border: 2px solid #667eea;
+            background: linear-gradient(135deg, #f7fafc 0%, #fff 100%);
+        }
+
+        .project-title {
+            font-size: 1.3rem;
+            color: #2d3748;
+            margin-bottom: 0.3rem;
+        }
+
+        .project-subtitle {
+            color: #667eea;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-description {
+            color: #718096;
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .project-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tag {
+            background: #e2e8f0;
+            color: #4a5568;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .project-links {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-links a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .project-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #718096;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .skills-grid, .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-
-  <!-- ── NAVIGATION ──────────────────────────────────────── -->
-  <nav class="nav">
-    <div class="nav-inner">
-      <div class="nav-brand" id="nav-name">Loading...</div>
-      <div class="nav-links">
-        <a href="#skills">Skills</a>
-        <a href="#projects">Projects</a>
-        <a href="#contact">Contact</a>
-        <span class="nav-badge" id="nav-available">Available</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- ── HERO ─────────────────────────────────────────────── -->
-  <section class="hero">
-    <canvas class="hero-canvas" id="hero-canvas"></canvas>
-    <div class="hero-inner">
-      <div class="hero-avatar" id="hero-avatar">M</div>
-      <div class="hero-content">
-        <p class="hero-greeting">Hello, I am</p>
-        <h1 class="hero-name" id="hero-name"></h1>
-        <h2 class="hero-role" id="hero-role"></h2>
-        <p class="hero-tagline" id="hero-tagline"></p>
-        <p class="hero-bio" id="hero-bio">Loading...</p>
-        <div class="hero-meta">
-          <span class="meta-chip" id="hero-location">📍 Lagos, Nigeria</span>
-          <span class="meta-chip meta-chip--green" id="hero-status">
-            ✅ Open to opportunities
-          </span>
+    <div class="container">
+        <div id="app">
+            <div class="loading">Loading portfolio...</div>
         </div>
-        <div class="hero-actions">
-          <a href="#projects" class="btn btn-primary">View Projects</a>
-          <a href="#contact"  class="btn btn-outline">Get in Touch</a>
-          <a href="#" class="btn btn-outline"
-             id="hero-github" target="_blank">GitHub ↗</a>
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- ── SKILLS ────────────────────────────────────────────── -->
-  <section class="section" id="skills">
-    <div class="section-inner">
-      <div class="section-header">
-        <h2 class="section-title">Skills & <span>Technologies</span></h2>
-        <p class="section-sub">Tools and technologies I work with</p>
-      </div>
-      <div class="skills-categories" id="skills-categories"></div>
-    </div>
-  </section>
+    <script>
+        // API endpoints (relative paths work with your FastAPI app)
+        const API_BASE = '';
+        
+        async function fetchData(endpoint) {
+            const response = await fetch(`${API_BASE}${endpoint}`);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        }
 
-  <!-- ── PROJECTS ──────────────────────────────────────────── -->
-  <section class="section section--alt" id="projects">
-    <div class="section-inner">
-      <div class="section-header">
-        <h2 class="section-title"><span>Projects</span></h2>
-        <p class="section-sub">
-          Real infrastructure and applications built from scratch
-        </p>
-      </div>
-      <div class="projects-grid" id="projects-grid"></div>
-    </div>
-  </section>
+        async function loadPortfolio() {
+            try {
+                const [profile, skillsData, projectsData] = await Promise.all([
+                    fetchData('/api/profile'),
+                    fetchData('/api/skills'),
+                    fetchData('/api/projects')
+                ]);
+                
+                renderPortfolio(profile, skillsData, projectsData);
+            } catch (error) {
+                console.error('Error loading portfolio:', error);
+                document.getElementById('app').innerHTML = `
+                    <div class="section" style="text-align: center; color: red;">
+                        <h2>Error loading portfolio</h2>
+                        <p>Please check your connection and try again.</p>
+                    </div>
+                `;
+            }
+        }
 
-  <!-- ── CONTACT ───────────────────────────────────────────── -->
-  <section class="section" id="contact">
-    <div class="section-inner">
-      <div class="section-header">
-        <h2 class="section-title">Get in <span>Touch</span></h2>
-        <p class="section-sub">
-          Open to platform engineering and DevOps opportunities
-        </p>
-      </div>
-      <div class="contact-card">
-        <div class="contact-links" id="contact-links"></div>
-      </div>
-    </div>
-  </section>
+        function renderPortfolio(profile, skillsData, projectsData) {
+            const skillsHTML = Object.entries(skillsData.grouped).map(([category, skills]) => `
+                <div class="skill-category">
+                    <h3>${category}</h3>
+                    ${skills.map(skill => `
+                        <div class="skill-item">
+                            <div class="skill-name">
+                                <span>${skill.name}</span>
+                                <span>${skill.level}%</span>
+                            </div>
+                            <div class="skill-bar">
+                                <div class="skill-level" style="width: ${skill.level}%"></div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `).join('');
 
-  <!-- ── FOOTER ────────────────────────────────────────────── -->
-  <footer class="footer">
-    <span id="footer-name">Platform / DevOps Engineer</span>
-    <span>
-      Deployed on AWS ECS Fargate ·
-      Built with Terraform & GitHub Actions
-    </span>
-  </footer>
+            const projectsHTML = projectsData.projects.map(project => `
+                <div class="project-card ${project.highlight ? 'highlight' : ''}">
+                    <div class="project-title">${project.title}</div>
+                    <div class="project-subtitle">${project.subtitle}</div>
+                    <div class="project-description">${project.description}</div>
+                    <div class="project-tags">
+                        ${project.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="project-links">
+                        ${project.github ? `<a href="${project.github}" target="_blank">🔗 GitHub</a>` : ''}
+                        ${project.live ? `<a href="${project.live}" target="_blank">🌐 Live Demo</a>` : ''}
+                    </div>
+                </div>
+            `).join('');
 
-  <script src="app.js"></script>
+            const html = `
+                <div class="header">
+                    <div class="avatar">👨‍💻</div>
+                    <h1>${profile.name}</h1>
+                    <div class="role">${profile.role}</div>
+                    <div class="tagline">${profile.tagline}</div>
+                    <div class="availability">${profile.available ? '✅ Available for work' : '🔴 Currently unavailable'}</div>
+                </div>
+
+                <div class="section">
+                    <h2>About Me</h2>
+                    <p>${profile.bio}</p>
+                    <p style="margin-top: 1rem;">📍 ${profile.location}</p>
+                    <div style="margin-top: 1rem;">
+                        <a href="${profile.github}" target="_blank" style="margin-right: 1rem; color: #667eea;">GitHub</a>
+                        <a href="${profile.linkedin}" target="_blank" style="color: #667eea;">LinkedIn</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Technical Skills</h2>
+                    <div class="skills-grid">
+                        ${skillsHTML}
+                    </div>
+                </div>
+
+                <div class="section">
+                    <h2>Featured Projects</h2>
+                    <div class="projects-grid">
+                        ${projectsHTML}
+                    </div>
+                </div>
+
+                <div class="section" style="text-align: center;">
+                    <h2>Get In Touch</h2>
+                    <p>📧 ${profile.email}</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #718096;">
+                        Built with FastAPI • Deployed on AWS ECS
+                    </p>
+                </div>
+            `;
+            
+            document.getElementById('app').innerHTML = html;
+        }
+
+        // Load the portfolio when page loads
+        loadPortfolio();
+    </script>
 </body>
 </html>

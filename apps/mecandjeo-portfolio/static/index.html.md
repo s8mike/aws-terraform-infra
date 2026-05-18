@@ -1,0 +1,101 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Portfolio — Platform / DevOps Engineer</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ── NAVIGATION ──────────────────────────────────────── -->
+  <!-- <nav class="nav">
+    <div class="nav-inner">
+      <div class="nav-brand" id="nav-name">Loading...</div>
+      <div class="nav-links">
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+        <span class="nav-badge" id="nav-available">Available</span>
+      </div>
+    </div>
+  </nav> -->
+
+  <!-- ── HERO ─────────────────────────────────────────────── -->
+  <!-- <section class="hero">
+    <canvas class="hero-canvas" id="hero-canvas"></canvas>
+    <div class="hero-inner">
+      <div class="hero-avatar" id="hero-avatar">M</div>
+      <div class="hero-content">
+        <p class="hero-greeting">Hello, I am</p>
+        <h1 class="hero-name" id="hero-name"></h1>
+        <h2 class="hero-role" id="hero-role"></h2>
+        <p class="hero-tagline" id="hero-tagline"></p>
+        <p class="hero-bio" id="hero-bio">Loading...</p>
+        <div class="hero-meta">
+          <span class="meta-chip" id="hero-location">📍 Lagos, Nigeria</span>
+          <span class="meta-chip meta-chip--green" id="hero-status">
+            ✅ Open to opportunities
+          </span>
+        </div>
+        <div class="hero-actions">
+          <a href="#projects" class="btn btn-primary">View Projects</a>
+          <a href="#contact"  class="btn btn-outline">Get in Touch</a>
+          <a href="#" class="btn btn-outline"
+             id="hero-github" target="_blank">GitHub ↗</a>
+        </div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ── SKILLS ────────────────────────────────────────────── -->
+  <!-- <section class="section" id="skills">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2 class="section-title">Skills & <span>Technologies</span></h2>
+        <p class="section-sub">Tools and technologies I work with</p>
+      </div>
+      <div class="skills-categories" id="skills-categories"></div>
+    </div>
+  </section> -->
+
+  <!-- ── PROJECTS ──────────────────────────────────────────── -->
+  <!-- <section class="section section--alt" id="projects">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2 class="section-title"><span>Projects</span></h2>
+        <p class="section-sub">
+          Real infrastructure and applications built from scratch
+        </p>
+      </div>
+      <div class="projects-grid" id="projects-grid"></div>
+    </div>
+  </section> -->
+
+  <!-- ── CONTACT ───────────────────────────────────────────── -->
+  <!-- <section class="section" id="contact">
+    <div class="section-inner">
+      <div class="section-header">
+        <h2 class="section-title">Get in <span>Touch</span></h2>
+        <p class="section-sub">
+          Open to platform engineering and DevOps opportunities
+        </p>
+      </div>
+      <div class="contact-card">
+        <div class="contact-links" id="contact-links"></div>
+      </div>
+    </div>
+  </section> -->
+
+  <!-- ── FOOTER ────────────────────────────────────────────── -->
+  <!-- <footer class="footer">
+    <span id="footer-name">Platform / DevOps Engineer</span>
+    <span>
+      Deployed on AWS ECS Fargate ·
+      Built with Terraform & GitHub Actions
+    </span>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html> --> -->
