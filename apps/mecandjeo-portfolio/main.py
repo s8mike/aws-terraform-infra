@@ -39,7 +39,7 @@ PROFILE = {
     "role":     "Platform / DevOps Engineer",
     "tagline":  "Building production-grade infrastructure with AWS · Terraform · Docker",
     "location": "Lagos, Nigeria",
-    "email":    "your.email@example.com",
+    "email":    "myke7104@gmail.com",
     "github":   "https://github.com/s8mike",
     "linkedin": "https://linkedin.com/in/yourprofile",
     "bio":      (
