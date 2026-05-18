@@ -71,7 +71,7 @@ resource "aws_security_group" "ecs" {
   description = "Security group for ECS tasks - traffic from ALB only"
   vpc_id      = var.vpc_id
 
-# Dynamically create ingress rules for each application port defined in local.app_ports
+  # Dynamically create ingress rules for each application port defined in local.app_ports
   dynamic "ingress" {
     for_each = local.app_ports
     content {
