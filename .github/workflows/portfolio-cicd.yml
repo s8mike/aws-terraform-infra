@@ -1,0 +1,415 @@
+# ─────────────────────────────────────────────────────────────
+# GitHub Actions CI/CD Pipeline — Portfolio Application
+# Project:     mecandjeo-portfolio
+# Application: Personal Portfolio — Platform/DevOps Engineer
+#
+# GitHub VARIABLES (Settings → Secrets and variables → Variables):
+#   AWS_REGION                — us-east-1
+#   AWS_ACCOUNT_ID            — 776735193826
+#   TF_STATE_BUCKET_DEV       — mecandjeo-infra-dev-tfstate
+#   TF_STATE_BUCKET_PROD      — mecandjeo-infra-prod-tfstate
+#   DOCKERHUB_USERNAME        — s8mike
+#   DOCKERHUB_PORTFOLIO_REPO  — mecandjeo-portfolio
+#   PORTFOLIO_ECR_REPOSITORY  — mecandjeo-infra-portfolio
+#   ALLOWED_SSH_CIDR_DEV      — your IP/32
+#   PUBLIC_KEY                — ssh-ed25519 AAAA...
+#
+# GitHub SECRETS (Settings → Secrets and variables → Secrets):
+#   AWS_ACCESS_KEY_ID         — IAM user access key
+#   AWS_SECRET_ACCESS_KEY     — IAM user secret key
+#   DOCKERHUB_TOKEN           — Docker Hub access token
+#
+# Required GitHub Environment:
+#   production                — with required reviewers set
+#
+# Dependency:
+#   Dashboard MUST be deployed first — this pipeline reads
+#   shared infrastructure outputs from dashboard state via
+#   terraform_remote_state
+# ─────────────────────────────────────────────────────────────
+
+name: MecanjeoOps Portfolio CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/mecandjeo-portfolio/**'
+      - 'resources/portfolio/**'
+      - 'modules/**'
+      - '.github/workflows/portfolio-cicd.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'apps/mecandjeo-portfolio/**'
+      - 'resources/portfolio/**'
+      - 'modules/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  TF_VERSION:       "1.10.0"
+  AWS_REGION:       "us-east-1"
+  ECR_REGISTRY:     "${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com"
+  ECR_REPOSITORY:   "mecandjeo-infra-portfolio"
+  DOCKERHUB_REPO:   "${{ vars.DOCKERHUB_USERNAME }}/mecandjeo-portfolio"
+  APP_VERSION:      "1.0.0"
+  IMAGE_TAG:        ${{ github.sha }}
+
+# ─────────────────────────────────────────────────────────────
+# JOB 1 — VALIDATE
+# ─────────────────────────────────────────────────────────────
+jobs:
+  validate:
+    name: Terraform Validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-portfolio/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+        working-directory: resources/portfolio/dev
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: resources/portfolio/dev
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="portfolio_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
+            -no-color 2>&1 | tee plan-output-portfolio.txt
+        working-directory: resources/portfolio/dev
+
+      - name: Upload Plan Output
+        uses: actions/upload-artifact@v4
+        with:
+          name:           terraform-plan-portfolio
+          path:           resources/portfolio/dev/plan-output-portfolio.txt
+          retention-days: 5
+
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync(
+              'resources/portfolio/dev/plan-output-portfolio.txt', 'utf8'
+            );
+            const maxLength = 65000;
+            const truncated = plan.length > maxLength
+              ? plan.substring(0, maxLength) + '\n\n... truncated ...'
+              : plan;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              body: `## Terraform Plan — Portfolio\n\`\`\`\n${truncated}\n\`\`\``
+            });
+
+# ─────────────────────────────────────────────────────────────
+# JOB 2 — DOCKER
+# ─────────────────────────────────────────────────────────────
+  docker:
+    name: Build and Push Docker Image
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    outputs:
+      image_uri: ${{ steps.build.outputs.image_uri }}
+      image_tag: ${{ steps.build.outputs.image_tag }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push image
+        id: build
+        run: |
+          SHORT_TAG="${IMAGE_TAG:0:8}"
+          FULL_ECR_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}"
+
+          echo "Building MecanjeoOps Portfolio..."
+          echo "Commit SHA : ${IMAGE_TAG}"
+          echo "Short tag  : ${SHORT_TAG}"
+          echo "ECR URI    : ${FULL_ECR_URI}"
+          echo "Docker Hub : ${{ env.DOCKERHUB_REPO }}"
+
+          # Build from portfolio Dockerfile
+          docker build \
+            --file apps/mecandjeo-portfolio/Dockerfile \
+            --tag mecandjeo-portfolio:${SHORT_TAG} \
+            --tag mecandjeo-portfolio:latest \
+            apps/mecandjeo-portfolio/
+
+          # Tag for Docker Hub
+          docker tag mecandjeo-portfolio:${SHORT_TAG} \
+            ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+          docker tag mecandjeo-portfolio:${SHORT_TAG} \
+            ${{ env.DOCKERHUB_REPO }}:latest
+
+          # Tag for ECR
+          docker tag mecandjeo-portfolio:${SHORT_TAG} \
+            ${FULL_ECR_URI}:${SHORT_TAG}
+          docker tag mecandjeo-portfolio:${SHORT_TAG} \
+            ${FULL_ECR_URI}:latest
+
+          # Push to Docker Hub
+          echo "Pushing to Docker Hub..."
+          docker push ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+          docker push ${{ env.DOCKERHUB_REPO }}:latest
+
+          # Push to ECR
+          echo "Pushing to ECR..."
+          docker push ${FULL_ECR_URI}:${SHORT_TAG}
+          docker push ${FULL_ECR_URI}:latest
+
+          # Set outputs for downstream jobs
+          echo "image_uri=${FULL_ECR_URI}:${SHORT_TAG}" >> $GITHUB_OUTPUT
+          echo "image_tag=${SHORT_TAG}" >> $GITHUB_OUTPUT
+
+          echo "════════════════════════════════════════"
+          echo "  Build complete"
+          echo "  Docker Hub : ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}"
+          echo "  ECR        : ${FULL_ECR_URI}:${SHORT_TAG}"
+          echo "════════════════════════════════════════"
+
+# ─────────────────────────────────────────────────────────────
+# JOB 3 — DEPLOY DEV
+# ─────────────────────────────────────────────────────────────
+  deploy-dev:
+    name: Deploy Portfolio to Dev
+    runs-on: ubuntu-latest
+    needs: [validate, docker]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: development
+      url:  http://${{ steps.apply.outputs.portfolio_alb_dns_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-portfolio/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+        working-directory: resources/portfolio/dev
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          terraform apply \
+            -auto-approve \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="portfolio_image=${{ needs.docker.outputs.image_uri }}" \
+            -no-color
+
+          echo "portfolio_alb_dns_name=$(terraform output \
+            -raw portfolio_alb_dns_name)" >> $GITHUB_OUTPUT
+        working-directory: resources/portfolio/dev
+
+      - name: Wait for ECS Tasks
+        run: |
+          echo "Waiting for portfolio ECS tasks..."
+          MAX_ATTEMPTS=20
+          ATTEMPT=0
+
+          while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
+            RUNNING=$(aws ecs describe-services \
+              --cluster mecandjeo-portfolio-dev-cluster \
+              --services mecandjeo-portfolio-dev-service \
+              --query "services[0].runningCount" \
+              --output text)
+
+            DESIRED=$(aws ecs describe-services \
+              --cluster mecandjeo-portfolio-dev-cluster \
+              --services mecandjeo-portfolio-dev-service \
+              --query "services[0].desiredCount" \
+              --output text)
+
+            echo "  Attempt ${ATTEMPT}/${MAX_ATTEMPTS} — Running: ${RUNNING}/${DESIRED}"
+
+            if [ "${RUNNING}" = "${DESIRED}" ]; then
+              echo "  All tasks running ✅"
+              break
+            fi
+
+            ATTEMPT=$((ATTEMPT + 1))
+            sleep 15
+          done
+
+          if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+            echo "  Timed out waiting for tasks ❌"
+            exit 1
+          fi
+
+      - name: Verify Application Health
+        run: |
+          ALB_DNS="${{ steps.apply.outputs.portfolio_alb_dns_name }}"
+          echo "Testing: http://${ALB_DNS}/health"
+          STATUS="000"
+
+          for i in $(seq 1 10); do
+            STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+              http://${ALB_DNS}/health || echo "000")
+            echo "  Attempt ${i}: HTTP ${STATUS}"
+            if [ "${STATUS}" = "200" ]; then
+              echo "  Portfolio healthy ✅"
+              break
+            fi
+            sleep 10
+          done
+
+          if [ "${STATUS}" != "200" ]; then
+            echo "  Health check failed ❌"
+            exit 1
+          fi
+
+      - name: Deployment Summary
+        run: |
+          echo "══════════════════════════════════════════"
+          echo "  PORTFOLIO DEV DEPLOYMENT COMPLETE"
+          echo "══════════════════════════════════════════"
+          echo "  Environment : dev"
+          echo "  Image       : ${{ needs.docker.outputs.image_uri }}"
+          echo "  Tag         : ${{ needs.docker.outputs.image_tag }}"
+          echo "  Commit      : ${{ github.sha }}"
+          echo "  Branch      : ${{ github.ref_name }}"
+          echo "  Portfolio   : http://${{ steps.apply.outputs.portfolio_alb_dns_name }}"
+          echo "══════════════════════════════════════════"
+
+# ─────────────────────────────────────────────────────────────
+# JOB 4 — DEPLOY PROD
+# Manual approval required via GitHub Environment protection
+# ─────────────────────────────────────────────────────────────
+  deploy-prod:
+    name: Deploy Portfolio to Production
+    runs-on: ubuntu-latest
+    needs: [docker, deploy-dev]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: production
+      url:  http://${{ steps.apply.outputs.portfolio_alb_dns_name }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_PROD }}" \
+            -backend-config="key=mecandjeo-portfolio/prod/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+        working-directory: resources/portfolio/prod
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          terraform apply \
+            -auto-approve \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="portfolio_image=${{ needs.docker.outputs.image_uri }}" \
+            -no-color
+
+          echo "portfolio_alb_dns_name=$(terraform output \
+            -raw portfolio_alb_dns_name)" >> $GITHUB_OUTPUT
+        working-directory: resources/portfolio/prod
+
+      - name: Deployment Summary
+        run: |
+          echo "══════════════════════════════════════════"
+          echo "  PORTFOLIO PRODUCTION DEPLOYMENT COMPLETE"
+          echo "══════════════════════════════════════════"
+          echo "  Environment : prod"
+          echo "  Image       : ${{ needs.docker.outputs.image_uri }}"
+          echo "  Tag         : ${{ needs.docker.outputs.image_tag }}"
+          echo "  Commit      : ${{ github.sha }}"
+          echo "  Approved by : ${{ github.actor }}"
+          echo "  Portfolio   : http://${{ steps.apply.outputs.portfolio_alb_dns_name }}"
+          echo "══════════════════════════════════════════"
