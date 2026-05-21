@@ -173,35 +173,24 @@ function initScrollFadeIn() {
 // TOOL ICONS — simpleicons.org CDN
 // ─────────────────────────────────────────────────────────────
 const TOOL_ICONS = {
-  'AWS':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-
-  // AWS Services (fallback to generic AWS icon because Simple Icons does not support them individually)
-  'ECS Fargate':       'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-  'VPC / Networking':  'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-  'EC2':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-  'IAM':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-
-  // Supported AWS-specific icon
-  'S3':                'https://cdn.simpleicons.org/amazons3/569A31',
-
-  // CloudWatch not supported → fallback to AWS icon
-  'CloudWatch':        'https://cdn.simpleicons.org/amazonwebservices/FF9900',
-
-  // DevOps / Infra
-  'Terraform':         'https://cdn.simpleicons.org/terraform/844FBA',
-  'Docker':            'https://cdn.simpleicons.org/docker/2496ED',
-  'Kubernetes':        'https://cdn.simpleicons.org/kubernetes/326CE5',
-  'GitHub Actions':    'https://cdn.simpleicons.org/githubactions/2088FF',
-  'CI/CD Pipelines':   'https://cdn.simpleicons.org/githubactions/2088FF',
-
-  // Languages / OS
-  'Python':            'https://cdn.simpleicons.org/python/3776AB',
-  'Bash / Shell':      'https://cdn.simpleicons.org/gnubash/4EAA25',
-  'YAML':              'https://cdn.simpleicons.org/yaml/CB171E',
-  'Git':               'https://cdn.simpleicons.org/git/F05032',
-  'Linux':             'https://cdn.simpleicons.org/linux/FCC624',
+  'AWS':               'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonwebservices.svg',
+  'ECS Fargate':       'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonwebservices.svg',
+  'VPC / Networking':  'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonwebservices.svg',
+  'EC2':               'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonwebservices.svg',
+  'S3':                'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazons3.svg',
+  'IAM':               'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazonwebservices.svg',
+  'CloudWatch':        'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/amazoncloudwatch.svg',
+  'Terraform':         'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/terraform.svg',
+  'Docker':            'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/docker.svg',
+  'Kubernetes':        'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/kubernetes.svg',
+  'GitHub Actions':    'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/githubactions.svg',
+  'CI/CD Pipelines':   'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/githubactions.svg',
+  'Python':            'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/python.svg',
+  'Bash / Shell':      'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/gnubash.svg',
+  'YAML':              'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/yaml.svg',
+  'Git':               'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/git.svg',
+  'Linux':             'https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/linux.svg',
 };
-
 function getSkillIcon(name) {
   const url = TOOL_ICONS[name];
   if (url) {
