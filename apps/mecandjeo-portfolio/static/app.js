@@ -219,7 +219,6 @@ async function loadProfile() {
   $('nav-name').textContent      = data.name;
   $('nav-available').textContent =
     data.available ? '✅ Available' : 'Not Available';
-  // $('hero-avatar').textContent   = data.name.charAt(0).toUpperCase();
   $('hero-bio').textContent      = data.bio;
   $('hero-location').textContent = `📍 ${data.location}`;
   $('hero-status').textContent   =
