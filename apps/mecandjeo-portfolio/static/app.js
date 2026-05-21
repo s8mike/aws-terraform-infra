@@ -173,23 +173,33 @@ function initScrollFadeIn() {
 // TOOL ICONS — simpleicons.org CDN
 // ─────────────────────────────────────────────────────────────
 const TOOL_ICONS = {
-  'AWS':               'https://cdn.simpleicons.org/amazonwebservices/ff9900',
-  'ECS Fargate':       'https://cdn.simpleicons.org/amazonwebservices/ff9900',
-  'VPC / Networking':  'https://cdn.simpleicons.org/amazonwebservices/ff9900',
-  'EC2':               'https://cdn.simpleicons.org/amazonwebservices/ff9900',
-  'S3':                'https://cdn.simpleicons.org/amazons3/569a31',
-  'IAM':               'https://cdn.simpleicons.org/amazonwebservices/ff9900',
-  'CloudWatch':        'https://cdn.simpleicons.org/amazoncloudwatch/ff4f8b',
-  'Terraform':         'https://cdn.simpleicons.org/terraform/7b42bc',
-  'Docker':            'https://cdn.simpleicons.org/docker/2496ed',
-  'Kubernetes':        'https://cdn.simpleicons.org/kubernetes/326ce5',
-  'GitHub Actions':    'https://cdn.simpleicons.org/githubactions/2088ff',
-  'CI/CD Pipelines':   'https://cdn.simpleicons.org/githubactions/2088ff',
-  'Python':            'https://cdn.simpleicons.org/python/3776ab',
-  'Bash / Shell':      'https://cdn.simpleicons.org/gnubash/4eaa25',
-  'YAML':              'https://cdn.simpleicons.org/yaml/cb171e',
-  'Git':               'https://cdn.simpleicons.org/git/f05032',
-  'Linux':             'https://cdn.simpleicons.org/linux/fcc624',
+  'AWS':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+
+  // AWS Services (fallback to generic AWS icon because Simple Icons does not support them individually)
+  'ECS Fargate':       'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+  'VPC / Networking':  'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+  'EC2':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+  'IAM':               'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+
+  // Supported AWS-specific icon
+  'S3':                'https://cdn.simpleicons.org/amazons3/569A31',
+
+  // CloudWatch not supported → fallback to AWS icon
+  'CloudWatch':        'https://cdn.simpleicons.org/amazonwebservices/FF9900',
+
+  // DevOps / Infra
+  'Terraform':         'https://cdn.simpleicons.org/terraform/844FBA',
+  'Docker':            'https://cdn.simpleicons.org/docker/2496ED',
+  'Kubernetes':        'https://cdn.simpleicons.org/kubernetes/326CE5',
+  'GitHub Actions':    'https://cdn.simpleicons.org/githubactions/2088FF',
+  'CI/CD Pipelines':   'https://cdn.simpleicons.org/githubactions/2088FF',
+
+  // Languages / OS
+  'Python':            'https://cdn.simpleicons.org/python/3776AB',
+  'Bash / Shell':      'https://cdn.simpleicons.org/gnubash/4EAA25',
+  'YAML':              'https://cdn.simpleicons.org/yaml/CB171E',
+  'Git':               'https://cdn.simpleicons.org/git/F05032',
+  'Linux':             'https://cdn.simpleicons.org/linux/FCC624',
 };
 
 function getSkillIcon(name) {
@@ -219,7 +229,7 @@ async function loadProfile() {
   $('nav-name').textContent      = data.name;
   $('nav-available').textContent =
     data.available ? '✅ Available' : 'Not Available';
-  $('hero-avatar').textContent   = data.name.charAt(0).toUpperCase();
+  // $('hero-avatar').textContent   = data.name.charAt(0).toUpperCase();
   $('hero-bio').textContent      = data.bio;
   $('hero-location').textContent = `📍 ${data.location}`;
   $('hero-status').textContent   =

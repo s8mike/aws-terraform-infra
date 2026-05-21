@@ -35,7 +35,7 @@ APP_VERSION  = os.getenv("APP_VERSION",  "1.0.0")
 # ─────────────────────────────────────────────────────────────
 
 PROFILE = {
-    "name":     "Michael Emmanuel",
+    "name":     "s8mike",
     "role":     "Platform / DevOps Engineer",
     "tagline":  "Building production-grade infrastructure with AWS · Terraform · Docker",
     "location": "Lagos, Nigeria",
@@ -44,6 +44,7 @@ PROFILE = {
     "linkedin": "https://linkedin.com/in/yourprofile",
     "bio":      (
         "Platform engineering intern with hands-on experience designing "
+        "an Intern with Webforx Technology "
         "and deploying production-grade AWS infrastructure using Terraform "
         "and Docker. Passionate about Infrastructure as Code, CI/CD automation, "
         "and building scalable, reliable systems."
@@ -119,6 +120,16 @@ PROJECTS = [
         "github": "https://github.com/s8mike/aws-terraform-infra",
         "live":   "",
         "highlight": False
+    },
+        # Add projects from your internship at Webforx Technology
+    {
+        "title":       "Project Name from Internship",
+        "subtitle":    "Brief tech description",
+        "description": "What you built, what problem it solved...",
+        "tags":        ["relevant", "technologies"],
+        "github":      "https://github.com/s8mike/repo-name",
+        "live":        "",
+        "highlight":   True
     },
 ]
 

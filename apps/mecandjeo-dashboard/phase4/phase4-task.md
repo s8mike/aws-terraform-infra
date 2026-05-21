@@ -32,15 +32,15 @@ GitHub Actions triggered automatically
 
 ### What Changes from the Original Pipeline
 
-| Item | Before | After |
-|---|---|---|
-| Docker image source | `docker pull nginx:latest` | `docker build` from real Dockerfile |
-| Dockerfile location | None | `apps/mecandjeo-dashboard/Dockerfile` |
-| Docker Hub push | Not included | Added — pushes to `s8mike/mecandjeo-dashboard` |
-| Container port | `80` | `8000` |
-| Health check path | `/` | `/health` |
-| ECR management | ECR created by Terraform | ECR created manually — pipeline only pushes |
-| Backend bucket | Created by Terraform | Created manually — pipeline uses existing |
+| Item                | Before                     | After                                          |
+|---------------------|----------------------------|------------------------------------------------|
+| Docker image source | `docker pull nginx:latest` | `docker build` from real Dockerfile            |
+| Dockerfile location | None                       | `apps/mecandjeo-dashboard/Dockerfile`          |
+| Docker Hub push     | Not included               | Added — pushes to `s8mike/mecandjeo-dashboard` |
+| Container port      | `80`                       | `8000`                                         |
+| Health check path   | `/`                        | `/health`                                      |
+| ECR management      | ECR created by Terraform   | ECR created manually — pipeline only pushes    |
+| Backend bucket      | Created by Terraform       | Created manually — pipeline uses existing      |
 
 ---
 
@@ -84,22 +84,22 @@ We need one new secret that was not in the original pipeline.
 
 Go to **GitHub → Settings → Secrets and variables → Actions → New repository secret:**
 
-| Secret Name | Value |
-|---|---|
-| `DOCKERHUB_USERNAME` | `s8mike` |
-| `DOCKERHUB_TOKEN` | Your Docker Hub access token |
+| Secret Name          | Value                        |
+|----------------------|------------------------------|
+| `DOCKERHUB_USERNAME` | `s8mike`                     |
+| `DOCKERHUB_TOKEN`    | Your Docker Hub access token |
 
 All existing secrets from the infrastructure pipeline should already be there:
 
-| Secret | Value |
-|---|---|
-| `AWS_ACCESS_KEY_ID` | Your IAM access key |
-| `AWS_SECRET_ACCESS_KEY` | Your IAM secret key |
-| `AWS_ACCOUNT_ID` | `776735193826` |
-| `AWS_REGION` | `us-east-1` |
-| `TF_STATE_BUCKET_DEV` | `mecandjeo-infra-dev-tfstate` |
+| Secret                  | Value                                     |
+|-------------------------|-------------------------------------------|
+| `AWS_ACCESS_KEY_ID`     | Your IAM access key                       |
+| `AWS_SECRET_ACCESS_KEY` | Your IAM secret key                       |
+| `AWS_ACCOUNT_ID`        | `776735193826`                            |
+| `AWS_REGION`            | `us-east-1`                               |
+| `TF_STATE_BUCKET_DEV`   | `mecandjeo-infra-dev-tfstate`             |
 | `TF_DYNAMODB_TABLE_DEV` | Not needed anymore — using `use_lockfile` |
-| `ALLOWED_SSH_CIDR_DEV` | `YOUR_IP/32` |
+| `ALLOWED_SSH_CIDR_DEV`  | `YOUR_IP/32`                              |
 
 ---
 
