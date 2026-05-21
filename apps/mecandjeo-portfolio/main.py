@@ -35,7 +35,7 @@ APP_VERSION  = os.getenv("APP_VERSION",  "1.0.0")
 # ─────────────────────────────────────────────────────────────
 
 PROFILE = {
-    "name":     "s8mike",
+    "name":     "Michael Emmanuel",
     "role":     "Platform / DevOps Engineer",
     "tagline":  "Building production-grade infrastructure with AWS · Terraform · Docker",
     "location": "Lagos, Nigeria",
