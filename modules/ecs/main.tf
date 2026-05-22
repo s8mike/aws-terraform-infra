@@ -151,10 +151,10 @@ resource "aws_ecs_service" "main" {
     Name = "${var.project_name}-${var.environment}-service"
   }
 
-  #   depends_on = [aws_ecs_task_definition.main]
-  # }
-
-  lifecycle {
-    ignore_changes = [task_definition]
-  }
+    depends_on = [aws_ecs_task_definition.main]
 }
+
+#   # lifecycle {
+#   #   ignore_changes = [task_definition]
+#   # }
+# }

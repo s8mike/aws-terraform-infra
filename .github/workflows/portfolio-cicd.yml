@@ -277,6 +277,18 @@ jobs:
             -raw portfolio_alb_dns_name)" >> $GITHUB_OUTPUT
         working-directory: resources/portfolio/dev
 
+    # Newly added steps for deployment verification
+      - name: Force ECS Deployment
+        run: |
+          aws ecs update-service \
+            --cluster mecandjeo-portfolio-dev-cluster \
+            --service mecandjeo-portfolio-dev-service \
+            --force-new-deployment \
+            --region us-east-1
+            echo "Forced new ECS deployment ✅"
+
+
+
       - name: Wait for ECS Tasks
         run: |
           echo "Waiting for portfolio ECS tasks..."
