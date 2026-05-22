@@ -123,7 +123,7 @@ resource "aws_ecs_service" "main" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
-# Ensure at least one task is always healthy during deployment
+  # Ensure at least one task is always healthy during deployment
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
@@ -145,14 +145,14 @@ resource "aws_ecs_service" "main" {
     container_name   = "${var.project_name}-${var.environment}-container"
     container_port   = var.container_port
   }
-  
+
 
   tags = {
     Name = "${var.project_name}-${var.environment}-service"
   }
 
-#   depends_on = [aws_ecs_task_definition.main]
-# }
+  #   depends_on = [aws_ecs_task_definition.main]
+  # }
 
   lifecycle {
     ignore_changes = [task_definition]
