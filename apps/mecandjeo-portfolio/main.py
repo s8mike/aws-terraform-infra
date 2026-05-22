@@ -43,7 +43,8 @@ PROFILE = {
     "github":   "https://github.com/s8mike",
     "linkedin": "https://linkedin.com/in/yourprofile",
     "bio":      (
-        "Platform engineering intern with Webforx Technology with hands-on experience designing "
+        "Platform engineering intern with Webforx Technology "
+        "with hands-on experience designing "
         "and deploying production-grade AWS infrastructure using Terraform "
         "and Docker. Passionate about Infrastructure as Code, CI/CD automation, "
         "and building scalable, reliable systems."
