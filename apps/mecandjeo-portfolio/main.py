@@ -139,6 +139,15 @@ PROJECTS = [
         "live":        "",
         "highlight":   True
     },
+    {
+        "title":       "DevOps Tools Scanner",
+        "subtitle":    "Bash script for automated DevOps tool detection & reporting",
+        "description": "Developed a cross-platform Bash script that automatically scans systems to detect and catalog installed DevOps tools (Kubernetes, Docker, IaC, Cloud CLI, etc.). Implements smart categorization, size calculation, CSV export with timestamps, and color-coded terminal output. Supports Windows (MINGW64), Linux, and macOS with optional Docker image/container scanning and VS Code extension listing.",
+        "tags":        ["Bash", "DevOps", "Automation", "Scripting", "System Administration", "CSV", "Reporting"],
+        "github":      "https://github.com/s8mike/list-devops-tools",
+        "live":        "",
+        "highlight":   True
+    },
       # Add projects from your internship at Webforx Technology
     {
         "title":       "Project Name from Internship",
