@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────
 # Portfolio Pipeline Variables — Non-sensitive only
-# Sensitive values come from GitHub Secrets and Variables
+# Sensitive values come from GitHub Secrets and Variables.
 # ─────────────────────────────────────────────────────────────
 
 aws_region   = "us-east-1"

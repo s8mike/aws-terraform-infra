@@ -6,7 +6,7 @@ resource "aws_s3_bucket" "terraform_state" {
 
   # # Prevent accidental deletion of state bucket
   # lifecycle {
-  #   prevent_destroy = true      # Prevent accidental deletion of state bucket by terraform destroy
+  #   prevent_destroy = true    # Prevent accidental deletion of state bucket by terraform destroy
   # }
 
   tags = {
