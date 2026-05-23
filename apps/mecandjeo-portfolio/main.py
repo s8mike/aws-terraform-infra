@@ -145,7 +145,16 @@ PROJECTS = [
         "subtitle":    "Bash script for automated DevOps tool detection & reporting",
         "description": "Developed a cross-platform Bash script that automatically scans systems to detect and catalog installed DevOps tools (Kubernetes, Docker, IaC, Cloud CLI, etc.). Implements smart categorization, size calculation, CSV export with timestamps, and color-coded terminal output. Supports Windows (MINGW64), Linux, and macOS with optional Docker image/container scanning and VS Code extension listing.",
         "tags":        ["Bash", "DevOps", "Automation", "Scripting", "System Administration", "CSV", "Reporting"],
-        "github":      "https://github.com/s8mike/list-devops-tools",
+        "github":      "",
+        "live":        "",
+        "highlight":   True
+    },
+    {
+        "title":       "EC2 Scheduler Lambda Module",
+        "subtitle":    "Terraform module for scheduled EC2 instance start/stop",
+        "description": "Developed a Terraform module that provisions a Lambda function to automatically start or stop EC2 instances on a schedule for cost optimization. Implemented tag-based instance filtering via environment variables, built-in Mattermost webhook notifications with retry logic, and CloudWatch Logs integration. The Lambda handler filters instances by tag key/value and sends formatted notifications with tracking IDs after each operation.",
+        "tags":        ["AWS", "Lambda", "Terraform", "Python", "boto3", "EC2", "CloudWatch", "Mattermost", "DevOps", "IaC"],
+        "github":      "",
         "live":        "",
         "highlight":   True
     },
