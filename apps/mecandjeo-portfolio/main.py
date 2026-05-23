@@ -52,31 +52,66 @@ PROFILE = {
     ),
     "available": True
 }
-
 SKILLS = [
     # Cloud
     { "name": "AWS",           "category": "Cloud",     "level": 85 },
+    { "name": "Lambda",        "category": "Cloud",     "level": 75 },
     { "name": "ECS Fargate",   "category": "Cloud",     "level": 80 },
     { "name": "VPC / Networking", "category": "Cloud",  "level": 80 },
-    { "name": "EC2",           "category": "Cloud",     "level": 75 },
+    { "name": "EC2",           "category": "Cloud",     "level": 80 },
     { "name": "S3",            "category": "Cloud",     "level": 80 },
     { "name": "IAM",           "category": "Cloud",     "level": 75 },
-    { "name": "CloudWatch",    "category": "Cloud",     "level": 70 },
+    { "name": "CloudWatch",    "category": "Cloud",     "level": 75 },
     # IaC
     { "name": "Terraform",     "category": "IaC",       "level": 85 },
     { "name": "Docker",        "category": "Containers","level": 80 },
     { "name": "Kubernetes",    "category": "Containers","level": 65 },
+    # Monitoring
+    { "name": "Prometheus",    "category": "Monitoring","level": 75 },
+    { "name": "Grafana",       "category": "Monitoring","level": 75 },
+    { "name": "Alertmanager",  "category": "Monitoring","level": 70 },
     # CI/CD
     { "name": "GitHub Actions","category": "CI/CD",     "level": 80 },
     { "name": "CI/CD Pipelines","category": "CI/CD",    "level": 75 },
     # Languages
-    { "name": "Python",        "category": "Languages",  "level": 70 },
-    { "name": "Bash / Shell",  "category": "Languages",  "level": 75 },
+    { "name": "Python",        "category": "Languages",  "level": 75 },
+    { "name": "Flask",         "category": "Languages",  "level": 70 },
+    { "name": "Bash / Shell",  "category": "Languages",  "level": 80 },
     { "name": "YAML",          "category": "Languages",  "level": 85 },
     # Tools
     { "name": "Git",           "category": "Tools",      "level": 80 },
+    { "name": "Forgejo",       "category": "Tools",      "level": 70 },
     { "name": "Linux",         "category": "Tools",      "level": 75 },
-]
+    { "name": "jq",            "category": "Tools",      "level": 75 },
+    { "name": "curl",          "category": "Tools",      "level": 75 },
+    { "name": "Mattermost",    "category": "Tools",      "level": 70 },
+];
+
+
+# SKILLS = [
+#     # Cloud
+#     { "name": "AWS",           "category": "Cloud",     "level": 85 },
+#     { "name": "ECS Fargate",   "category": "Cloud",     "level": 80 },
+#     { "name": "VPC / Networking", "category": "Cloud",  "level": 80 },
+#     { "name": "EC2",           "category": "Cloud",     "level": 75 },
+#     { "name": "S3",            "category": "Cloud",     "level": 80 },
+#     { "name": "IAM",           "category": "Cloud",     "level": 75 },
+#     { "name": "CloudWatch",    "category": "Cloud",     "level": 70 },
+#     # IaC
+#     { "name": "Terraform",     "category": "IaC",       "level": 85 },
+#     { "name": "Docker",        "category": "Containers","level": 80 },
+#     { "name": "Kubernetes",    "category": "Containers","level": 65 },
+#     # CI/CD
+#     { "name": "GitHub Actions","category": "CI/CD",     "level": 80 },
+#     { "name": "CI/CD Pipelines","category": "CI/CD",    "level": 75 },
+#     # Languages
+#     { "name": "Python",        "category": "Languages",  "level": 70 },
+#     { "name": "Bash / Shell",  "category": "Languages",  "level": 75 },
+#     { "name": "YAML",          "category": "Languages",  "level": 85 },
+#     # Tools
+#     { "name": "Git",           "category": "Tools",      "level": 80 },
+#     { "name": "Linux",         "category": "Tools",      "level": 75 },
+# ]
 
 PROJECTS = [
     {
