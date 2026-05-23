@@ -120,8 +120,26 @@ PROJECTS = [
         "github": "https://github.com/s8mike/aws-terraform-infra",
         "live":   "",
         "highlight": False
+    }, 
+    {
+        "title":       "Prometheus-Grafana-Mattermost Monitoring Stack",
+        "subtitle":    "Containerized monitoring & alerting infrastructure",
+        "description": "Built and deployed a complete monitoring stack integrating Prometheus for metrics collection, Alertmanager for alert routing, and Grafana for visualization. Developed a custom Python Flask webhook converter to translate Alertmanager webhooks into Mattermost-compatible format, enabling real-time team notifications. Containerized all services using Docker with internal networking, persistent storage, and automated health checks.",
+        "tags":        ["Prometheus", "Grafana", "Alertmanager", "Python", "Flask", "Docker", "Mattermost", "Monitoring", "DevOps"],
+        "github":      "https://github.com/s8mike/Alertmanager-grafana",
+        "live":        "",
+        "highlight":   True
     },
-        # Add projects from your internship at Webforx Technology
+    {
+        "title":       "repo-sync-tools",
+        "subtitle":    "Forgejo repository synchronization & PR visibility tool",
+        "description": "Built a DevOps automation tool for synchronizing repositories from a Forgejo organization to local environments. Implemented automatic repo cloning/pulling, open pull request scanning, and stale PR detection with age calculation. Designed as an idempotent Bash script with fail-fast error handling using 'set -euo pipefail' for reliable repeated execution.",
+        "tags":        ["Bash", "Forgejo", "Git", "API Integration", "DevOps", "Automation", "jq", "curl"],
+        "github":      "https://github.com/s8mike/repo-sync-tools",
+        "live":        "",
+        "highlight":   True
+    },
+      # Add projects from your internship at Webforx Technology
     {
         "title":       "Project Name from Internship",
         "subtitle":    "Brief tech description",
