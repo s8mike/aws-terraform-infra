@@ -127,7 +127,7 @@ resource "aws_ecs_service" "main" {
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
-    # ➕ ADDED: prevents premature health check failures during startup
+  # ➕ ADDED: prevents premature health check failures during startup
   health_check_grace_period_seconds = 60
 
   # ➕ ADDED: automatic rollback if deployment fails
