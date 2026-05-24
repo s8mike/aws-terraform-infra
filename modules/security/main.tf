@@ -2,7 +2,7 @@ locals {
   all_traffic_cidr = "0.0.0.0/0"
   # All application ports that need access through the ECS security group
   # Add a new port here when adding a new application
-  app_ports = [8000, 8001]
+  app_ports = [8000, 8001, 8002]
 }
 
 # ─────────────────────────────────────────
@@ -124,4 +124,50 @@ resource "aws_iam_role" "ecs_task_execution" {
 resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
   role       = aws_iam_role.ecs_task_execution.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+
+# ─────────────────────────────────────────
+# ➕ NEW: ECS Task Role (Application Permissions)
+# ─────────────────────────────────────────
+resource "aws_iam_role" "ecs_task_role" {
+  name = "${var.project_name}-${var.environment}-ecs-task-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-ecs-task-role"
+  }
+}
+
+# ➕ OPTIONAL POLICY (safe baseline)
+# Allows basic logging + future extension
+resource "aws_iam_role_policy" "ecs_task_policy" {
+  name = "${var.project_name}-${var.environment}-ecs-task-policy"
+  role = aws_iam_role.ecs_task_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "*"
+      }
+    ]
+  })
 }

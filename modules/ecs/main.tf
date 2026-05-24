@@ -127,6 +127,15 @@ resource "aws_ecs_service" "main" {
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 200
 
+    # ➕ ADDED: prevents premature health check failures during startup
+  health_check_grace_period_seconds = 60
+
+  # ➕ ADDED: automatic rollback if deployment fails
+  deployment_circuit_breaker {
+    enable   = true
+    rollback = true
+  }
+
   # network_configuration {            # commented out temporarily for testing with public subnets. In production, we will use private subnets and NAT gateways for better security.
   #   subnets          = var.private_subnet_ids
   #   security_groups  = [var.ecs_security_group_id]

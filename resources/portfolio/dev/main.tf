@@ -8,22 +8,43 @@
 # ─────────────────────────────────────────────────────────────
 
 # ── Read Shared Infrastructure Outputs ───────────────────────
-data "terraform_remote_state" "dashboard" {
+# From:
+# data "terraform_remote_state" "dashboard" {
+#   backend = "s3"
+#   config = {
+#     bucket = "mecandjeo-infra-dev-tfstate"
+#     key    = "mecandjeo-dashboard/dev/terraform.tfstate"
+#     region = "us-east-1"
+#   }
+# }
+
+# locals {
+#   vpc_id                      = data.terraform_remote_state.dashboard.outputs.vpc_id
+#   public_subnet_ids           = data.terraform_remote_state.dashboard.outputs.public_subnet_ids
+#   alb_security_group_id       = data.terraform_remote_state.dashboard.outputs.alb_security_group_id
+#   ecs_security_group_id       = data.terraform_remote_state.dashboard.outputs.ecs_security_group_id
+#   ecs_task_execution_role_arn = data.terraform_remote_state.dashboard.outputs.ecs_task_execution_role_arn
+# }
+
+# Change TO:
+data "terraform_remote_state" "shared" {
   backend = "s3"
   config = {
     bucket = "mecandjeo-infra-dev-tfstate"
-    key    = "mecandjeo-dashboard/dev/terraform.tfstate"
+    key    = "mecandjeo-shared/dev/terraform.tfstate"
     region = "us-east-1"
   }
 }
 
 locals {
-  vpc_id                      = data.terraform_remote_state.dashboard.outputs.vpc_id
-  public_subnet_ids           = data.terraform_remote_state.dashboard.outputs.public_subnet_ids
-  alb_security_group_id       = data.terraform_remote_state.dashboard.outputs.alb_security_group_id
-  ecs_security_group_id       = data.terraform_remote_state.dashboard.outputs.ecs_security_group_id
-  ecs_task_execution_role_arn = data.terraform_remote_state.dashboard.outputs.ecs_task_execution_role_arn
+  vpc_id                      = data.terraform_remote_state.shared.outputs.vpc_id
+  public_subnet_ids           = data.terraform_remote_state.shared.outputs.public_subnet_ids
+  alb_security_group_id       = data.terraform_remote_state.shared.outputs.alb_security_group_id
+  ecs_security_group_id       = data.terraform_remote_state.shared.outputs.ecs_security_group_id
+  ecs_task_execution_role_arn = data.terraform_remote_state.shared.outputs.ecs_task_execution_role_arn
 }
+
+
 
 # Portfolio-specific variables in addition to shared ones
 

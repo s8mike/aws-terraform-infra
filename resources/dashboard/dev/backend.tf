@@ -10,7 +10,7 @@ terraform {
 
   backend "s3" {
     bucket       = "mecandjeo-infra-dev-tfstate"
-    key          = "mecandjeo-portfolio/dev/terraform.tfstate"
+    key          = "mecandjeo-dashboard/dev/terraform.tfstate"
     region       = "us-east-1"
     use_lockfile = true
     encrypt      = true
@@ -23,7 +23,7 @@ provider "aws" {
   default_tags {
     tags = {
       Environment = "dev"
-      Project     = "mecandjeo-portfolio"
+      Project     = "mecandjeo-dashboard"
       ManagedBy   = "Terraform"
     }
   }

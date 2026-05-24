@@ -22,3 +22,8 @@ output "ecs_task_execution_role_name" {
   description = "Name of the ECS task execution IAM role"
   value       = aws_iam_role.ecs_task_execution.name
 }
+
+output "ecs_task_role_arn" {
+  description = "ECS task role ARN — application permissions"
+  value       = aws_iam_role.ecs_task_role.arn
+}
