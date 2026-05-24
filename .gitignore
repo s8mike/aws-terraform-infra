@@ -1,47 +1,86 @@
-cat > .gitignore << EOF
-# Terraform state - never commit
+# =========================
+# Terraform
+# =========================
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
+*.tfplan
 .terraform/
 .terraform.lock.hcl
 crash.log
-
-#learnings
-learning_points.md
-Working_doc.md
-stage-docs
-aws-console-setup
-console_setup.md
-vpc-documentation
-# project_Diagram
-README.md
-# Secrets
 *.tfvars
 !*.tfvars.example
+plan-output*.txt
 
-# OS
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# =========================
+# Docker
+# =========================
+*.tar
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# OS Files
+# =========================
 .DS_Store
-EOF
+Thumbs.db
 
-*.tfplan
-"plan-output*.txt"
+# =========================
+# Documentation / Learning
+# =========================
+learning_points.md
+Working_doc.md
+README.md
+Project-README.md
+resume.md
+Final-README.md
+POST-DEPLOYMENT-ACTIVITIES.md
+POST-PROJECT-REFERENCE.md
+REFACTORING-SHARED-INFRASTRUCTURE.md
 
+docs/
+stage-docs/
+aws-console-setup/
+vpc-documentation/
+
+console_setup.md
+
+# =========================
+# Recovery / Manual Ops
+# =========================
 recovery-imports.sh
 README-recovery.sh
 AWS-Manual-Clean-up.md
-apps/mecandjeo-dashboard/phase1
-apps/mecandjeo-dashboard/phase2
-apps/mecandjeo-dashboard/phase3
+
+# =========================
+# App Phase Docs
+# =========================
+apps/mecandjeo-dashboard/phase1/
+apps/mecandjeo-dashboard/phase2/
+apps/mecandjeo-dashboard/phase3/
+
 apps/mecandjeo-dashboard/phase4/generate-dockerhub-token.md
+apps/mecandjeo-dashboard/phase4/generate-dockerhub_token.md
 apps/mecandjeo-dashboard/phase4/phase4-task.md
 
-apps/mecandjeo-dashboard/phase4/generate-dockerhub_token.md
+# =========================
+# Secrets / Sensitive Files
+# =========================
 **/*token*
 **/*secret*
 **/*credential*
-resume.md
-
-docs/
 **ABOUT-SHARED-RESOURCES
-
-Project-README.md
