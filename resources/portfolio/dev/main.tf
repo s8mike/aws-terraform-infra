@@ -4,29 +4,11 @@
 #
 # This configuration deploys only the portfolio application.
 # Shared infrastructure (VPC, security groups, IAM) is managed
-# by the dashboard state and consumed here via remote_state.
+# by the mecandjeo-shared/dev/ and consumed here via remote_state.
 # ─────────────────────────────────────────────────────────────
 
 # ── Read Shared Infrastructure Outputs ───────────────────────
-# From:
-# data "terraform_remote_state" "dashboard" {
-#   backend = "s3"
-#   config = {
-#     bucket = "mecandjeo-infra-dev-tfstate"
-#     key    = "mecandjeo-dashboard/dev/terraform.tfstate"
-#     region = "us-east-1"
-#   }
-# }
-
-# locals {
-#   vpc_id                      = data.terraform_remote_state.dashboard.outputs.vpc_id
-#   public_subnet_ids           = data.terraform_remote_state.dashboard.outputs.public_subnet_ids
-#   alb_security_group_id       = data.terraform_remote_state.dashboard.outputs.alb_security_group_id
-#   ecs_security_group_id       = data.terraform_remote_state.dashboard.outputs.ecs_security_group_id
-#   ecs_task_execution_role_arn = data.terraform_remote_state.dashboard.outputs.ecs_task_execution_role_arn
-# }
-
-# Change TO:
+# From: mecandjeo-shared/dev/terraform.tfstate
 data "terraform_remote_state" "shared" {
   backend = "s3"
   config = {
