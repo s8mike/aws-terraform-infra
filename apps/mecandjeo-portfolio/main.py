@@ -87,85 +87,86 @@ SKILLS = [
     { "name": "Mattermost",    "category": "Tools",      "level": 70 },
 ];
 
-
-# SKILLS = [
-#     # Cloud
-#     { "name": "AWS",           "category": "Cloud",     "level": 85 },
-#     { "name": "ECS Fargate",   "category": "Cloud",     "level": 80 },
-#     { "name": "VPC / Networking", "category": "Cloud",  "level": 80 },
-#     { "name": "EC2",           "category": "Cloud",     "level": 75 },
-#     { "name": "S3",            "category": "Cloud",     "level": 80 },
-#     { "name": "IAM",           "category": "Cloud",     "level": 75 },
-#     { "name": "CloudWatch",    "category": "Cloud",     "level": 70 },
-#     # IaC
-#     { "name": "Terraform",     "category": "IaC",       "level": 85 },
-#     { "name": "Docker",        "category": "Containers","level": 80 },
-#     { "name": "Kubernetes",    "category": "Containers","level": 65 },
-#     # CI/CD
-#     { "name": "GitHub Actions","category": "CI/CD",     "level": 80 },
-#     { "name": "CI/CD Pipelines","category": "CI/CD",    "level": 75 },
-#     # Languages
-#     { "name": "Python",        "category": "Languages",  "level": 70 },
-#     { "name": "Bash / Shell",  "category": "Languages",  "level": 75 },
-#     { "name": "YAML",          "category": "Languages",  "level": 85 },
-#     # Tools
-#     { "name": "Git",           "category": "Tools",      "level": 80 },
-#     { "name": "Linux",         "category": "Tools",      "level": 75 },
-# ]
-
 PROJECTS = [
     {
-        "title":       "AWS Auto-Scaling Infrastructure",
-        "subtitle":    "Production-grade IaC with Terraform",
+        "title":       "AWS Multi-App Platform Infrastructure",
+        "subtitle":    "Production-grade IaC with Terraform monorepo",
         "description": (
-            "Designed and provisioned a complete AWS infrastructure using "
-            "Terraform monorepo pattern. Includes custom VPC, ECS Fargate, "
+            "Designed and provisioned a complete multi-application AWS "
+            "infrastructure using Terraform monorepo pattern with shared "
+            "infrastructure separation. Includes custom VPC, ECS Fargate, "
             "Application Load Balancer, auto scaling, and remote S3 state "
-            "management. Deployed a real FastAPI application with a full "
-            "GitHub Actions CI/CD pipeline."
+            "management with namespaced keys for multi-app state isolation. "
+            "Three applications deployed simultaneously with independent "
+            "CI/CD pipelines and zero inter-app dependencies."
         ),
-        "tags":   ["Terraform", "AWS", "ECS", "Docker", "GitHub Actions", "Python"],
-        "github": "https://github.com/s8mike/aws-terraform-infra",
-        "live":   "",
+        "tags":      ["Terraform", "AWS", "ECS", "Docker", "GitHub Actions", "Python"],
+        "github":    "https://github.com/s8mike/aws-terraform-infra",
+        "live":      "",
         "highlight": True
     },
     {
-        "title":       "MecandjeoOps Dashboard",
+        "title":       "MecanjeoOps Dashboard",
         "subtitle":    "Live DevOps status dashboard",
         "description": (
-            "Real-time DevOps dashboard built with Python FastAPI and "
-            "vanilla JavaScript. Displays live system metrics, infrastructure "
-            "status, service health, and deployment history. Containerised "
-            "with Docker and deployed on AWS ECS Fargate."
+            "Real-time DevOps operations dashboard built with Python FastAPI "
+            "and vanilla JavaScript. Displays live system metrics, infrastructure "
+            "status, service health indicators, and deployment history timeline. "
+            "Containerised with Docker multi-stage build and deployed on AWS ECS "
+            "Fargate with auto scaling and Application Load Balancer."
         ),
-        "tags":   ["Python", "FastAPI", "Docker", "AWS ECS", "ALB"],
-        "github": "https://github.com/s8mike/aws-terraform-infra",
-        "live":   "",
+        "tags":      ["Python", "FastAPI", "Docker", "AWS ECS", "ALB", "JavaScript"],
+        "github":    "https://github.com/s8mike/aws-terraform-infra",
+        "live":      "",
         "highlight": True
     },
     {
-        "title":       "CI/CD Pipeline Automation",
-        "subtitle":    "GitHub Actions — Build, push, deploy",
+        "title":       "Multi-App CI/CD Pipeline Automation",
+        "subtitle":    "GitHub Actions — independent parallel pipelines",
         "description": (
-            "Full CI/CD pipeline using GitHub Actions that validates "
-            "Terraform code, builds Docker images, pushes to both Docker Hub "
-            "and AWS ECR, and deploys to ECS Fargate automatically on every "
-            "push to main. Manual approval gate for production deployments."
+            "Three independent GitHub Actions pipelines for shared infrastructure, "
+            "dashboard, and portfolio applications. Each pipeline validates Terraform "
+            "code, builds Docker images from real Dockerfiles, pushes to both Docker "
+            "Hub and AWS ECR simultaneously, and deploys to ECS Fargate automatically "
+            "on every push to main. Manual approval gate protects production deployments."
         ),
-        "tags":   ["GitHub Actions", "Docker", "ECR", "Terraform", "CI/CD"],
-        "github": "https://github.com/s8mike/aws-terraform-infra",
-        "live":   "",
+        "tags":      ["GitHub Actions", "Docker", "ECR", "Terraform", "CI/CD"],
+        "github":    "https://github.com/s8mike/aws-terraform-infra",
+        "live":      "",
         "highlight": False
     }, 
     {
-        "title":       "Prometheus-Grafana-Mattermost Monitoring Stack",
-        "subtitle":    "Containerized monitoring & alerting infrastructure",
-        "description": "Built and deployed a complete monitoring stack integrating Prometheus for metrics collection, Alertmanager for alert routing, and Grafana for visualization. Developed a custom Python Flask webhook converter to translate Alertmanager webhooks into Mattermost-compatible format, enabling real-time team notifications. Containerized all services using Docker with internal networking, persistent storage, and automated health checks.",
-        "tags":        ["Prometheus", "Grafana", "Alertmanager", "Python", "Flask", "Docker", "Mattermost", "Monitoring", "DevOps"],
-        "github":      "https://github.com/s8mike/Alertmanager-grafana",
-        "live":        "",
-        "highlight":   True
+        "title":       "Monitoring Stack — Prometheus, Grafana, Alertmanager",
+        "subtitle":    "Observability infrastructure at Webforx Technology",
+        "description": (
+            "Built and configured a complete monitoring stack at Webforx Technology "
+            "using Prometheus for metrics collection, Grafana for visualisation and "
+            "dashboards, and Alertmanager for alert routing and notification management. "
+            "Developed custom alerting rules and dashboards for infrastructure "
+            "and application monitoring."
+        ),
+        "tags":      ["Prometheus", "Grafana", "Alertmanager", "DevOps", "Monitoring"],
+        "github":    "",
+        "live":      "",
+        "highlight": False
     },
+    {
+        "title":       "School Platform API",
+        "subtitle":    "FastAPI backend with PostgreSQL and authentication",
+        "description": (
+            "RESTful API for a school management platform built with Python FastAPI "
+            "and PostgreSQL. Implements JWT authentication, role-based access control "
+            "with admin and user roles, and full CRUD operations for student and course "
+            "management. Containerised with Docker and integrated into the shared "
+            "AWS infrastructure monorepo."
+        ),
+        "tags":      ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "JWT", "Docker"],
+        "github":    "https://github.com/s8mike/mecandjeo-school-platform",
+        "live":      "",
+        "highlight": False
+    },
+
+
     {
         "title":       "repo-sync-tools",
         "subtitle":    "Forgejo repository synchronization & PR visibility tool",
