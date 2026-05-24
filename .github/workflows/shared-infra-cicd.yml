@@ -1,0 +1,234 @@
+# ─────────────────────────────────────────────────────────────
+# GitHub Actions CI/CD — Shared Infrastructure
+# Project:     mecandjeo-infra
+# Description: Manages shared AWS resources that all
+#              applications depend on:
+#              VPC, subnets, security groups, IAM roles, EC2
+#
+# IMPORTANT:
+#   This pipeline must complete BEFORE any app pipeline
+#   can successfully deploy. Shared infrastructure must
+#   exist in AWS for terraform_remote_state to work.
+#
+# Trigger: Changes to resources/shared/** or modules/**
+#
+# Deploy:  Automatic on push to main
+# Destroy: NEVER automated — always manual via CLI
+#
+# GitHub VARIABLES:
+#   AWS_REGION            — us-east-1
+#   AWS_ACCOUNT_ID        — 776735193826
+#   TF_STATE_BUCKET_DEV   — mecandjeo-infra-dev-tfstate
+#   ALLOWED_SSH_CIDR_DEV  — your IP/32
+#   PUBLIC_KEY            — ssh-ed25519 AAAA...
+#
+# GitHub SECRETS:
+#   AWS_ACCESS_KEY_ID     — IAM user access key
+#   AWS_SECRET_ACCESS_KEY — IAM user secret key
+# ─────────────────────────────────────────────────────────────
+
+name: Shared Infrastructure CI/CD
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'resources/shared/**'
+      - 'modules/**'
+      - '.github/workflows/shared-infra-cicd.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'resources/shared/**'
+      - 'modules/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false  # Never cancel shared infra runs
+
+env:
+  TF_VERSION: "1.10.0"
+  AWS_REGION: "us-east-1"
+
+# ─────────────────────────────────────────────────────────────
+# JOB 1 — VALIDATE
+# Runs on push and pull requests
+# ─────────────────────────────────────────────────────────────
+jobs:
+  validate:
+    name: Validate Shared Infrastructure
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-shared/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+        working-directory: resources/shared/dev
+
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: resources/shared/dev
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
+            -no-color 2>&1 | tee plan-output-shared.txt
+        working-directory: resources/shared/dev
+
+      - name: Upload Plan Output
+        uses: actions/upload-artifact@v4
+        with:
+          name:           terraform-plan-shared
+          path:           resources/shared/dev/plan-output-shared.txt
+          retention-days: 5
+
+      - name: Post Plan to PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const plan = fs.readFileSync(
+              'resources/shared/dev/plan-output-shared.txt', 'utf8'
+            );
+            const maxLength = 65000;
+            const truncated = plan.length > maxLength
+              ? plan.substring(0, maxLength) + '\n\n... truncated ...'
+              : plan;
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner:        context.repo.owner,
+              repo:         context.repo.repo,
+              body: `## Terraform Plan — Shared Infrastructure\n\`\`\`\n${truncated}\n\`\`\``
+            });
+
+# ─────────────────────────────────────────────────────────────
+# JOB 2 — DEPLOY SHARED INFRASTRUCTURE
+# Runs automatically on push to main
+# No Docker build needed — shared infra has no application code
+#
+# IMPORTANT: This job deploys FREE resources only
+#   VPC, subnets, security groups, IAM roles, EC2
+#   Safe to leave running permanently
+# ─────────────────────────────────────────────────────────────
+  deploy-shared:
+    name: Deploy Shared Infrastructure
+    runs-on: ubuntu-latest
+    needs: validate
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    environment:
+      name: development
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region:            ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-shared/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+        working-directory: resources/shared/dev
+
+      - name: Terraform Apply
+        id: apply
+        run: |
+          terraform apply \
+            -auto-approve \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
+            -var="public_key=${{ vars.PUBLIC_KEY }}" \
+            -no-color
+
+          # Capture key outputs for summary
+          echo "vpc_id=$(terraform output -raw vpc_id)" \
+            >> $GITHUB_OUTPUT
+          echo "ecs_sg_id=$(terraform output \
+            -raw ecs_security_group_id)" >> $GITHUB_OUTPUT
+        working-directory: resources/shared/dev
+
+      - name: Verify Shared Infrastructure
+        run: |
+          echo "Verifying shared infrastructure outputs..."
+
+          # Confirm VPC exists
+          VPC_ID="${{ steps.apply.outputs.vpc_id }}"
+          aws ec2 describe-vpcs \
+            --vpc-ids ${VPC_ID} \
+            --query "Vpcs[0].State" \
+            --output text
+
+          echo "VPC confirmed: ${VPC_ID} ✅"
+
+      - name: Deployment Summary
+        run: |
+          echo "══════════════════════════════════════════"
+          echo "  SHARED INFRASTRUCTURE DEPLOYED"
+          echo "══════════════════════════════════════════"
+          echo "  VPC ID    : ${{ steps.apply.outputs.vpc_id }}"
+          echo "  ECS SG    : ${{ steps.apply.outputs.ecs_sg_id }}"
+          echo "  Commit    : ${{ github.sha }}"
+          echo "  Branch    : ${{ github.ref_name }}"
+          echo ""
+          echo "  Resources deployed (all FREE):"
+          echo "    VPC, subnets, IGW, route tables"
+          echo "    Security groups (EC2, ALB, ECS)"
+          echo "    IAM roles and policies"
+          echo "    EC2 instance"
+          echo ""
+          echo "  All app pipelines can now deploy"
+          echo "  using terraform_remote_state"
+          echo "══════════════════════════════════════════"
+
+# ─────────────────────────────────────────────────────────────
+# NOTE: No destroy job
+# Shared infrastructure should NEVER be destroyed automatically
+# Always destroy manually via CLI in correct order:
+#   1. terraform destroy in all app directories first
+#   2. terraform destroy in resources/shared/dev last
+# ─────────────────────────────────────────────────────────────
