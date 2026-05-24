@@ -95,8 +95,6 @@ jobs:
         run: |
           terraform plan \
             -var-file="terraform.tfvars.pipeline" \
-            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
-            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${{ env.APP_VERSION }}" \
             -out=tfplan-dev \
             -no-color 2>&1 | tee plan-output-dev.txt
@@ -265,8 +263,6 @@ jobs:
           terraform apply \
             -auto-approve \
             -var-file="terraform.tfvars.pipeline" \
-            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
-            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -no-color
 
@@ -395,7 +391,7 @@ jobs:
             -backend-config="region=${{ env.AWS_REGION }}" \
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
-        working-directory: resources/prod
+        working-directory: resources/dashboard/prod
 
       - name: Terraform Plan
         run: |
@@ -403,13 +399,11 @@ jobs:
             -var="aws_region=${{ env.AWS_REGION }}" \
             -var="project_name=mecandjeo-infra" \
             -var="environment=prod" \
-            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_PROD }}" \
             -var="vpc_cidr=10.0.0.0/16" \
             -var='public_subnet_cidrs=["10.0.1.0/24","10.0.2.0/24"]' \
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
-            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -var="container_port=8000" \
             -var="task_cpu=512" \
@@ -421,7 +415,7 @@ jobs:
             -var="scale_out_cpu_threshold=70" \
             -var="scale_in_cpu_threshold=30" \
             -no-color
-        working-directory: resources/prod
+        working-directory: resources/dashboard/prod
 
       - name: Terraform Apply
         id: apply
@@ -431,13 +425,11 @@ jobs:
             -var="aws_region=${{ env.AWS_REGION }}" \
             -var="project_name=mecandjeo-infra" \
             -var="environment=prod" \
-            -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_PROD }}" \
             -var="vpc_cidr=10.0.0.0/16" \
             -var='public_subnet_cidrs=["10.0.1.0/24","10.0.2.0/24"]' \
             -var='private_subnet_cidrs=["10.0.3.0/24","10.0.4.0/24"]' \
             -var='availability_zones=["us-east-1a","us-east-1b"]' \
             -var="instance_type=t3.micro" \
-            -var="public_key=${{ vars.PUBLIC_KEY }}" \
             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
             -var="container_port=8000" \
             -var="task_cpu=512" \
@@ -452,7 +444,7 @@ jobs:
 
           echo "alb_dns_name=$(terraform output -raw alb_dns_name)" \
             >> $GITHUB_OUTPUT
-        working-directory: resources/prod
+        working-directory: resources/dashboard/prod
 
       - name: Deployment Summary
         run: |
@@ -508,7 +500,7 @@ jobs:
 #       - 'apps/mecandjeo-dashboard/**'
 #       - 'modules/**'
 #       - 'resources/dashboard/dev/**'
-#       - 'resources/prod/**'
+#       - 'resources/dashboard/prod/**'
 #       - '.github/workflows/terraform-cicd.yml'
 
 #   pull_request:
