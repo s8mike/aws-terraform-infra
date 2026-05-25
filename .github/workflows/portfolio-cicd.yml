@@ -28,7 +28,7 @@
 #   terraform_remote_state
 # ─────────────────────────────────────────────────────────────
 
-name: MecanjeoOps Portfolio CI/CD
+name: MecandjeoOps Portfolio CI/CD
 
 on:
   push:

@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 # GitHub Actions CI/CD Pipeline
 # Project:     mecandjeo-infra
-# Application: MecanjeoOps Dashboard
+# Application: MecandjeoOps Dashboard
 #
 # GitHub VARIABLES (Settings → Secrets and variables → Variables):
 #   AWS_REGION            — us-east-1
@@ -21,7 +21,7 @@
 # Required GitHub Environment:
 #   production            — with required reviewers set
 # ─────────────────────────────────────────────────────────────
-name: MecanjeoOps Dashboard CI/CD
+name: MecandjeoOps Dashboard CI/CD
 
 on:
   push:
