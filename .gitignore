@@ -53,6 +53,7 @@ POST-PROJECT-REFERENCE.md
 REFACTORING-SHARED-INFRASTRUCTURE.md
 
 docs/
+infra-docs/
 stage-docs/
 aws-console-setup/
 vpc-documentation/
@@ -84,3 +85,4 @@ apps/mecandjeo-dashboard/phase4/phase4-task.md
 **/*secret*
 **/*credential*
 **ABOUT-SHARED-RESOURCES
+commit-messages.md

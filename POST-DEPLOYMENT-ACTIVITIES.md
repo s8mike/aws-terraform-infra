@@ -116,12 +116,12 @@ aws ecr describe-repositories --output table
 
 ## 2. When to Run What
 
-| Change Type | Local Action | Then |
-|---|---|---|
-| App code only | `docker compose up --build` | `git push` — pipeline deploys |
-| Infrastructure change | `terraform apply` locally | `git push` — pipeline confirms |
-| Module change | `terraform apply` locally | `git push` — all pipelines run |
-| New app port | Update `app_ports`, apply shared | `git push` |
+| Change Type           | Local Action                     | Then                           |
+|-----------------------|----------------------------------|--------------------------------|
+| App code only         | `docker compose up --build`      | `git push` — pipeline deploys  |
+| Infrastructure change | `terraform apply` locally        | `git push` — pipeline confirms |
+| Module change         | `terraform apply` locally        | `git push` — all pipelines run |
+| New app port          | Update `app_ports`, apply shared | `git push`                     |
 
 **Golden rule:** For application content changes — profile,
 skills, projects, CSS, JavaScript — never run `terraform apply`
@@ -143,9 +143,14 @@ docker compose up --build
 docker compose down
 
 # School — http://localhost:8002 (requires PostgreSQL)
+## Documents/MY-DEVOPS-WORKS/PROJECTS/vpc-aws-terraform-infra/apps/mecandjeo-school 
 cd apps/mecandjeo-school
 docker compose up --build
 docker compose down
+
+# Run this command instead:
+uvicorn app.main:app --reload --port 8002
+# Uvicorn startup is the authoritative validation
 ```
 
 ---
