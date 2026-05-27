@@ -1,357 +1,288 @@
-# #REF: Chatgpt-s8mike.wft
 # # ─────────────────────────────────────────────────────────────
-# # GitHub Actions CI/CD Pipeline
-# # Project: Mecandjeo School
-# # Application: mecandjeo-mecandjeo-school
+# # GitHub Actions CI/CD Pipeline — School Application
+# # Project:     mecandjeo-school
+# # Application: School Management Platform
 # #
-# # PHASE 4 — CI/CD AUTOMATION
+# # GitHub VARIABLES:
+# #   AWS_REGION            — us-east-1
+# #   AWS_ACCOUNT_ID        — 776735193826
+# #   TF_STATE_BUCKET_DEV   — mecandjeo-infra-dev-tfstate
+# #   DOCKERHUB_USERNAME    — s8mike
+# #   ALLOWED_SSH_CIDR_DEV  — your IP/32
 # #
-# # This workflow:
-# #   1. Validates Terraform
-# #   2. Builds Docker image
-# #   3. Pushes image to Amazon ECR
-# #   4. Deploys infrastructure to ECS using Terraform
-# #   5. Verifies ECS and ALB health
+# # GitHub SECRETS:
+# #   AWS_ACCESS_KEY_ID     — IAM user access key
+# #   AWS_SECRET_ACCESS_KEY — IAM user secret key
+# #   DOCKERHUB_TOKEN       — Docker Hub access token
 # #
-# # Architecture Notes:
-# # - Uses shared Terraform backend bucket
-# # - Uses isolated Terraform state key
-# # - Uses ECR managed outside Terraform
-# # - Runtime infrastructure remains ephemeral
-# #
-# # Terraform Backend State:
-# #   mecandjeo-school/dev/terraform.tfstate
-# #
-# # Shared Backend Bucket:
-# #   mecandjeo-infra-dev-tfstate
-# #
+# # Dependency:
+# #   Shared infrastructure must be deployed first.
+# #   This pipeline reads VPC and security outputs
+# #   from mecandjeo-shared/dev/terraform.tfstate
 # # ─────────────────────────────────────────────────────────────
 
 # name: Mecandjeo School CI/CD
 
-# # ─────────────────────────────────────────────────────────────
-# # Trigger Rules
-# # ─────────────────────────────────────────────────────────────
 # on:
 #   push:
 #     branches:
 #       - main
-
 #     paths:
 #       - 'apps/mecandjeo-school/**'
 #       - 'resources/school/**'
-#       - 'Dockerfile'
-#       - 'requirements.txt'
 #       - 'modules/**'
-#       - '.github/workflows/mecandjeo-school.yml'
-
+#       - '.github/workflows/school-cicd.yml'
 #   pull_request:
 #     branches:
 #       - main
+#     paths:
+#       - 'apps/mecandjeo-school/**'
+#       - 'resources/school/**'
+#       - 'modules/**'
 
-# # ─────────────────────────────────────────────────────────────
-# # Prevent Concurrent Deployments
-# # ─────────────────────────────────────────────────────────────
 # concurrency:
-#   group: mecandjeo-school-${{ github.ref }}
+#   group: ${{ github.workflow }}-${{ github.ref }}
 #   cancel-in-progress: true
 
-# # ─────────────────────────────────────────────────────────────
-# # Global Environment Variables
-# # ─────────────────────────────────────────────────────────────
 # env:
-#   TF_VERSION: "1.10.0"
-
-#   AWS_REGION: "${{ vars.AWS_REGION }}"
-
-#   # ECR
-#   ECR_REGISTRY: "${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.${{ vars.AWS_REGION }}.amazonaws.com"
-#   ECR_REPOSITORY: "${{ vars.ECR_REPOSITORY_DEV }}"
-
-#   # Image tagging
-#   IMAGE_TAG: "${{ github.sha }}"
-
-#   # Terraform backend
-#   TF_BACKEND_BUCKET: "${{ vars.TF_STATE_BUCKET_DEV }}"
-#   TF_BACKEND_KEY: "${{ vars.TF_BACKEND_KEY_DEV }}"
+#   TF_VERSION:     "1.10.0"
+#   AWS_REGION:     "us-east-1"
+#   ECR_REGISTRY:   "${{ vars.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com"
+#   ECR_REPOSITORY: "mecandjeo-school-platform-dev"
+#   DOCKERHUB_REPO: "${{ vars.DOCKERHUB_USERNAME }}/mecandjeo-school"
+#   IMAGE_TAG:      ${{ github.sha }}
 
 # # ─────────────────────────────────────────────────────────────
-# # JOB 1 — TERRAFORM VALIDATION
+# # JOB 1 — VALIDATE
 # # ─────────────────────────────────────────────────────────────
 # jobs:
-
 #   validate:
 #     name: Terraform Validate
-
 #     runs-on: ubuntu-latest
 
 #     steps:
-
-#       # ───────────────────────────────────────────────────────
-#       # Checkout repository
-#       # ───────────────────────────────────────────────────────
 #       - name: Checkout code
 #         uses: actions/checkout@v4
 
-#       # ───────────────────────────────────────────────────────
-#       # Install Terraform
-#       # ───────────────────────────────────────────────────────
 #       - name: Setup Terraform
 #         uses: hashicorp/setup-terraform@v3
-
 #         with:
 #           terraform_version: ${{ env.TF_VERSION }}
 
-#       # ───────────────────────────────────────────────────────
-#       # Configure AWS credentials
-#       # ───────────────────────────────────────────────────────
-#       - name: Configure AWS Credentials
+#       - name: Configure AWS credentials
 #         uses: aws-actions/configure-aws-credentials@v4
-
 #         with:
 #           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
 #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #           aws-region:            ${{ env.AWS_REGION }}
 
-#       # ───────────────────────────────────────────────────────
-#       # Terraform formatting validation
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Format Check
 #         run: terraform fmt -check -recursive
 
-#       # ───────────────────────────────────────────────────────
-#       # Terraform initialization using shared backend
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Init
-
 #         run: |
 #           terraform init \
-#             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
-#             -backend-config="key=${{ env.TF_BACKEND_KEY }}" \
+#             -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+#             -backend-config="key=mecandjeo-school/dev/terraform.tfstate" \
 #             -backend-config="region=${{ env.AWS_REGION }}" \
 #             -backend-config="use_lockfile=true" \
 #             -backend-config="encrypt=true"
+#         working-directory: resources/school/dev
 
-#         working-directory: terraform/resources/dev
-
-#       # ───────────────────────────────────────────────────────
-#       # Terraform validation
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Validate
-
 #         run: terraform validate
+#         working-directory: resources/school/dev
 
-#         working-directory: terraform/resources/dev
-
-#       # ───────────────────────────────────────────────────────
-#       # Terraform plan
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Plan
-
 #         run: |
 #           terraform plan \
 #             -var-file="terraform.tfvars.pipeline" \
-#             -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
-#             # -var="public_key=${{ vars.PUBLIC_KEY }}" \
 #             -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest" \
-#             -out=tfplan-dev \
-#             -no-color 2>&1 | tee plan-output-dev.txt
+#             -no-color 2>&1 | tee plan-output-school.txt
+#         working-directory: resources/school/dev
 
-#         working-directory: terraform/resources/dev
-
-#       # ───────────────────────────────────────────────────────
-#       # Upload plan artifact
-#       # ───────────────────────────────────────────────────────
 #       - name: Upload Plan Artifact
-
 #         uses: actions/upload-artifact@v4
-
 #         with:
-#           name: terraform-plan-dev
-#           path: terraform/resources/dev/plan-output-dev.txt
+#           name:           terraform-plan-school
+#           path:           resources/school/dev/plan-output-school.txt
 #           retention-days: 5
 
+#       - name: Post Plan to PR
+#         if: github.event_name == 'pull_request'
+#         uses: actions/github-script@v7
+#         with:
+#           script: |
+#             const fs = require('fs');
+#             const plan = fs.readFileSync(
+#               'resources/school/dev/plan-output-school.txt', 'utf8'
+#             );
+#             const maxLength = 65000;
+#             const truncated = plan.length > maxLength
+#               ? plan.substring(0, maxLength) + '\n\n... truncated ...'
+#               : plan;
+#             github.rest.issues.createComment({
+#               issue_number: context.issue.number,
+#               owner:        context.repo.owner,
+#               repo:         context.repo.repo,
+#               body: `## Terraform Plan — School\n\`\`\`\n${truncated}\n\`\`\``
+#             });
+
 # # ─────────────────────────────────────────────────────────────
-# # JOB 2 — DOCKER BUILD & PUSH
+# # JOB 2 — DOCKER
 # # ─────────────────────────────────────────────────────────────
 #   docker:
 #     name: Build and Push Docker Image
-
 #     runs-on: ubuntu-latest
-
 #     needs: validate
-
-#     if: github.event_name == 'push' &&
-#         github.ref == 'refs/heads/main'
+#     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
 #     outputs:
 #       image_uri: ${{ steps.build.outputs.image_uri }}
 #       image_tag: ${{ steps.build.outputs.image_tag }}
 
 #     steps:
-
-#       # ───────────────────────────────────────────────────────
-#       # Checkout repository
-#       # ───────────────────────────────────────────────────────
 #       - name: Checkout code
 #         uses: actions/checkout@v4
 
-#       # ───────────────────────────────────────────────────────
-#       # Configure AWS credentials
-#       # ───────────────────────────────────────────────────────
-#       - name: Configure AWS Credentials
+#       - name: Configure AWS credentials
 #         uses: aws-actions/configure-aws-credentials@v4
-
 #         with:
 #           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
 #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #           aws-region:            ${{ env.AWS_REGION }}
 
-#       # ───────────────────────────────────────────────────────
-#       # Login to Amazon ECR
-#       # ───────────────────────────────────────────────────────
-#       - name: Login to Amazon ECR
+#       - name: Login to Docker Hub
+#         uses: docker/login-action@v3
+#         with:
+#           username: ${{ vars.DOCKERHUB_USERNAME }}
+#           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+#       - name: Login to Amazon ECR
+#         id: login-ecr
 #         uses: aws-actions/amazon-ecr-login@v2
 
-#       # ───────────────────────────────────────────────────────
-#       # Docker Build
-#       # ───────────────────────────────────────────────────────
-#       - name: Build and Push Docker Image
+#       - name: Set up Docker Buildx
+#         uses: docker/setup-buildx-action@v3
 
+#       - name: Build and push image
 #         id: build
-
 #         run: |
 #           SHORT_TAG="${IMAGE_TAG:0:8}"
-
 #           FULL_ECR_URI="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}"
 
-#           echo "═══════════════════════════════════════"
-#           echo "Building Mecandjeo School Docker Image"
-#           echo "═══════════════════════════════════════"
+#           echo "Building Mecandjeo School..."
+#           echo "Short tag  : ${SHORT_TAG}"
+#           echo "ECR URI    : ${FULL_ECR_URI}"
+#           echo "Docker Hub : ${{ env.DOCKERHUB_REPO }}"
 
-#           echo "Short Tag : ${SHORT_TAG}"
-#           echo "ECR URI   : ${FULL_ECR_URI}"
-
-#           # Build image
+#           # Build from correct path
 #           docker build \
+#             --file apps/mecandjeo-school/Dockerfile \
 #             --tag mecandjeo-school:${SHORT_TAG} \
 #             --tag mecandjeo-school:latest \
-#             .
+#             apps/mecandjeo-school/
 
-#           # Tag image for ECR
+#           # Tag for Docker Hub
+#           docker tag mecandjeo-school:${SHORT_TAG} \
+#             ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+#           docker tag mecandjeo-school:${SHORT_TAG} \
+#             ${{ env.DOCKERHUB_REPO }}:latest
+
+#           # Tag for ECR
 #           docker tag mecandjeo-school:${SHORT_TAG} \
 #             ${FULL_ECR_URI}:${SHORT_TAG}
-
 #           docker tag mecandjeo-school:${SHORT_TAG} \
 #             ${FULL_ECR_URI}:latest
 
-#           # Push image to ECR
-#           docker push ${FULL_ECR_URI}:${SHORT_TAG}
+#           # Push to Docker Hub
+#           echo "Pushing to Docker Hub..."
+#           docker push ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}
+#           docker push ${{ env.DOCKERHUB_REPO }}:latest
 
+#           # Push to ECR
+#           echo "Pushing to ECR..."
+#           docker push ${FULL_ECR_URI}:${SHORT_TAG}
 #           docker push ${FULL_ECR_URI}:latest
 
-#           # Outputs for deploy job
 #           echo "image_uri=${FULL_ECR_URI}:${SHORT_TAG}" >> $GITHUB_OUTPUT
-
 #           echo "image_tag=${SHORT_TAG}" >> $GITHUB_OUTPUT
 
+#           echo "════════════════════════════════════════"
+#           echo "  Build complete"
+#           echo "  Docker Hub : ${{ env.DOCKERHUB_REPO }}:${SHORT_TAG}"
+#           echo "  ECR        : ${FULL_ECR_URI}:${SHORT_TAG}"
+#           echo "════════════════════════════════════════"
+
 # # ─────────────────────────────────────────────────────────────
-# # JOB 3 — DEPLOY TO ECS
+# # JOB 3 — DEPLOY DEV
 # # ─────────────────────────────────────────────────────────────
 #   deploy-dev:
-#     name: Deploy to Development
-
+#     name: Deploy School to Dev
 #     runs-on: ubuntu-latest
-
-#     needs:
-#       - validate
-#       - docker
-
-#     if: github.event_name == 'push' &&
-#         github.ref == 'refs/heads/main'
+#     needs: [validate, docker]
+#     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
 #     environment:
 #       name: development
-#       url: http://${{ steps.apply.outputs.alb_dns_name }}
+#       url:  http://${{ steps.apply.outputs.school_alb_dns_name }}
 
 #     steps:
-
-#       # ───────────────────────────────────────────────────────
-#       # Checkout repository
-#       # ───────────────────────────────────────────────────────
 #       - name: Checkout code
 #         uses: actions/checkout@v4
 
-#       # ───────────────────────────────────────────────────────
-#       # Install Terraform
-#       # ───────────────────────────────────────────────────────
 #       - name: Setup Terraform
 #         uses: hashicorp/setup-terraform@v3
-
 #         with:
 #           terraform_version: ${{ env.TF_VERSION }}
 #           terraform_wrapper: false
 
-#       # ───────────────────────────────────────────────────────
-#       # Configure AWS credentials
-#       # ───────────────────────────────────────────────────────
-#       - name: Configure AWS Credentials
+#       - name: Configure AWS credentials
 #         uses: aws-actions/configure-aws-credentials@v4
-
 #         with:
 #           aws-access-key-id:     ${{ secrets.AWS_ACCESS_KEY_ID }}
 #           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 #           aws-region:            ${{ env.AWS_REGION }}
 
-#       # ───────────────────────────────────────────────────────
-#       # Terraform initialization
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Init
-
 #         run: |
 #           terraform init \
-#             -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
-#             -backend-config="key=${{ env.TF_BACKEND_KEY }}" \
+#             -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+#             -backend-config="key=mecandjeo-school/dev/terraform.tfstate" \
 #             -backend-config="region=${{ env.AWS_REGION }}" \
 #             -backend-config="use_lockfile=true" \
 #             -backend-config="encrypt=true"
+#         working-directory: resources/school/dev
 
-#         working-directory: terraform/resources/dev
-
-#       # ───────────────────────────────────────────────────────
-#       # Terraform deployment
-#       # ───────────────────────────────────────────────────────
 #       - name: Terraform Apply
-
 #         id: apply
-
 #         run: |
 #           terraform apply \
 #             -auto-approve \
 #             -var-file="terraform.tfvars.pipeline" \
-#             -var="allowed_ssh_cidr=${{ vars.ALLOWED_SSH_CIDR_DEV }}" \
 #             -var="container_image=${{ needs.docker.outputs.image_uri }}" \
 #             -no-color
 
-#           echo "alb_dns_name=$(terraform output -raw alb_dns_name)" \
-#             >> $GITHUB_OUTPUT
+#           echo "school_alb_dns_name=$(terraform output \
+#             -raw school_alb_dns_name)" >> $GITHUB_OUTPUT
+#         working-directory: resources/school/dev
 
-#         working-directory: terraform/resources/dev
-
-#       # ───────────────────────────────────────────────────────
-#       # Wait for ECS tasks
-#       # ───────────────────────────────────────────────────────
-#       - name: Wait for ECS Tasks
-
+#       - name: Force ECS Deployment
 #         run: |
-#           echo "Waiting for ECS tasks..."
+#           aws ecs update-service \
+#             --cluster mecandjeo-school-dev-cluster \
+#             --service mecandjeo-school-dev-service \
+#             --force-new-deployment \
+#             --region us-east-1
+#           echo "Forced new ECS deployment ✅"
 
+#       - name: Wait for ECS Tasks
+#         run: |
+#           echo "Waiting for school ECS tasks..."
 #           MAX_ATTEMPTS=20
 #           ATTEMPT=0
 
 #           while [ $ATTEMPT -lt $MAX_ATTEMPTS ]; do
-
 #             RUNNING=$(aws ecs describe-services \
 #               --cluster mecandjeo-school-dev-cluster \
 #               --services mecandjeo-school-dev-service \
@@ -364,70 +295,59 @@
 #               --query "services[0].desiredCount" \
 #               --output text)
 
-#             echo "Running: ${RUNNING}/${DESIRED}"
+#             echo "  Attempt ${ATTEMPT}/${MAX_ATTEMPTS} — Running: ${RUNNING}/${DESIRED}"
 
 #             if [ "${RUNNING}" = "${DESIRED}" ]; then
-#               echo "All ECS tasks running ✅"
+#               echo "  All tasks running ✅"
 #               break
 #             fi
 
 #             ATTEMPT=$((ATTEMPT + 1))
-
 #             sleep 15
-
 #           done
 
-#       # ───────────────────────────────────────────────────────
-#       # Verify ALB health endpoint
-#       # ───────────────────────────────────────────────────────
-#       - name: Verify Application Health
-
-#         run: |
-#           ALB_DNS="${{ steps.apply.outputs.alb_dns_name }}"
-
-#           echo "Testing: http://${ALB_DNS}/health"
-
-#           STATUS="000"
-
-#           for i in $(seq 1 10); do
-
-#             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-#               http://${ALB_DNS}/health || echo "000")
-
-#             echo "Attempt ${i}: HTTP ${STATUS}"
-
-#             if [ "${STATUS}" = "200" ]; then
-#               echo "Application healthy ✅"
-#               break
-#             fi
-
-#             sleep 10
-
-#           done
-
-#           if [ "${STATUS}" != "200" ]; then
-#             echo "Health check failed ❌"
+#           if [ $ATTEMPT -eq $MAX_ATTEMPTS ]; then
+#             echo "  Timed out waiting for tasks ❌"
 #             exit 1
 #           fi
 
-#       # ───────────────────────────────────────────────────────
-#       # Deployment summary
-#       # ───────────────────────────────────────────────────────
-#       - name: Deployment Summary
-
+#       - name: Verify Application Health
 #         run: |
-#           echo "═══════════════════════════════════════"
-#           echo "Mecandjeo School Deployment Complete"
-#           echo "═══════════════════════════════════════"
+#           ALB_DNS="${{ steps.apply.outputs.school_alb_dns_name }}"
+#           echo "Testing: http://${ALB_DNS}/health"
+#           STATUS="000"
 
-#           echo "Environment : dev"
+#           for i in $(seq 1 10); do
+#             STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+#               http://${ALB_DNS}/health || echo "000")
+#             echo "  Attempt ${i}: HTTP ${STATUS}"
+#             if [ "${STATUS}" = "200" ]; then
+#               echo "  School app healthy ✅"
+#               break
+#             fi
+#             sleep 10
+#           done
 
-#           echo "Image       : ${{ needs.docker.outputs.image_uri }}"
+#           if [ "${STATUS}" != "200" ]; then
+#             echo "  Health check failed ❌"
+#             exit 1
+#           fi
 
-#           echo "Tag         : ${{ needs.docker.outputs.image_tag }}"
+#       - name: Deployment Summary
+#         run: |
+#           echo "══════════════════════════════════════════"
+#           echo "  SCHOOL DEPLOYMENT COMPLETE"
+#           echo "══════════════════════════════════════════"
+#           echo "  Environment : dev"
+#           echo "  Image       : ${{ needs.docker.outputs.image_uri }}"
+#           echo "  Tag         : ${{ needs.docker.outputs.image_tag }}"
+#           echo "  Commit      : ${{ github.sha }}"
+#           echo "  Branch      : ${{ github.ref_name }}"
+#           echo "  School      : http://${{ steps.apply.outputs.school_alb_dns_name }}"
+#           echo "══════════════════════════════════════════"
 
-#           echo "Commit      : ${{ github.sha }}"
-
-#           echo "Application : http://${{ steps.apply.outputs.alb_dns_name }}"
-
-#           echo "═══════════════════════════════════════"
+# # ─────────────────────────────────────────────────────────────
+# # NOTE: No deploy-prod job added yet
+# # School app needs database strategy resolved first
+# # Add deploy-prod after DATABASE_URL is configured
+# # ─────────────────────────────────────────────────────────────
