@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Michael Emmanuel — CV</title>
+  <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --blue:       #2563eb;
+      --blue-light: #dbeafe;
+      --blue-dark:  #1d4ed8;
+      --text:       #0f172a;
+      --muted:      #475569;
+      --dim:        #94a3b8;
+      --border:     #e2e8f0;
+      --bg:         #ffffff;
+      --green:      #16a34a;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 13.5px;
+      line-height: 1.6;
+      color: var(--text);
+      background: var(--bg);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 40px 48px;
+    }
+
+    a {
+      color: var(--blue);
+      text-decoration: none;
+    }
+
+    /* ── Print Button ─────────────────────────────── */
+    .print-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+      z-index: 100;
+    }
+
+    .print-btn:hover { background: var(--blue-dark); }
+
+    /* ── Header ──────────────────────────────────── */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 18px;
+      border-bottom: 2.5px solid var(--blue);
+      margin-bottom: 22px;
+    }
+
+    .header-name {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .header-role {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--blue);
+      margin-top: 4px;
+    }
+
+    .header-tagline {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .header-contact {
+      text-align: right;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.9;
+    }
+
+    /* ── Section ─────────────────────────────────── */
+    .section {
+      margin-bottom: 20px;
+    }
+
+    .section-title {
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--blue);
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+
+    /* ── Profile ─────────────────────────────────── */
+    .profile-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Skills ──────────────────────────────────── */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px 20px;
+    }
+
+    .skill-group { }
+
+    .skill-group-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 3px;
+    }
+
+    .skill-list {
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    /* ── Experience ──────────────────────────────── */
+    .exp-item {
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .exp-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .exp-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 2px;
+    }
+
+    .exp-role {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .exp-period {
+      font-size: 11.5px;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    .exp-company-line {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .exp-company {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--blue);
+    }
+
+    .exp-location {
+      font-size: 11.5px;
+      color: var(--dim);
+    }
+
+    .exp-achievements {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 8px;
+    }
+
+    .exp-achievements li {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.6;
+      padding-left: 14px;
+      position: relative;
+      margin-bottom: 4px;
+    }
+
+    .exp-achievements li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-size: 10px;
+      top: 3px;
+    }
+
+    .exp-award {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--green);
+      background: #dcfce7;
+      padding: 3px 10px;
+      border-radius: 3px;
+      margin-top: 6px;
+    }
+
+    .exp-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 3px;
+      background: var(--blue-light);
+      color: var(--blue);
+      font-weight: 500;
+    }
+
+    /* ── Projects ────────────────────────────────── */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .project-item {
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      border-left: 3px solid var(--blue);
+    }
+
+    .project-title {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 2px;
+    }
+
+    .project-subtitle {
+      font-size: 11px;
+      color: var(--blue);
+      margin-bottom: 4px;
+    }
+
+    .project-desc {
+      font-size: 11.5px;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .project-link {
+      font-size: 11px;
+      color: var(--blue);
+    }
+
+    /* ── Education ───────────────────────────────── */
+    .edu-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .edu-degree {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .edu-school {
+      font-size: 12.5px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .edu-period {
+      font-size: 12px;
+      color: var(--dim);
+      white-space: nowrap;
+    }
+
+    /* ── Print ───────────────────────────────────── */
+    @media print {
+      body        { padding: 16px 24px; font-size: 12px; }
+      .print-btn  { display: none; }
+      .section    { margin-bottom: 14px; }
+      @page       { margin: 0.4cm; size: A4; }
+    }
+  </style>
+</head>
+<body>
+
+  <button class="print-btn" onclick="window.print()">
+    Save as PDF
+  </button>
+
+  <!-- ── HEADER ──────────────────────────────────── -->
+  <div class="header">
+    <div>
+      <div class="header-name">Michael Emmanuel</div>
+      <div class="header-role">
+        Platform / DevOps Engineer
+      </div>
+      <div class="header-tagline">
+        AWS · Terraform · Kubernetes · Docker ·
+        GitHub Actions · Prometheus
+      </div>
+    </div>
+    <div class="header-contact">
+      <div>📍 Lagos, Nigeria</div>
+      <div>📞 +234-703-100-5238</div>
+      <div>
+        <a href="mailto:myke7104@gmail.com">
+          myke7104@gmail.com
+        </a>
+      </div>
+      <div>
+        <a href="https://github.com/s8mike"
+           target="_blank">
+          github.com/s8mike
+        </a>
+      </div>
+      <div>
+        <a href="https://linkedin.com/in/yourprofile"
+           target="_blank">
+          linkedin.com/in/yourprofile
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROFILE ─────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Profile</div>
+    <p class="profile-text">
+      Results-driven Platform/DevOps Engineer with 3+ years
+      of experience designing and deploying production-grade
+      cloud infrastructure, automation tooling, and CI/CD
+      pipelines. Currently a Platform Engineering Intern at
+      Webforx Technology, recognised as Best Intern by the
+      POC Committee for outstanding performance, collaboration,
+      and initiative. Hands-on experience with AWS, Terraform,
+      Kubernetes, Docker, ArgoCD, and Prometheus. Passionate
+      about Infrastructure as Code, developer experience, and
+      building scalable, reliable internal platforms.
+    </p>
+  </div>
+
+  <!-- ── SKILLS ──────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Technical Skills</div>
+    <div class="skills-grid">
+      <div class="skill-group">
+        <div class="skill-group-title">Cloud & Infrastructure</div>
+        <div class="skill-list">
+          AWS (EC2, S3, IAM, Lambda, DynamoDB,<br/>
+          ECS, ALB, KMS, SNS, VPC, CloudWatch,<br/>
+          Transit Gateway), AWS SSO
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">IaC & Automation</div>
+        <div class="skill-list">
+          Terraform, Ansible, Bash,
+          Python, Vault
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Containers & GitOps</div>
+        <div class="skill-list">
+          Docker, Kubernetes, Helm,
+          Kustomize, ArgoCD, Reloader
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">CI/CD</div>
+        <div class="skill-list">
+          GitHub Actions, Forgejo Actions,
+          Jenkins, ArgoCD
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Monitoring</div>
+        <div class="skill-list">
+          Prometheus, Grafana, Alertmanager,
+          AWS CloudWatch, Uptime Kuma
+        </div>
+      </div>
+      <div class="skill-group">
+        <div class="skill-group-title">Platform Tools</div>
+        <div class="skill-list">
+          Authentik SSO, Forgejo, Mattermost,
+          Nextcloud, Redmine, Bookstack,
+          Taiga, Confluence, DBeaver
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── EXPERIENCE ──────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Experience</div>
+
+    <!-- Webforx -->
+    <div class="exp-item">
+      <div class="exp-header">
+        <div class="exp-role">Platform Engineering Intern</div>
+        <div class="exp-period">March 2024 — Present</div>
+      </div>
+      <div class="exp-company-line">
+        <div class="exp-company">Webforx Technology</div>
+        <div class="exp-location">Lagos, Nigeria</div>
+      </div>
+      <ul class="exp-achievements">
+        <li>
+          Built production-grade multi-application AWS
+          infrastructure using Terraform monorepo pattern
+          with shared infrastructure separation — three
+          applications with independent CI/CD pipelines
+          and isolated Terraform state files.
+        </li>
+        <li>
+          Designed Terraform-managed AWS Lambda functions
+          to detect and clean up unused resources — EBS
+          volumes, idle ALBs, orphaned Elastic IPs, and
+          stale CloudWatch logs — with Mattermost and
+          SNS notifications.
+        </li>
+        <li>
+          Developed Terraform-managed EC2 start/stop
+          Lambda automation based on instance tags with
+          CloudWatch Logs for cost management and auditing.
+        </li>
+        <li>
+          Implemented Terraform-managed AWS KMS keys for
+          EBS, S3, SSM, and Auto Scaling with automated
+          key rotation and DynamoDB logging.
+        </li>
+        <li>
+          Deployed Reloader via Helm and Kustomize under
+          ArgoCD with namespace-restricted RBAC, automated
+          sync, prune, and self-healing to prevent drift.
+        </li>
+        <li>
+          Integrated Alertmanager into Grafana with live
+          alert visibility and Mattermost notifications
+          for real-time incident response.
+        </li>
+        <li>
+          Refactored environment validation scripts and
+          integrated into CI/CD pipelines for automated
+          Laravel backend environment verification.
+        </li>
+      </ul>
+      <div class="exp-award">🏆 Best Intern Award — Webforx POC Committee</div>
+      <div class="exp-tags">
+        <span class="tag">AWS</span>
+        <span class="tag">Terraform</span>
+        <span class="tag">Lambda</span>
+        <span class="tag">KMS</span>
+        <span class="tag">Docker</span>
+        <span class="tag">GitHub Actions</span>
+        <span class="tag">ArgoCD</span>
+        <span class="tag">Helm</span>
+        <span class="tag">Prometheus</span>
+        <span class="tag">Grafana</span>
+        <span class="tag">Python</span>
+        <span class="tag">Bash</span>
+      </div>
+    </div>
+
+    <!-- EK Tech -->
+    <div class="exp-item">
+      <div class="exp-header">
+        <div class="exp-role">DevOps Engineer</div>
+        <div class="exp-period">May 2021 — January 2024</div>
+      </div>
+      <div class="exp-company-line">
+        <div class="exp-company">
+          EK Tech Software Solutions
+        </div>
+        <div class="exp-location">Texas, USA (Remote)</div>
+      </div>
+      <ul class="exp-achievements">
+        <li>
+          Automated AWS infrastructure deployments using
+          Terraform and Ansible, reducing provisioning
+          time by 70%.
+        </li>
+        <li>
+          Designed multi-account AWS networking using
+          Transit Gateway and VPC peering for secure
+          cross-account communication.
+        </li>
+        <li>
+          Developed CI/CD pipelines using Jenkins, GitHub
+          Actions, and ArgoCD, improving release
+          efficiency by 50%.
+        </li>
+        <li>
+          Managed Kubernetes cluster architectures,
+          deploying mission-critical applications with
+          Helm and Terraform.
+        </li>
+        <li>
+          Implemented AWS IAM best practices, reducing
+          security incidents by 50%.
+        </li>
+        <li>
+          Designed AWS ECS clusters with ALB and auto
+          scaling, improving application resilience.
+        </li>
+        <li>
+          Implemented Python scripts in CI/CD pipelines
+          to extract secrets from vaults securely.
+        </li>
+        <li>
+          Developed Ansible playbooks for automated
+          patching across AWS and on-prem systems.
+        </li>
+        <li>
+          Monitored infrastructure using Prometheus,
+          Grafana, and CloudWatch, ensuring system
+          stability.
+        </li>
+      </ul>
+      <div class="exp-tags">
+        <span class="tag">AWS</span>
+        <span class="tag">Terraform</span>
+        <span class="tag">Ansible</span>
+        <span class="tag">Kubernetes</span>
+        <span class="tag">Helm</span>
+        <span class="tag">Jenkins</span>
+        <span class="tag">GitHub Actions</span>
+        <span class="tag">ArgoCD</span>
+        <span class="tag">Python</span>
+        <span class="tag">Prometheus</span>
+        <span class="tag">Grafana</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROJECTS ────────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Key Projects</div>
+    <div class="projects-grid">
+
+      <div class="project-item">
+        <div class="project-title">
+          AWS Multi-App Platform Infrastructure
+        </div>
+        <div class="project-subtitle">
+          Terraform monorepo · Shared infrastructure
+        </div>
+        <div class="project-desc">
+          Multi-app AWS infrastructure with shared
+          infrastructure separation. Three apps with
+          independent pipelines and isolated state files.
+          ECS Fargate, ALB, auto scaling.
+        </div>
+        <a href="https://github.com/s8mike/aws-terraform-infra"
+           class="project-link">
+          github.com/s8mike/aws-terraform-infra
+        </a>
+      </div>
+
+      <div class="project-item">
+        <div class="project-title">
+          AWS Resource Automation
+        </div>
+        <div class="project-subtitle">
+          Lambda · Terraform · SNS · Mattermost
+        </div>
+        <div class="project-desc">
+          Lambda functions to clean up unused EBS,
+          ALBs, Elastic IPs, and CloudWatch logs.
+          Multi-channel notifications. Full IaC.
+        </div>
+      </div>
+
+      <div class="project-item">
+        <div class="project-title">
+          Kubernetes GitOps Deployment
+        </div>
+        <div class="project-subtitle">
+          ArgoCD · Helm · Kustomize · Reloader
+        </div>
+        <div class="project-desc">
+          Automated pod reloads on ConfigMap/Secret
+          updates. Namespace RBAC, self-healing,
+          automated sync and prune.
+        </div>
+      </div>
+
+      <div class="project-item">
+        <div class="project-title">
+          School Management Platform
+        </div>
+        <div class="project-subtitle">
+          FastAPI · PostgreSQL · JWT · Docker
+        </div>
+        <div class="project-desc">
+          RESTful API with JWT auth, RBAC, and CRUD
+          for student and course management.
+        </div>
+        <a href="https://github.com/s8mike/mecandjeo-school-platform"
+           class="project-link">
+          github.com/s8mike/mecandjeo-school-platform
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── EDUCATION ───────────────────────────────── -->
+  <div class="section">
+    <div class="section-title">Education</div>
+    <div class="edu-item">
+      <div>
+        <div class="edu-degree">
+          B.Sc. Business Administration
+        </div>
+        <div class="edu-school">
+          University of Lagos, Nigeria
+        </div>
+      </div>
+      <div class="edu-period">2016 — 2020</div>
+    </div>
+  </div>
+
+</body>
+</html>

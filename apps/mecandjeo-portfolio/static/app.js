@@ -367,15 +367,54 @@ async function loadContact() {
 // ─────────────────────────────────────────────────────────────
 // BOOT
 // ─────────────────────────────────────────────────────────────
+// ── Load Experience ───────────────────────────────────────────
+async function loadExperience() {
+  const data = await apiFetch('/api/experience');
+  if (!data) return;
+
+  // Only render if experience section exists in HTML
+  const container = $('experience-timeline');
+  if (!container) return;
+
+  container.innerHTML = '';
+  data.experience.forEach(exp => {
+    const item = document.createElement('div');
+    item.className = 'experience-item';
+    item.innerHTML = `
+      <div class="exp-header-web">
+        <div class="exp-role-web">${exp.role}</div>
+        <div class="exp-period-web">${exp.period}</div>
+      </div>
+      <div class="exp-company-web">
+        ${exp.company}
+        <span class="exp-location-web">— ${exp.location}</span>
+      </div>
+      ${exp.award ? `
+        <div class="exp-award-web">🏆 ${exp.award}</div>
+      ` : ''}
+      <div class="exp-tags-web">
+        ${exp.tags.map(t =>
+          `<span class="project-tag">${t}</span>`
+        ).join('')}
+      </div>
+    `;
+    container.appendChild(item);
+  });
+}
+
+
 async function init() {
   initHeroCanvas();
   await Promise.all([
     loadProfile(),
     loadSkills(),
+    loadExperience(),
     loadProjects(),
     loadContact(),
   ]);
-  initScrollFadeIn();
+  // Small delay ensures dynamically created elements
+  // are in the DOM before observer attaches
+  setTimeout(initScrollFadeIn, 100);
 }
 
 document.addEventListener('DOMContentLoaded', init);

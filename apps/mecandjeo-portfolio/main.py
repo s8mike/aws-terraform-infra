@@ -1,6 +1,6 @@
 # ─────────────────────────────────────────────────────────────
-# MecandjeoOps Personal Portfolio
-# Platform / DevOps Engineer
+# MecanjeoOps Personal Portfolio
+# Michael Emmanuel — Platform / DevOps Engineer
 # ─────────────────────────────────────────────────────────────
 
 import os
@@ -12,7 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # ── App Initialization ────────────────────────────────────────
 app = FastAPI(
-    title="MecandjeoOps Portfolio",
+    title="MecanjeoOps Portfolio",
     description="Personal Portfolio — Platform/DevOps Engineer",
     version="1.0.0"
 )
@@ -25,13 +25,11 @@ app.add_middleware(
 )
 
 # ── Environment Config ────────────────────────────────────────
-ENVIRONMENT  = os.getenv("ENVIRONMENT",  "dev")
+ENVIRONMENT = os.getenv("ENVIRONMENT", "dev")
 APP_VERSION  = os.getenv("APP_VERSION",  "1.0.0")
 
 # ─────────────────────────────────────────────────────────────
 # PORTFOLIO DATA
-# Update these sections with real information
-# then push to trigger automatic redeployment
 # ─────────────────────────────────────────────────────────────
 
 PROFILE = {
@@ -40,52 +38,166 @@ PROFILE = {
     "tagline":  "Building production-grade infrastructure with AWS · Terraform · Docker",
     "location": "Lagos, Nigeria",
     "email":    "myke7104@gmail.com",
+    "phone":    "+234-703-100-5238",
     "github":   "https://github.com/s8mike",
     "linkedin": "https://linkedin.com/in/yourprofile",
     "bio":      (
-        "Platform engineering intern at Webforx Technology with hands-on experience "
-        "designing and deploying production-grade AWS infrastructure using Terraform "
-        "and Docker. Built monitoring solutions with Prometheus, Grafana, and Alertmanager, "
-        "developed DevOps automation tools using Bash and Python, and created repository "
-        "management utilities integrating with Forgejo. Passionate about Infrastructure as Code, "
-        "CI/CD automation, and building scalable, reliable systems."
+        "Results-driven Platform/DevOps Engineer with 3+ years of experience "
+        "designing and deploying production-grade cloud infrastructure, automation "
+        "tooling, and CI/CD pipelines. Currently a Platform Engineering Intern at "
+        "Webforx Technology, recognised as Best Intern by the POC Committee for "
+        "outstanding performance, collaboration, and initiative. Hands-on experience "
+        "with AWS, Terraform, Kubernetes, Docker, ArgoCD, and Prometheus. Passionate "
+        "about Infrastructure as Code, developer experience, and building scalable, "
+        "reliable internal platforms."
     ),
     "available": True
 }
+
 SKILLS = [
     # Cloud
-    { "name": "AWS",           "category": "Cloud",     "level": 85 },
-    { "name": "Lambda",        "category": "Cloud",     "level": 75 },
-    { "name": "ECS Fargate",   "category": "Cloud",     "level": 80 },
-    { "name": "VPC / Networking", "category": "Cloud",  "level": 80 },
-    { "name": "EC2",           "category": "Cloud",     "level": 80 },
-    { "name": "S3",            "category": "Cloud",     "level": 80 },
-    { "name": "IAM",           "category": "Cloud",     "level": 75 },
-    { "name": "CloudWatch",    "category": "Cloud",     "level": 75 },
+    {"name": "AWS",              "category": "Cloud",      "level": 75},
+    {"name": "ECS Fargate",      "category": "Cloud",      "level": 75},
+    {"name": "VPC / Networking", "category": "Cloud",      "level": 75},
+    {"name": "EC2",              "category": "Cloud",      "level": 70},
+    {"name": "S3",               "category": "Cloud",      "level": 75},
+    {"name": "IAM",              "category": "Cloud",      "level": 70},
+    {"name": "Lambda",           "category": "Cloud",      "level": 65},
+    {"name": "CloudWatch",       "category": "Cloud",      "level": 65},
+    {"name": "KMS",              "category": "Cloud",      "level": 60},
     # IaC
-    { "name": "Terraform",     "category": "IaC",       "level": 85 },
-    { "name": "Docker",        "category": "Containers","level": 80 },
-    { "name": "Kubernetes",    "category": "Containers","level": 65 },
-    # Monitoring
-    { "name": "Prometheus",    "category": "Monitoring","level": 75 },
-    { "name": "Grafana",       "category": "Monitoring","level": 75 },
-    { "name": "Alertmanager",  "category": "Monitoring","level": 70 },
+    {"name": "Terraform",        "category": "IaC",        "level": 80},
+    {"name": "Ansible",          "category": "IaC",        "level": 65},
+    {"name": "Vault",            "category": "IaC",        "level": 60},
+    # Containers
+    {"name": "Docker",           "category": "Containers", "level": 78},
+    {"name": "Kubernetes",       "category": "Containers", "level": 55},
+    {"name": "Helm",             "category": "Containers", "level": 60},
+    {"name": "ArgoCD",           "category": "Containers", "level": 60},
+    {"name": "Kustomize",        "category": "Containers", "level": 58},
     # CI/CD
-    { "name": "GitHub Actions","category": "CI/CD",     "level": 80 },
-    { "name": "CI/CD Pipelines","category": "CI/CD",    "level": 75 },
+    {"name": "GitHub Actions",   "category": "CI/CD",      "level": 75},
+    {"name": "Forgejo Actions",  "category": "CI/CD",      "level": 70},
+    {"name": "Jenkins",          "category": "CI/CD",      "level": 60},
+    # Monitoring
+    {"name": "Prometheus",       "category": "Monitoring", "level": 65},
+    {"name": "Grafana",          "category": "Monitoring", "level": 65},
+    {"name": "Alertmanager",     "category": "Monitoring", "level": 60},
+    {"name": "Uptime Kuma",      "category": "Monitoring", "level": 60},
     # Languages
-    { "name": "Python",        "category": "Languages",  "level": 75 },
-    { "name": "Flask",         "category": "Languages",  "level": 70 },
-    { "name": "Bash / Shell",  "category": "Languages",  "level": 80 },
-    { "name": "YAML",          "category": "Languages",  "level": 85 },
+    {"name": "Python",           "category": "Languages",  "level": 65},
+    {"name": "Bash / Shell",     "category": "Languages",  "level": 70},
+    {"name": "YAML",             "category": "Languages",  "level": 80},
     # Tools
-    { "name": "Git",           "category": "Tools",      "level": 80 },
-    { "name": "Forgejo",       "category": "Tools",      "level": 70 },
-    { "name": "Linux",         "category": "Tools",      "level": 75 },
-    { "name": "jq",            "category": "Tools",      "level": 75 },
-    { "name": "curl",          "category": "Tools",      "level": 75 },
-    { "name": "Mattermost",    "category": "Tools",      "level": 70 },
-];
+    {"name": "Git",              "category": "Tools",      "level": 75},
+    {"name": "Linux",            "category": "Tools",      "level": 70},
+    {"name": "Forgejo",          "category": "Tools",      "level": 65},
+]
+
+EXPERIENCE = [
+    {
+        "role":    "Platform Engineering Intern",
+        "company": "Webforx Technology",
+        "location": "Lagos, Nigeria",
+        "period":  "March 2024 — Present",
+        "achievements": [
+            (
+                "Built production-grade multi-application AWS infrastructure "
+                "using Terraform monorepo pattern with shared infrastructure "
+                "separation — three applications with independent CI/CD pipelines "
+                "and isolated Terraform state files."
+            ),
+            (
+                "Designed and implemented Terraform-managed AWS Lambda functions "
+                "to detect and clean up unused resources — EBS volumes, idle ALBs, "
+                "orphaned Elastic IPs, and stale CloudWatch logs — with multi-channel "
+                "notifications via Mattermost and AWS SNS."
+            ),
+            (
+                "Developed Terraform-managed AWS Lambda for EC2 start/stop "
+                "automation based on instance tags, improving cost management "
+                "with CloudWatch Logs for auditing."
+            ),
+            (
+                "Implemented Terraform-managed AWS KMS keys for EBS, S3, SSM "
+                "Session Manager, and Auto Scaling with automated key rotation "
+                "and Lambda-based rotation with DynamoDB logging."
+            ),
+            (
+                "Deployed Reloader using Helm and Kustomize under ArgoCD "
+                "platform-tools. Configured namespace-restricted RBAC with "
+                "automated sync, prune, and self-healing to prevent drift."
+            ),
+            (
+                "Integrated Alertmanager into Grafana dashboards providing live "
+                "visibility of alerts, severities, and firing/resolved status. "
+                "Configured Mattermost notifications for real-time incident response."
+            ),
+            (
+                "Refactored laravel_check.sh to dynamically validate Laravel "
+                "backend environment variables and integrated into CI/CD pipelines "
+                "for automated environment verification."
+            ),
+        ],
+        "award": "Best Intern Award — Webforx POC Committee",
+        "tags":  [
+            "AWS", "Terraform", "Lambda", "KMS", "Docker",
+            "GitHub Actions", "ArgoCD", "Helm", "Prometheus",
+            "Grafana", "Alertmanager", "Python", "Bash"
+        ]
+    },
+    {
+        "role":    "DevOps Engineer",
+        "company": "EK Tech Software Solutions",
+        "location": "Texas, USA (Remote)",
+        "period":  "May 2021 — January 2024",
+        "achievements": [
+            (
+                "Automated AWS infrastructure deployments using Terraform and "
+                "Ansible, reducing provisioning time by 70%."
+            ),
+            (
+                "Designed multi-account AWS networking strategy using Transit "
+                "Gateway and VPC peering for secure cross-account communication."
+            ),
+            (
+                "Developed CI/CD pipelines using Jenkins, GitHub Actions, and "
+                "ArgoCD, improving software release efficiency by 50%."
+            ),
+            (
+                "Managed Kubernetes cluster architectures, deploying "
+                "mission-critical applications with Helm and Terraform."
+            ),
+            (
+                "Implemented AWS IAM best practices, reducing security "
+                "incidents by 50%."
+            ),
+            (
+                "Designed AWS ECS clusters with ALB and auto scaling, "
+                "improving application resilience."
+            ),
+            (
+                "Implemented Python scripts in CI/CD pipelines to extract "
+                "application secrets from vaults and supply them securely "
+                "as system variables."
+            ),
+            (
+                "Developed Ansible playbooks for automated patching and "
+                "configuration management across AWS and on-prem systems."
+            ),
+            (
+                "Monitored cloud infrastructure using Prometheus, Grafana, "
+                "and AWS CloudWatch, ensuring system stability."
+            ),
+        ],
+        "award": "",
+        "tags":  [
+            "AWS", "Terraform", "Ansible", "Kubernetes", "Helm",
+            "Jenkins", "GitHub Actions", "ArgoCD", "Python",
+            "Prometheus", "Grafana", "CloudWatch"
+        ]
+    },
+]
 
 PROJECTS = [
     {
@@ -94,11 +206,10 @@ PROJECTS = [
         "description": (
             "Designed and provisioned a complete multi-application AWS "
             "infrastructure using Terraform monorepo pattern with shared "
-            "infrastructure separation. Includes custom VPC, ECS Fargate, "
-            "Application Load Balancer, auto scaling, and remote S3 state "
-            "management with namespaced keys for multi-app state isolation. "
-            "Three applications deployed simultaneously with independent "
-            "CI/CD pipelines and zero inter-app dependencies."
+            "infrastructure separation. Three applications deployed "
+            "simultaneously with independent CI/CD pipelines and isolated "
+            "Terraform state files. ECS Fargate, ALB, auto scaling, and "
+            "S3 remote state with namespaced keys."
         ),
         "tags":      ["Terraform", "AWS", "ECS", "Docker", "GitHub Actions", "Python"],
         "github":    "https://github.com/s8mike/aws-terraform-infra",
@@ -121,88 +232,76 @@ PROJECTS = [
         "highlight": True
     },
     {
-        "title":       "Multi-App CI/CD Pipeline Automation",
-        "subtitle":    "GitHub Actions — independent parallel pipelines",
+        "title":       "AWS Resource Automation",
+        "subtitle":    "Lambda-based unused resource cleanup — Webforx Technology",
         "description": (
-            "Three independent GitHub Actions pipelines for shared infrastructure, "
-            "dashboard, and portfolio applications. Each pipeline validates Terraform "
-            "code, builds Docker images from real Dockerfiles, pushes to both Docker "
-            "Hub and AWS ECR simultaneously, and deploys to ECS Fargate automatically "
-            "on every push to main. Manual approval gate protects production deployments."
+            "Terraform-managed AWS Lambda functions to detect and automatically "
+            "clean up unused AWS resources — EBS volumes, idle load balancers, "
+            "orphaned Elastic IPs, and stale CloudWatch logs. Multi-channel "
+            "notifications via Mattermost and AWS SNS. All resources fully "
+            "IaC-managed with Terraform."
         ),
-        "tags":      ["GitHub Actions", "Docker", "ECR", "Terraform", "CI/CD"],
-        "github":    "https://github.com/s8mike/aws-terraform-infra",
+        "tags":      ["AWS Lambda", "Terraform", "SNS", "Mattermost", "Python"],
+        "github":    "",
         "live":      "",
-        "highlight": False
-    }, 
+        "highlight": True
+    },
     {
-        "title":       "Monitoring Stack — Prometheus, Grafana, Alertmanager",
-        "subtitle":    "Observability infrastructure at Webforx Technology",
+        "title":       "Kubernetes GitOps Deployment",
+        "subtitle":    "ArgoCD · Helm · Kustomize — Webforx Technology",
         "description": (
-            "Built and configured a complete monitoring stack at Webforx Technology "
-            "using Prometheus for metrics collection, Grafana for visualisation and "
-            "dashboards, and Alertmanager for alert routing and notification management. "
-            "Developed custom alerting rules and dashboards for infrastructure "
-            "and application monitoring."
+            "Deployed Reloader using Helm and Kustomize under ArgoCD "
+            "platform-tools project. Automated pod reloads when ConfigMaps "
+            "or Secrets are updated. Configured namespace-restricted RBAC "
+            "with automated sync, prune, and self-healing to prevent drift."
         ),
-        "tags":      ["Prometheus", "Grafana", "Alertmanager", "DevOps", "Monitoring"],
+        "tags":      ["Kubernetes", "ArgoCD", "Helm", "Kustomize", "GitOps", "RBAC"],
         "github":    "",
         "live":      "",
         "highlight": False
     },
     {
-        "title":       "School Platform API",
-        "subtitle":    "FastAPI backend with PostgreSQL and authentication",
+        "title":       "Multi-App CI/CD Pipeline Automation",
+        "subtitle":    "GitHub Actions — independent parallel pipelines",
         "description": (
-            "RESTful API for a school management platform built with Python FastAPI "
-            "and PostgreSQL. Implements JWT authentication, role-based access control "
-            "with admin and user roles, and full CRUD operations for student and course "
-            "management. Containerised with Docker and integrated into the shared "
-            "AWS infrastructure monorepo."
+            "Three independent GitHub Actions pipelines for shared infrastructure, "
+            "dashboard, and portfolio applications. Each pipeline validates Terraform "
+            "code, builds Docker images, pushes to Docker Hub and AWS ECR, and "
+            "deploys to ECS Fargate automatically. Manual approval gate for production."
+        ),
+        "tags":      ["GitHub Actions", "Docker", "ECR", "Terraform", "CI/CD"],
+        "github":    "https://github.com/s8mike/aws-terraform-infra",
+        "live":      "",
+        "highlight": False
+    },
+    {
+        "title":       "Monitoring Stack",
+        "subtitle":    "Prometheus · Grafana · Alertmanager — Webforx Technology",
+        "description": (
+            "Complete observability stack with Prometheus for metrics collection, "
+            "Grafana for visualisation and dashboards, and Alertmanager for alert "
+            "routing. Configured Mattermost notifications for real-time incident "
+            "response. Custom alerting rules for infrastructure and application "
+            "monitoring."
+        ),
+        "tags":      ["Prometheus", "Grafana", "Alertmanager", "Mattermost", "DevOps"],
+        "github":    "",
+        "live":      "",
+        "highlight": False
+    },
+    {
+        "title":       "School Management Platform",
+        "subtitle":    "FastAPI + PostgreSQL + JWT Authentication",
+        "description": (
+            "RESTful API for school management with JWT authentication, "
+            "role-based access control, and full CRUD operations for "
+            "student and course management. Containerised with Docker "
+            "and integrated into the shared AWS infrastructure monorepo."
         ),
         "tags":      ["Python", "FastAPI", "PostgreSQL", "SQLAlchemy", "JWT", "Docker"],
         "github":    "https://github.com/s8mike/mecandjeo-school-platform",
         "live":      "",
         "highlight": False
-    },
-
-
-    {
-        "title":       "repo-sync-tools",
-        "subtitle":    "Forgejo repository synchronization & PR visibility tool",
-        "description": "Built a DevOps automation tool for synchronizing repositories from a Forgejo organization to local environments. Implemented automatic repo cloning/pulling, open pull request scanning, and stale PR detection with age calculation. Designed as an idempotent Bash script with fail-fast error handling using 'set -euo pipefail' for reliable repeated execution.",
-        "tags":        ["Bash", "Forgejo", "Git", "API Integration", "DevOps", "Automation", "jq", "curl"],
-        "github":      "https://github.com/s8mike/repo-sync-tools",
-        "live":        "",
-        "highlight":   True
-    },
-    {
-        "title":       "DevOps Tools Scanner",
-        "subtitle":    "Bash script for automated DevOps tool detection & reporting",
-        "description": "Developed a cross-platform Bash script that automatically scans systems to detect and catalog installed DevOps tools (Kubernetes, Docker, IaC, Cloud CLI, etc.). Implements smart categorization, size calculation, CSV export with timestamps, and color-coded terminal output. Supports Windows (MINGW64), Linux, and macOS with optional Docker image/container scanning and VS Code extension listing.",
-        "tags":        ["Bash", "DevOps", "Automation", "Scripting", "System Administration", "CSV", "Reporting"],
-        "github":      "",
-        "live":        "",
-        "highlight":   True
-    },
-    {
-        "title":       "EC2 Scheduler Lambda Module",
-        "subtitle":    "Terraform module for scheduled EC2 instance start/stop",
-        "description": "Developed a Terraform module that provisions a Lambda function to automatically start or stop EC2 instances on a schedule for cost optimization. Implemented tag-based instance filtering via environment variables, built-in Mattermost webhook notifications with retry logic, and CloudWatch Logs integration. The Lambda handler filters instances by tag key/value and sends formatted notifications with tracking IDs after each operation.",
-        "tags":        ["AWS", "Lambda", "Terraform", "Python", "boto3", "EC2", "CloudWatch", "Mattermost", "DevOps", "IaC"],
-        "github":      "",
-        "live":        "",
-        "highlight":   True
-    },
-      # Add projects from your internship at Webforx Technology
-    {
-        "title":       "Project Name from Internship",
-        "subtitle":    "Brief tech description",
-        "description": "What you built, what problem it solved...",
-        "tags":        ["relevant", "technologies"],
-        "github":      "https://github.com/s8mike/repo-name",
-        "live":        "",
-        "highlight":   True
     },
 ]
 
@@ -254,6 +353,15 @@ async def get_projects():
         "total":     len(PROJECTS),
         "highlight": [p for p in PROJECTS if p["highlight"]],
         "timestamp": datetime.now(timezone.utc).isoformat()
+    }
+
+
+@app.get("/api/experience", tags=["Portfolio"])
+async def get_experience():
+    return {
+        "experience": EXPERIENCE,
+        "total":      len(EXPERIENCE),
+        "timestamp":  datetime.now(timezone.utc).isoformat()
     }
 
 
