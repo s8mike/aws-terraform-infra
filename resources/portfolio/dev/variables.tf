@@ -1,7 +1,7 @@
 # ─────────────────────────────────────────────────────────────
 # Portfolio Application Variables — Dev
 # Shared infrastructure values (VPC, security groups, IAM)
-# since we are using the dashboard state via terraform_remote_state to read these values automatically, 
+# Since we are using the dashboard state via terraform_remote_state to read these values automatically, 
 # they should not be required variables anymore — 
 # the main.tf reads them directly from the remote state via locals.
 # ─────────────────────────────────────────────────────────────

@@ -16,6 +16,7 @@
 #   8000 — dashboard
 #   8001 — portfolio
 #   8002 — school
+#   8003 — blog - Future app, not yet deployed
 # ─────────────────────────────────────────────────────────────
 
 module "vpc" {
