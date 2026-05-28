@@ -349,15 +349,17 @@ Pass connection string via GitHub Secret → ECS environment.
 
 ## 9. Troubleshooting Quick Reference
 
-| Symptom                                             | Likely Cause                        | Fix                                              |
-|-----------------------------------------------------|-------------------------------------|--------------------------------------------------|
-| 503 on browser                                      | ECS tasks restarting                | Wait for Running = Desired                       |
-| Changes not appearing                               | Old tasks still running             | `force-new-deployment` or push triggers pipeline |
-| `remote_state outputs is object with no attributes` | Shared not deployed or no outputs   | Deploy shared, run `terraform output`            |
-| `Target.Timeout`                                    | Security group blocking port        | Add port to `app_ports`, apply shared            |
-| ALB DNS not resolving                               | Using old DNS from previous session | Run `terraform output` for fresh DNS             |
-| `terraform init` network timeout                    | Connectivity issue                  | Copy `.terraform/` from another dir, retry       |
-| `EntityAlreadyExists` IAM role                      | Pipeline wrong working directory    | Check `working-directory` in pipeline file       |
+| Symptom                                             | Likely Cause                        | Fix                                        |
+|---------------------------------------------------- |-------------------------------------|--------------------------------------------|
+| 503 on browser                                      | ECS tasks restarting                | Wait for Running = Desired                 |
+| Changes not appearing                               | Old tasks still running       | `force-new-deployment` or push triggers pipeline |
+| `remote_state outputs is object with no attributes` | Shared not deployed or no outputs   | Deploy shared, run `terraform output`      |
+| `Target.Timeout`                                    | Security group blocking port        | Add port to `app_ports`, apply shared      |
+| ALB DNS not resolving                               | Using old DNS from previous session | Run `terraform output` for fresh DNS       |
+| `terraform init` network timeout                    | Connectivity issue                  | Copy `.terraform/` from another dir, retry |
+| `EntityAlreadyExists` IAM role                      | Pipeline wrong working directory    | Check `working-directory` in pipeline file |
+
+
 
 ---
 
