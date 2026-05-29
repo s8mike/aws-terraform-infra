@@ -2,7 +2,9 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 from .database import Base, engine
-from .routes import auth, users, admin
+from .routes import auth, users, admin, students               # from .routes import auth, users, admin
+
+
 
 # ✅ Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -48,3 +50,4 @@ def home():
 app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api/users")
 app.include_router(admin.router)
+app.include_router(students.router)
