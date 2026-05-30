@@ -16,9 +16,9 @@
 # #   DOCKERHUB_TOKEN       — Docker Hub access token
 # #
 # # Dependency:
-# #   Shared infrastructure must be deployed first.
-# #   This pipeline reads VPC and security outputs
-# #   from mecandjeo-shared/dev/terraform.tfstate
+# #   Shared infrastructure (resources/shared/dev) MUST be deployed first.
+# #   School reads shared VPC and security group outputs via
+# #   terraform_remote_state. School is independent of Dashboard and Portfolio.
 # # ─────────────────────────────────────────────────────────────
 
 # name: Mecandjeo School CI/CD

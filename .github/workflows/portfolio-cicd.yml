@@ -23,9 +23,9 @@
 #   production                — with required reviewers set
 #
 # Dependency:
-#   Dashboard MUST be deployed first — this pipeline reads
-#   shared infrastructure outputs from dashboard state via
-#   terraform_remote_state
+#   Shared infrastructure (resources/shared/dev) MUST be deployed first.
+#   Portfolio reads shared VPC and security group outputs via
+#   terraform_remote_state. Portfolio is independent of Dashboard.
 # ─────────────────────────────────────────────────────────────
 
 name: MecandjeoOps Portfolio CI/CD
