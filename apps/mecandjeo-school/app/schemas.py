@@ -63,8 +63,64 @@ class StudentResponse(StudentBase):
 
 
 
+# ==========================================================
+# TEACHER DOMAIN SCHEMAS
+# ==========================================================
+
+# Shared teacher fields
+class TeacherBase(BaseModel):
+    full_name: str
+    subject: str
 
 
+# Create teacher profile
+class TeacherCreate(TeacherBase):
+    pass
+
+
+# Update teacher profile
+class TeacherUpdate(TeacherBase):
+    pass
+
+
+# Teacher API response
+class TeacherResponse(TeacherBase):
+    id: int
+    user_id: int
+
+    class Config:
+        from_attributes = True
+
+
+
+# ==========================================================
+# COURSE DOMAIN SCHEMAS (Phase 5.2 Step 4)
+# ==========================================================
+
+# Shared course fields
+class CourseBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+
+# Create course
+class CourseCreate(CourseBase):
+    pass
+
+
+# Update course
+class CourseUpdate(CourseBase):
+    pass
+
+
+# Course API response
+class CourseResponse(CourseBase):
+    id: int
+    teacher_id: int
+
+    class Config:
+        from_attributes = True
+#########################################################################################################
 
 ## Starting Point for Schemas.
 # # validation schemas for user registration and login, ensuring data integrity and security best practices.

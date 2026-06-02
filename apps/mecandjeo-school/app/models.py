@@ -29,6 +29,13 @@ class User(Base):
         uselist=False
     )
 
+    # One-to-one relationship with teacher profile
+    teacher_profile = relationship(
+        "Teacher",
+        back_populates="user",
+        uselist=False
+    )
+
 
 # Student domain model
 class Student(Base):
@@ -52,6 +59,66 @@ class Student(Base):
         back_populates="student_profile"
     )
 
+
+# Teacher domain model
+class Teacher(Base):
+    __tablename__ = "teachers"
+
+    # Primary teacher ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link teacher to authenticated user
+    user_id = Column(Integer, ForeignKey("users.id"))
+
+    # Teacher full name
+    full_name = Column(String, nullable=False)
+
+    # Subject specialization
+    subject = Column(String, nullable=False)
+
+    # Relationship back to user
+    user = relationship(
+        "User",
+        back_populates="teacher_profile"
+    )
+
+    # One teacher can teach many courses (phase 5.2-step 4)
+    courses = relationship(
+        "Course",
+        back_populates="teacher"
+    )
+    
+
+# Course domain model
+class Course(Base):
+    __tablename__ = "courses"
+
+    # Primary course ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link course to teacher (creates the database relationship between courses and teachers)
+    teacher_id = Column(
+        Integer,
+        ForeignKey("teachers.id")
+    )
+
+    # Course title
+    title = Column(
+        String,
+        nullable=False
+    )
+
+    # Optional course description
+    description = Column(
+        String,
+        nullable=True
+    )
+
+    # Relationship back to teacher
+    teacher = relationship(
+        "Teacher",
+        back_populates="courses"
+    )
 
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN)

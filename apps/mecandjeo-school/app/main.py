@@ -2,12 +2,12 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 from .database import Base, engine
-from .routes import auth, users, admin, students               # from .routes import auth, users, admin
+from .routes import auth, users, admin, students, teachers, courses               # from .routes import auth, users, admin, etc
 
 
 
 # ✅ Create DB tables
-Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)  # Look at all SQLAlchemy models, Check the database and Create any missing tables
 
 # ✅ CREATE APP FIRST (this was your issue)
 app = FastAPI(title="School Platform", version="0.1.0")
@@ -51,3 +51,5 @@ app.include_router(auth.router, prefix="/api")
 app.include_router(users.router, prefix="/api/users")
 app.include_router(admin.router)
 app.include_router(students.router)
+app.include_router(teachers.router)
+app.include_router(courses.router)
