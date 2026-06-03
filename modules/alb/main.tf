@@ -6,11 +6,16 @@ locals {
 # Application Load Balancer
 # ─────────────────────────────────────────
 resource "aws_lb" "main" {
+  #checkov:skip=CKV_AWS_150:Deletion protection disabled intentionally in dev
+  #checkov:skip=CKV_AWS_91:Access logging requires S3 bucket — deferred to prod
+  #checkov:skip=CKV2_AWS_28:WAF protection deferred to production
+  #checkov:skip=CKV2_AWS_20:HTTPS redirect requires certificate — prod only
   name               = "${var.project_name}-${var.environment}-alb"
   internal           = false # Internet-facing ALB (set to true for internal ALB)
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]
   subnets            = var.public_subnet_ids
+  drop_invalid_header_fields = true  # added — CKV_AWS_131
 
   enable_deletion_protection = false # Allows terraform destory. Set to true (production) if you want to prevent accidental deletion
 
@@ -23,6 +28,7 @@ resource "aws_lb" "main" {
 # Target Group
 # ─────────────────────────────────────────
 resource "aws_lb_target_group" "main" {
+  #checkov:skip=CKV_AWS_378:HTTP protocol used in dev — HTTPS in prod
   name        = "${var.project_name}-${var.environment}-tg"
   port        = var.container_port
   protocol    = "HTTP"
@@ -48,6 +54,8 @@ resource "aws_lb_target_group" "main" {
 # HTTP Listener
 # ─────────────────────────────────────────
 resource "aws_lb_listener" "http" {
+  #checkov:skip=CKV_AWS_2:HTTPS requires ACM certificate — prod only
+  #checkov:skip=CKV_AWS_103:TLS requires HTTPS listener — prod only
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"

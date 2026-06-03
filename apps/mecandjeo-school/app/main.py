@@ -2,7 +2,15 @@ from fastapi import FastAPI
 from fastapi.responses import HTMLResponse
 
 from .database import Base, engine
-from .routes import auth, users, admin, students, teachers, courses               # from .routes import auth, users, admin, etc
+from .routes import (
+    auth,
+    users,
+    admin,
+    students,
+    teachers,
+    courses,
+    enrollments
+)            # from .routes import auth, users, admin, etc
 
 
 
@@ -53,3 +61,4 @@ app.include_router(admin.router)
 app.include_router(students.router)
 app.include_router(teachers.router)
 app.include_router(courses.router)
+app.include_router(enrollments.router)

@@ -120,6 +120,32 @@ class CourseResponse(CourseBase):
 
     class Config:
         from_attributes = True
+
+
+# ==========================================================
+# ENROLLMENT DOMAIN SCHEMAS (Phase 5.2 Step 5)
+# ==========================================================
+
+# Shared enrollment fields
+class EnrollmentBase(BaseModel):
+    course_id: int
+
+
+# Student enrollment request
+class EnrollmentCreate(EnrollmentBase):
+    pass
+
+
+# Enrollment API response
+class EnrollmentResponse(BaseModel):
+    id: int
+    student_id: int
+    course_id: int
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

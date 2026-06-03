@@ -20,8 +20,9 @@
 # CloudWatch Log Group
 # ─────────────────────────────────────────
 resource "aws_cloudwatch_log_group" "ecs" {
+  #checkov:skip=CKV_AWS_158:KMS encryption deferred to production
   name              = "/ecs/${var.project_name}-${var.environment}"
-  retention_in_days = 7
+  retention_in_days = 365  # changed from 7 — CKV_AWS_338
 
   tags = {
     Name = "${var.project_name}-${var.environment}-ecs-logs"
@@ -117,6 +118,7 @@ resource "aws_ecs_task_definition" "main" {
 # ECS Service
 # ─────────────────────────────────────────
 resource "aws_ecs_service" "main" {
+  #checkov:skip=CKV_AWS_333:Public IP required in dev — no NAT Gateway
   name            = "${var.project_name}-${var.environment}-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.main.arn

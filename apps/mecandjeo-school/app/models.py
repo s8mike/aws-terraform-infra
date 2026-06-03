@@ -59,8 +59,14 @@ class Student(Base):
         back_populates="student_profile"
     )
 
+    # One student can have many enrollments (phase 5.2-step 5)
+    enrollments = relationship(
+        "Enrollment",
+        back_populates="student"
+    )
 
-# Teacher domain model
+
+# Teacher domain model (phase 5.2-step 3) - to be expanded with course relationships in next step
 class Teacher(Base):
     __tablename__ = "teachers"
 
@@ -89,7 +95,7 @@ class Teacher(Base):
     )
     
 
-# Course domain model
+# Course domain model  (phase 5.2-step 4)
 class Course(Base):
     __tablename__ = "courses"
 
@@ -120,8 +126,48 @@ class Course(Base):
         back_populates="courses"
     )
 
+    # One course can have many enrollments (phase 5.2-step 5)
+    enrollments = relationship(
+        "Enrollment",
+        back_populates="course"
+    )
+
+
+# Enrollment domain model (phase 5.2-step 5)
+class Enrollment(Base):
+    __tablename__ = "enrollments"
+
+    # Primary enrollment ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link enrollment to student (This enrollment belongs to a specific student, and a specific course)
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id")
+    )
+
+    # Link enrollment to course (This enrollment belongs to a specific course, and a specific student)
+    course_id = Column(
+        Integer,
+        ForeignKey("courses.id")
+    )
+
+    # Relationship back to student 
+    student = relationship(
+        "Student",
+        back_populates="enrollments"
+    )
+
+    # Relationship back to course
+    course = relationship(
+        "Course",
+        back_populates="enrollments"
+    )
+
+
+
 #=================================================================
-# FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN)
+# FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.
 
 # # database tables and models for user authentication and roles
 # from sqlalchemy import Column, Integer, String
