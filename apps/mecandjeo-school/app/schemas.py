@@ -146,6 +146,35 @@ class EnrollmentResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# ASSIGNMENT DOMAIN SCHEMAS (Phase 5.2 Step 6)
+# ==========================================================
+
+# Shared assignment fields
+class AssignmentBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+
+# Create assignment
+class AssignmentCreate(AssignmentBase):
+    pass
+
+
+# Update assignment
+class AssignmentUpdate(AssignmentBase):
+    pass
+
+
+# Assignment API response [Used when returning assignment data to clients]
+class AssignmentResponse(AssignmentBase):
+    id: int
+    course_id: int
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

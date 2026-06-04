@@ -9,7 +9,8 @@ from .routes import (
     students,
     teachers,
     courses,
-    enrollments
+    enrollments,
+    assignments
 )            # from .routes import auth, users, admin, etc
 
 
@@ -62,3 +63,4 @@ app.include_router(students.router)
 app.include_router(teachers.router)
 app.include_router(courses.router)
 app.include_router(enrollments.router)
+app.include_router(assignments.router)

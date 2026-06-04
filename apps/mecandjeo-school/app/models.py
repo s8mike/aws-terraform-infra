@@ -132,6 +132,12 @@ class Course(Base):
         back_populates="course"
     )
 
+    # One course can have many assignments (Phase 5.2 Step 6)
+    assignments = relationship(
+        "Assignment",
+        back_populates="course"
+    )
+
 
 # Enrollment domain model (phase 5.2-step 5)
 class Enrollment(Base):
@@ -164,6 +170,37 @@ class Enrollment(Base):
         back_populates="enrollments"
     )
 
+
+# Assignment domain model (Phase 5.2 Step 6)
+class Assignment(Base):
+    __tablename__ = "assignments"
+
+    # Primary assignment ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link assignment to course
+    course_id = Column(
+        Integer,
+        ForeignKey("courses.id")
+    )
+
+    # Assignment title
+    title = Column(
+        String,
+        nullable=False
+    )
+
+    # Assignment instructions
+    description = Column(
+        String,
+        nullable=True
+    )
+
+    # Relationship back to course
+    course = relationship(
+        "Course",
+        back_populates="assignments"
+    )
 
 
 #=================================================================
