@@ -65,6 +65,12 @@ class Student(Base):
         back_populates="student"
     )
 
+    # One student can have many submissions (Phase 5.2 Step 7)
+    submissions = relationship(
+        "Submission",
+        back_populates="student"
+    )
+
 
 # Teacher domain model (phase 5.2-step 3) - to be expanded with course relationships in next step
 class Teacher(Base):
@@ -202,6 +208,49 @@ class Assignment(Base):
         back_populates="assignments"
     )
 
+    # One assignment can have many submissions (Phase 5.2 Step 7)
+    submissions = relationship(
+        "Submission",
+        back_populates="assignment"
+    )
+
+
+# Submission domain model (Phase 5.2 Step 7)
+class Submission(Base):
+    __tablename__ = "submissions"
+
+    # Primary submission ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link submission to student
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id")
+    )
+
+    # Link submission to assignment
+    assignment_id = Column(
+        Integer,
+        ForeignKey("assignments.id")
+    )
+
+    # Submission content   # Content could be a text answer, a file path to an uploaded document (PDF, Word documents,et ), or a link to an external resource depending on how you want to implement it later
+    content = Column(
+        String,
+        nullable=False
+    )
+
+    # Relationship back to student
+    student = relationship(
+        "Student",
+        back_populates="submissions"
+    )
+
+    # Relationship back to assignment
+    assignment = relationship(
+        "Assignment",
+        back_populates="submissions"
+    )
 
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.

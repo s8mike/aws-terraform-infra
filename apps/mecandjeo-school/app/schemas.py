@@ -175,6 +175,35 @@ class AssignmentResponse(AssignmentBase):
         from_attributes = True
 
 
+# ==========================================================
+# SUBMISSION DOMAIN SCHEMAS (Phase 5.2 Step 7)
+# ==========================================================
+
+# Shared submission fields
+class SubmissionBase(BaseModel):
+    content: str                  # Student's answer or work for the assignment, could be text, a link to a file, etc.
+
+
+# Create submission
+class SubmissionCreate(SubmissionBase):
+    assignment_id: int                 # Student must specify which assignment they are submitting for among the ones created by teachers
+
+
+# Update submission
+class SubmissionUpdate(SubmissionBase):
+    pass
+
+
+# Submission API response
+class SubmissionResponse(SubmissionBase):
+    id: int
+    student_id: int
+    assignment_id: int
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
