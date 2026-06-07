@@ -204,6 +204,35 @@ class SubmissionResponse(SubmissionBase):
         from_attributes = True
 
 
+# ==========================================================
+# GRADE DOMAIN SCHEMAS (Phase 5.2 Step 8)
+# ==========================================================
+
+# Shared grade fields [Stores the actual grade value and optional feedback from the teacher]
+class GradeBase(BaseModel):
+    grade_value: int
+    feedback: Optional[str] = None
+
+
+# Create grade [Teacher must specify which submission they are grading among the ones submitted by students]
+class GradeCreate(GradeBase):
+    submission_id: int
+
+
+# Update grade [Teacher can update the grade and feedback for a submission if needed]
+class GradeUpdate(GradeBase):
+    pass
+
+
+# Grade API response
+class GradeResponse(GradeBase):
+    id: int
+    submission_id: int       # Submission that this grade is associated with
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

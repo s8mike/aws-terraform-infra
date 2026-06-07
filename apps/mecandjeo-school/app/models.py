@@ -1,3 +1,7 @@
+
+# "back_populates" means: This relationship is connected to another relationship on the other model. It creates a two-way relationship.
+# It allows you to navigate from one model to the other in both directions. 
+
 # Database tables and ORM models
 
 from sqlalchemy import Column, Integer, String, ForeignKey
@@ -252,6 +256,44 @@ class Submission(Base):
         back_populates="submissions"
     )
 
+    # One submission can have one grade (Phase 5.2 Step 8)
+    grade = relationship(
+        "Grade",
+        back_populates="submission",   # This creates the relationship between submissions and grades, allowing you to access the grade for a submission and vice versa.
+        uselist=False                  # This indicates that each submission can have only one grade, enforcing a one-to-one relationship between submissions and grades.
+    )
+
+
+# Grade domain model (Phase 5.2 Step 8)
+class Grade(Base):
+    __tablename__ = "grades"
+
+    # Primary grade ID
+    id = Column(Integer, primary_key=True, index=True)
+
+    # Link grade to submission
+    submission_id = Column(
+        Integer,
+        ForeignKey("submissions.id")
+    )
+
+    # Numeric score
+    grade_value = Column(
+        Integer,
+        nullable=False
+    )
+
+    # Teacher feedback
+    feedback = Column(
+        String,
+        nullable=True
+    )
+
+    # Relationship back to submission
+    submission = relationship(
+        "Submission",
+        back_populates="grade"
+    )
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.
 
