@@ -8,12 +8,14 @@ from ..models import (
     Grade,
     Submission,
     Teacher,
+    Student,
     User
 )
 from ..schemas import (
     GradeCreate,
     GradeUpdate,
-    GradeResponse
+    GradeResponse,
+    StudentGradeResponse
 )
 from ..auth import get_current_user
 
@@ -35,6 +37,18 @@ def require_teacher(
 
     return current_user
 
+# Verify student role  [PHASE 5.2 Step 9] [This will be used in the student grade view endpoint to ensure only students can access their grades]
+def require_student(
+    current_user: User = Depends(get_current_user)  # Who is allowed to access this endpoint?
+):
+
+    if current_user.role != "student":
+        raise HTTPException(
+            status_code=403,
+            detail="Student access required"
+        )
+
+    return current_user
 
 # Grade submission
 @router.post("/", response_model=GradeResponse)
@@ -98,6 +112,51 @@ def get_grades(
     grades = db.query(Grade).all()  # A teacher can grade multiple submissions, so we return a list of grades
 
     return grades
+
+
+# Get my grades  [PHASE 5.2 Step 9] [This endpoint allows students to view their own grades along with feedback from teachers]
+@router.get(
+    "/my-grades",            # Show me my grades, not all grades in the system
+    response_model=list[StudentGradeResponse]
+)
+def get_my_grades(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    results = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+            results.append(
+                {
+                    "submission_id": submission.id,
+                    "assignment_id": submission.assignment_id,
+                    "grade_value": grade.grade_value,
+                    "feedback": grade.feedback
+                }
+            )
+
+    return results
 
 
 # Update grade

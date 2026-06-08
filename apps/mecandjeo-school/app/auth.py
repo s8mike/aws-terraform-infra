@@ -78,6 +78,8 @@ def get_current_user(
     return user
 
 
+
+###########################################################################################
 ## Early Starting Version with users having all permissions and no authentication.
 #Backend trusted everyone.
 

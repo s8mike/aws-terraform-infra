@@ -233,6 +233,17 @@ class GradeResponse(GradeBase):
         from_attributes = True
 
 
+# Student grade view response  [Step 9]
+class StudentGradeResponse(BaseModel):
+    submission_id: int
+    assignment_id: int     # To allow students to see which assignment the grade is for, we include the assignment_id in the response
+    grade_value: int
+    feedback: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
