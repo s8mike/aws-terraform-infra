@@ -244,6 +244,18 @@ class StudentGradeResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# TEACHER DASHBOARD SCHEMAS (Phase 6.1 Step 1) 
+# ==========================================================
+# Summarized information for teachers to see an overview of their courses, 
+# assignments, submissions, and grades]
+
+class TeacherDashboardResponse(BaseModel):
+    total_courses: int
+    total_assignments: int
+    total_submissions: int
+    total_grades: int
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
