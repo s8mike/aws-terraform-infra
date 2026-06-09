@@ -243,7 +243,6 @@ class StudentGradeResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # TEACHER DASHBOARD SCHEMAS (Phase 6.1 Step 1) 
 # ==========================================================
@@ -255,6 +254,16 @@ class TeacherDashboardResponse(BaseModel):
     total_assignments: int
     total_submissions: int
     total_grades: int
+
+# ==========================================================
+# COURSE ROSTER SCHEMAS (Phase 6.1 Step 2)
+# ==========================================================
+
+class CourseRosterResponse(BaseModel):      # Provides a list of students enrolled in a specific course.
+    student_id: int
+
+    class Config:
+        from_attributes = True
 
 #########################################################################################################
 
