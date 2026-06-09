@@ -265,6 +265,19 @@ class CourseRosterResponse(BaseModel):      # Provides a list of students enroll
     class Config:
         from_attributes = True
 
+
+# ==========================================================
+# ASSIGNMENT SUBMISSION TRACKING SCHEMAS
+# (Phase 6.1 Step 3)
+# ==========================================================
+
+class AssignmentSubmissionResponse(BaseModel):
+    submission_id: int
+    student_id: int
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

@@ -19,7 +19,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     TeacherUpdate,
     TeacherResponse,
     TeacherDashboardResponse,  # TeacherDashboardResponse is imported for phase 6.1 step 1. This schema defines the structure of the response for the teacher dashboard endpoint, which includes statistics about courses, assignments, submissions, and grades.
-    CourseRosterResponse
+    CourseRosterResponse,
+    AssignmentSubmissionResponse
 )
 from ..auth import get_current_user
 
@@ -180,7 +181,7 @@ def teacher_dashboard(
     }
 
 
-# Course roster
+# Course roster [Phase 6.1 step 2: This endpoint allows teachers to view the roster of students enrolled in a specific course. It validates that the teacher owns the course and then queries the Enrollment table to retrieve the list of student IDs enrolled in that course, returning the data structured according to the CourseRosterResponse schema.]
 @router.get(
     "/course-roster",
     response_model=list[CourseRosterResponse]
@@ -233,3 +234,63 @@ def get_course_roster(
         )
 
     return roster
+
+
+# Assignment submission tracking [Phase 6.1 step 3: This endpoint allows teachers to track which students have submitted a particular assignment. It queries the Submission table for the specified assignment_id and returns a list of submissions along with the associated student IDs, structured according to the AssignmentSubmissionResponse schema.]
+@router.get(
+    "/assignment-submissions",
+    response_model=list[AssignmentSubmissionResponse]
+)
+def get_assignment_submissions(
+    assignment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    assignment = db.query(Assignment).filter(
+        Assignment.id == assignment_id
+    ).first()
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="Assignment not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == assignment.course_id
+    ).first()
+
+    # Ownership validation
+    if course.teacher_id != teacher.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this assignment"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.assignment_id == assignment_id
+    ).all()
+
+    results = []
+
+    for submission in submissions:
+
+        results.append(
+            {
+                "submission_id": submission.id,
+                "student_id": submission.student_id
+            }
+        )
+
+    return results
