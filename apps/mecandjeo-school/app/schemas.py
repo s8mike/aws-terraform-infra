@@ -278,6 +278,28 @@ class AssignmentSubmissionResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+# ==========================================================
+# GRADING STATUS SCHEMAS
+# (Phase 6.1 Step 4)
+# ==========================================================
+
+class GradingStatusResponse(BaseModel):
+    submission_id: int
+    student_id: int
+    graded: bool       # Uses two possible values: "graded" or "not graded", "true or false" to indicate whether a submission has been graded by the teacher or not.
+
+    class Config:
+        from_attributes = True
+
+
+
+
+
+
+
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

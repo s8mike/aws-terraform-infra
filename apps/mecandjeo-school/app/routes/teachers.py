@@ -20,7 +20,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     TeacherResponse,
     TeacherDashboardResponse,  # TeacherDashboardResponse is imported for phase 6.1 step 1. This schema defines the structure of the response for the teacher dashboard endpoint, which includes statistics about courses, assignments, submissions, and grades.
     CourseRosterResponse,
-    AssignmentSubmissionResponse
+    AssignmentSubmissionResponse,
+    GradingStatusResponse
 )
 from ..auth import get_current_user
 
@@ -290,6 +291,70 @@ def get_assignment_submissions(
             {
                 "submission_id": submission.id,
                 "student_id": submission.student_id
+            }
+        )
+
+    return results
+
+# Grading workflow monitoring [Phase 6.1 step 4: This endpoint allows teachers to monitor the grading workflow for a specific assignment. It retrieves all submissions for the given assignment_id and checks if each submission has an associated grade. The response indicates whether each submission has been graded or not, structured according to the GradingStatusResponse schema.]
+@router.get(
+    "/grading-status",
+    response_model=list[GradingStatusResponse]
+)
+def get_grading_status(
+    assignment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    assignment = db.query(Assignment).filter(
+        Assignment.id == assignment_id
+    ).first()
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="Assignment not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == assignment.course_id
+    ).first()
+
+    # Ownership validation
+    if course.teacher_id != teacher.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this assignment"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.assignment_id == assignment_id
+    ).all()
+
+    results = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        results.append(
+            {
+                "submission_id": submission.id,
+                "student_id": submission.student_id,
+                "graded": grade is not None
             }
         )
 
