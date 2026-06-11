@@ -1,0 +1,51 @@
+# .trivyignore list CVE IDs you want trivy to skip. 
+# When trivy runs it reads this file and silently 
+# excludes those CVEs from its report and exit code.
+
+# ─────────────────────────────────────────────────────────────
+# Trivy ignore file — MecanjeoOps Infrastructure
+# CVEs suppressed here have no fix available in Debian 13
+# Review and remove suppressions when fixes become available
+# Last reviewed: June 2026
+# ─────────────────────────────────────────────────────────────
+
+# perl-base — no fix available in Debian 13 as of June 2026
+# Status: fix_deferred / affected
+# https://avd.aquasec.com/nvd/cve-2026-42496
+CVE-2026-42496
+
+# perl-base heap buffer overflow — no fix available
+# Status: affected
+# https://avd.aquasec.com/nvd/cve-2026-8376
+CVE-2026-8376
+
+# perl-base Archive::Tar hardlinks — fix deferred
+# Status: fix_deferred
+# https://avd.aquasec.com/nvd/cve-2026-42497
+CVE-2026-42497
+
+# perl IO::Uncompress CPU exhaustion — no fix available
+# Status: affected
+# https://avd.aquasec.com/nvd/cve-2026-48959
+CVE-2026-48959
+
+# perl-IO-Compress arbitrary code execution — no fix available
+# Status: affected
+# https://avd.aquasec.com/nvd/cve-2026-48962
+CVE-2026-48962
+
+# perl Archive::Tar memory exhaustion — fix deferred
+# Status: fix_deferred
+# https://avd.aquasec.com/nvd/cve-2026-9538
+CVE-2026-9538
+
+# ncurses buffer overflow — no fix available in Debian 13
+# Status: affected
+# https://avd.aquasec.com/nvd/cve-2025-69720
+CVE-2025-69720
+
+# starlette DoS via Range header — CVE-2025-62727
+# Fix requires starlette>=0.49.1 which conflicts with fastapi==0.115.12
+# Portfolio and dashboard apps serve no Range-header responses
+# Revisit when FastAPI officially supports starlette>=0.49.x
+CVE-2025-62727

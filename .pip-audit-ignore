@@ -1,0 +1,22 @@
+# ─────────────────────────────────────────────────────────────
+# pip-audit ignore file — MecanjeoOps Infrastructure
+# CVEs suppressed here are accepted risks with documented reasons
+# Review periodically as new fixes become available
+# Last reviewed: June 2026
+# ─────────────────────────────────────────────────────────────
+
+# starlette DoS via multipart/form-data boundary — PYSEC-2026-161
+# Fix requires starlette>=1.0.1 which conflicts with fastapi==0.115.12
+# Portfolio and dashboard apps do not accept multipart form submissions
+# Revisit when FastAPI officially supports starlette>=1.0.1
+PYSEC-2026-161
+
+# starlette DoS via multipart/form-data — CVE-2025-54121
+# Same root cause as PYSEC-2026-161 — same justification applies
+CVE-2025-54121
+
+# starlette DoS via Range header merging — CVE-2025-62727
+# Fix requires starlette>=0.49.1 which conflicts with fastapi==0.115.12
+# Portfolio and dashboard apps serve no Range-header responses
+# Revisit when FastAPI officially supports starlette>=0.49.x
+CVE-2025-62727

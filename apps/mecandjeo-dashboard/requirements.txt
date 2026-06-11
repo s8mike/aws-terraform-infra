@@ -1,7 +1,18 @@
-fastapi==0.111.0
+## Second version with security vulnerability fixed by upgrading dependencies to their latest patch versions.
+
+fastapi==0.115.12      #  
 uvicorn[standard]==0.30.1
-psutil==5.9.8             # reads live container metrics
+psutil==5.9.8
 httpx==0.27.0
-jinja2==3.1.4
-python-multipart==0.0.9
-# starlette==0.47.2
+jinja2==3.1.6
+python-multipart==0.0.27
+# starlette==0.37.2  # FastApi 0.115.12 is compatible with starlette versions >=0.37.2 and <0.38.0, so we should not upgrade to any version higher than 0.37.2 to avoid compatibility issues with FastApi.
+
+##########################################
+## Fisrt version with security vulnerability.
+# fastapi==0.111.0
+# uvicorn[standard]==0.30.1
+# psutil==5.9.8             # reads live container metrics
+# httpx==0.27.0
+# jinja2==3.1.4
+# python-multipart==0.0.9

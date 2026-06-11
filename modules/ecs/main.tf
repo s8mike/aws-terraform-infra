@@ -22,7 +22,7 @@
 resource "aws_cloudwatch_log_group" "ecs" {
   #checkov:skip=CKV_AWS_158:KMS encryption deferred to production
   name              = "/ecs/${var.project_name}-${var.environment}"
-  retention_in_days = 365  # changed from 7 — CKV_AWS_338
+  retention_in_days = 365 # changed from 7 — CKV_AWS_338
 
   tags = {
     Name = "${var.project_name}-${var.environment}-ecs-logs"

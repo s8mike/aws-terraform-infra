@@ -10,14 +10,15 @@ resource "aws_lb" "main" {
   #checkov:skip=CKV_AWS_91:Access logging requires S3 bucket — deferred to prod
   #checkov:skip=CKV2_AWS_28:WAF protection deferred to production
   #checkov:skip=CKV2_AWS_20:HTTPS redirect requires certificate — prod only
-  name               = "${var.project_name}-${var.environment}-alb"
-  internal           = false # Internet-facing ALB (set to true for internal ALB)
-  load_balancer_type = "application"
-  security_groups    = [var.alb_security_group_id]
-  subnets            = var.public_subnet_ids
-  drop_invalid_header_fields = true  # added — CKV_AWS_131
+  name                       = "${var.project_name}-${var.environment}-alb"
+  internal                   = false # Internet-facing ALB (set to true for internal ALB)
+  load_balancer_type         = "application"
+  security_groups            = [var.alb_security_group_id]
+  subnets                    = var.public_subnet_ids
+  drop_invalid_header_fields = true # added — CKV_AWS_131
 
-  enable_deletion_protection = false # Allows terraform destory. Set to true (production) if you want to prevent accidental deletion
+  # Set to true (production) if you want to prevent accidental deletion
+  enable_deletion_protection = false # Allows terraform destory. 
 
   tags = {
     Name = "${var.project_name}-${var.environment}-alb"
