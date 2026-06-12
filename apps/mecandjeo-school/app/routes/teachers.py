@@ -22,7 +22,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     CourseRosterResponse,
     AssignmentSubmissionResponse,
     GradingStatusResponse,
-    AssignmentPerformanceResponse
+    AssignmentPerformanceResponse,
+    CoursePerformanceResponse
 )
 from ..auth import get_current_user
 
@@ -362,7 +363,7 @@ def get_grading_status(
     return results
 
 
-# Assignment performance view
+# Assignment performance view [Phase 6.1 step 5: This endpoint provides a performance view for a specific assignment, showing the grades and feedback for each student submission. It retrieves all submissions for the given assignment_id, checks for associated grades, and returns the student ID, grade value, and feedback in a structured response defined by the AssignmentPerformanceResponse schema. Only graded submissions are included in the performance view; if a submission does not have an associated grade, it is skipped and not included in the results.]
 @router.get(
     "/assignment-performance",
     response_model=list[AssignmentPerformanceResponse]
@@ -427,3 +428,72 @@ def get_assignment_performance(
             )
 
     return results
+
+
+# Course performance analytics [Phase 6.1 step 6: This endpoint provides analytics on overall course performance by calculating the average grade for a specific course. It retrieves all assignments for the course, then all submissions for those assignments, and finally all grades for those submissions. The average grade is calculated and returned in a structured response defined by the CoursePerformanceResponse schema.]
+@router.get(
+    "/course-performance",
+    response_model=CoursePerformanceResponse
+)
+def get_course_performance(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    # Ownership validation 
+    if course.teacher_id != teacher.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this course"
+        )
+
+    assignments = db.query(Assignment).filter(
+        Assignment.course_id == course_id
+    ).all()
+
+    grades = []   # aggregate all grade values for the course to calculate the average grade. 
+    for assignment in assignments:
+
+        submissions = db.query(Submission).filter(
+            Submission.assignment_id == assignment.id
+        ).all()
+
+        for submission in submissions:
+
+            grade = db.query(Grade).filter(
+                Grade.submission_id == submission.id
+            ).first()
+
+            if grade:      # Only graded submissions are included in the performance view. If a submission does not have an associated grade, it is skipped and not included in the results.
+                grades.append(grade.grade_value)  # Collect [append] all grade values for the course to calculate the average grade.
+
+    average_grade = 0.0  # Initialize average_grade to 0.0 to handle the case where there are no grades. If there are no grades, the average will be returned as 0.0 instead of causing a division by zero error.
+
+    if grades:
+        average_grade = sum(grades) / len(grades) # len [length] = How many grades are inside this collection? 
+
+    return {
+        "course_id": course_id,
+        "average_grade": average_grade
+    }

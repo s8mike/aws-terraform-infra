@@ -307,6 +307,18 @@ class AssignmentPerformanceResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# COURSE PERFORMANCE SCHEMAS  [This step answers the question: "How did my students perform in this course overall?"]
+# (Phase 6.1 Step 6)
+# ==========================================================
+
+class CoursePerformanceResponse(BaseModel):
+    course_id: int
+    average_grade: float   # The average_grade should be a decimal or expected to contain a decimal number e.g., 85.5 to represent the average grade for the course based on all graded submissions.
+
+    class Config:
+        from_attributes = True
+
 
 
 
