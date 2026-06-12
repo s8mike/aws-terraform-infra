@@ -314,7 +314,7 @@ class AssignmentPerformanceResponse(BaseModel):
 
 class CoursePerformanceResponse(BaseModel):
     course_id: int
-    average_grade: float   # The average_grade should be a decimal or expected to contain a decimal number e.g., 85.5 to represent the average grade for the course based on all graded submissions.
+    average_grade: float   # The average_grade should be a decimal or expected to contain a decimal number e.g., 85.5
 
     class Config:
         from_attributes = True
@@ -342,6 +342,20 @@ class StudentPerformanceResponse(BaseModel):
 class TopStudentResponse(BaseModel):
     student_id: int
     average_grade: float
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# PASS / FAIL STATISTICS SCHEMAS
+# (Phase 6.1 Step 9)
+# ==========================================================
+
+class PassFailStatisticsResponse(BaseModel):
+    total_graded: int
+    passed: int
+    failed: int
 
     class Config:
         from_attributes = True

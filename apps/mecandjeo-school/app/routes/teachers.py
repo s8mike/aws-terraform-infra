@@ -18,14 +18,15 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     TeacherCreate,
     TeacherUpdate,
     TeacherResponse,
-    TeacherDashboardResponse,  # TeacherDashboardResponse is imported for phase 6.1 step 1. This schema defines the structure of the response for the teacher dashboard endpoint, which includes statistics about courses, assignments, submissions, and grades.
+    TeacherDashboardResponse,
     CourseRosterResponse,
     AssignmentSubmissionResponse,
     GradingStatusResponse,
     AssignmentPerformanceResponse,
     CoursePerformanceResponse,
     StudentPerformanceResponse,
-    TopStudentResponse
+    TopStudentResponse,
+    PassFailStatisticsResponse
 )
 from ..auth import get_current_user
 
@@ -618,3 +619,42 @@ def get_top_students(
     )
 
     return results
+
+
+# Pass / Fail statistics
+@router.get(
+    "/pass-fail-statistics",
+    response_model=PassFailStatisticsResponse
+)
+def get_pass_fail_statistics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    grades = db.query(Grade).all()
+
+    passed = 0
+    failed = 0
+
+    for grade in grades: # Process one grade at a time from the collection of grades.
+
+        if grade.grade_value >= 50:
+            passed += 1         # +=1 is the short hand for passed = passed + 1
+        else:
+            failed += 1
+
+    return {
+        "total_graded": len(grades),
+        "passed": passed,
+        "failed": failed
+    }
