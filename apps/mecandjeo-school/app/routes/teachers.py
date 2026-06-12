@@ -24,7 +24,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     GradingStatusResponse,
     AssignmentPerformanceResponse,
     CoursePerformanceResponse,
-    StudentPerformanceResponse
+    StudentPerformanceResponse,
+    TopStudentResponse
 )
 from ..auth import get_current_user
 
@@ -555,3 +556,65 @@ def get_student_performance(
         "student_id": student_id,
         "average_grade": average_grade
     }
+
+
+# Top performing  students [Phase 6.1 step 8: This endpoint provides a list of top-performing students based on their average grades across all submissions.
+@router.get(
+    "/top-students",
+    response_model=list[TopStudentResponse]
+)
+def get_top_students(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+    # Teacher validation
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    students = db.query(Student).all()    # Load every student
+
+    results = []
+
+    for student in students:
+
+        submissions = db.query(Submission).filter(
+            Submission.student_id == student.id
+        ).all()  # Retrieve all submission belonging to specific student id.
+
+        grades = []
+
+        for submission in submissions:
+
+            grade = db.query(Grade).filter(
+                Grade.submission_id == submission.id
+            ).first() 
+
+            if grade:
+                grades.append(grade.grade_value)
+
+        average_grade = 0.0
+
+        if grades:
+            average_grade = sum(grades) / len(grades)
+
+            results.append(
+                {
+                    "student_id": student.id,
+                    "average_grade": average_grade
+                }
+            )
+
+    # Sort highest first
+    results.sort(
+        key=lambda student: student["average_grade"], # = Rank students by average_grade [Highest performer first].
+        reverse=True   # Highest performer first.
+    )
+
+    return results

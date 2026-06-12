@@ -334,6 +334,20 @@ class StudentPerformanceResponse(BaseModel):
 
 
 
+# ==========================================================
+# TOP STUDENTS SCHEMAS
+# (Phase 6.1 Step 8) [This step answers the question: "Who are the top-performing students in my course?"]
+# ==========================================================
+
+class TopStudentResponse(BaseModel):
+    student_id: int
+    average_grade: float
+
+    class Config:
+        from_attributes = True
+
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
