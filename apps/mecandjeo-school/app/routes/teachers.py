@@ -26,7 +26,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     CoursePerformanceResponse,
     StudentPerformanceResponse,
     TopStudentResponse,
-    PassFailStatisticsResponse
+    PassFailStatisticsResponse,
+    GradeDistributionResponse
 )
 from ..auth import get_current_user
 
@@ -658,3 +659,67 @@ def get_pass_fail_statistics(
         "passed": passed,
         "failed": failed
     }
+
+# Grade distribution report
+@router.get(
+    "/grade-distribution",
+    response_model=list[GradeDistributionResponse]
+)
+def get_grade_distribution(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    grades = db.query(Grade).all()
+
+    distribution = {         # Bucket structure
+        "90-100": 0,
+        "80-89": 0,
+        "70-79": 0,
+        "60-69": 0,
+        "50-59": 0,
+        "0-49": 0
+    }
+
+    for grade in grades:
+
+        if grade.grade_value >= 90:
+            distribution["90-100"] += 1
+
+        elif grade.grade_value >= 80:
+            distribution["80-89"] += 1
+
+        elif grade.grade_value >= 70:
+            distribution["70-79"] += 1
+
+        elif grade.grade_value >= 60:
+            distribution["60-69"] += 1
+
+        elif grade.grade_value >= 50:
+            distribution["50-59"] += 1
+
+        else:
+            distribution["0-49"] += 1
+
+    results = []
+
+    for grade_range, count in distribution.items():
+
+        results.append(
+            {
+                "grade_range": grade_range,
+                "student_count": count
+            }
+        )
+
+    return results

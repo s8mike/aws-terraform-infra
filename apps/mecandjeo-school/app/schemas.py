@@ -362,6 +362,19 @@ class PassFailStatisticsResponse(BaseModel):
 
 
 
+# ==========================================================
+# GRADE DISTRIBUTION SCHEMAS
+# (Phase 6.1 Step 10)
+# ==========================================================
+
+class GradeDistributionResponse(BaseModel):
+    grade_range: str
+    student_count: int
+
+    class Config:
+        from_attributes = True
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
