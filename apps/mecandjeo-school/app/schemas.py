@@ -293,8 +293,18 @@ class GradingStatusResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# ASSIGNMENT PERFORMANCE SCHEMAS [This step answers the question: "How did my students perform on this assignment?"]
+# (Phase 6.1 Step 5)
+# ==========================================================
 
+class AssignmentPerformanceResponse(BaseModel):
+    student_id: int
+    grade_value: int
+    feedback: Optional[str] = None
 
+    class Config:
+        from_attributes = True
 
 
 

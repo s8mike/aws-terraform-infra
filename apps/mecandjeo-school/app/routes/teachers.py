@@ -21,7 +21,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     TeacherDashboardResponse,  # TeacherDashboardResponse is imported for phase 6.1 step 1. This schema defines the structure of the response for the teacher dashboard endpoint, which includes statistics about courses, assignments, submissions, and grades.
     CourseRosterResponse,
     AssignmentSubmissionResponse,
-    GradingStatusResponse
+    GradingStatusResponse,
+    AssignmentPerformanceResponse
 )
 from ..auth import get_current_user
 
@@ -357,5 +358,72 @@ def get_grading_status(
                 "graded": grade is not None
             }
         )
+
+    return results
+
+
+# Assignment performance view
+@router.get(
+    "/assignment-performance",
+    response_model=list[AssignmentPerformanceResponse]
+)
+def get_assignment_performance(
+    assignment_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    assignment = db.query(Assignment).filter(
+        Assignment.id == assignment_id
+    ).first()
+
+    if not assignment:
+        raise HTTPException(
+            status_code=404,
+            detail="Assignment not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == assignment.course_id
+    ).first()
+
+    # Ownership validation
+    if course.teacher_id != teacher.id:
+        raise HTTPException(
+            status_code=403,
+            detail="You do not own this assignment"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.assignment_id == assignment_id
+    ).all()
+
+    results = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:           # Only graded submissions are included in the performance view. If a submission does not have an associated grade, it is skipped and not included in the results.
+
+            results.append(
+                {
+                    "student_id": submission.student_id,
+                    "grade_value": grade.grade_value,
+                    "feedback": grade.feedback
+                }
+            )
 
     return results
