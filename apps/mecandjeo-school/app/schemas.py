@@ -320,6 +320,18 @@ class CoursePerformanceResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# STUDENT PERFORMANCE SCHEMAS
+# (Phase 6.1 Step 7)  [This step answers the question: "How am I performing as a student?"]
+# ==========================================================
+
+class StudentPerformanceResponse(BaseModel):
+    student_id: int
+    average_grade: float  # The average_grade should be a decimal or expected to contain a decimal number e.g., 88.2 to represent the average grade for the student across all their graded submissions.
+
+    class Config:
+        from_attributes = True
+
 
 
 #########################################################################################################

@@ -23,7 +23,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     AssignmentSubmissionResponse,
     GradingStatusResponse,
     AssignmentPerformanceResponse,
-    CoursePerformanceResponse
+    CoursePerformanceResponse,
+    StudentPerformanceResponse
 )
 from ..auth import get_current_user
 
@@ -495,5 +496,62 @@ def get_course_performance(
 
     return {
         "course_id": course_id,
+        "average_grade": average_grade
+    }
+
+
+# Student performance analytics [Phase 6.1 step 7: This endpoint provides analytics on individual student performance by calculating the average grade for a specific student across all their submissions. It retrieves all submissions for the student, then all grades for those submissions, and calculates the average grade, which is returned in a structured response defined by the StudentPerformanceResponse schema.]
+@router.get(
+    "/student-performance",
+    response_model=StudentPerformanceResponse
+)
+def get_student_performance(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    student = db.query(Student).filter(
+        Student.id == student_id
+    ).first() # Validate that the student exists. If the student does not exist, a 404 error is raised indicating that the student was not found. 
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student_id
+    ).all()  # Retrieve all submissions belonging to the specified student id.
+
+    grades = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+            grades.append(grade.grade_value)
+
+    average_grade = 0.0   # Empty grade protection or handling the case where there are no grades for the student. If there are no grades, the average will be returned as 0.0 instead of causing a division by zero error.
+
+    if grades:
+        average_grade = sum(grades) / len(grades)
+
+    return {
+        "student_id": student_id,
         "average_grade": average_grade
     }
