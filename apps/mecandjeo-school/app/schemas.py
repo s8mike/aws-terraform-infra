@@ -265,7 +265,6 @@ class CourseRosterResponse(BaseModel):      # Provides a list of students enroll
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # ASSIGNMENT SUBMISSION TRACKING SCHEMAS
 # (Phase 6.1 Step 3)
@@ -277,7 +276,6 @@ class AssignmentSubmissionResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # GRADING STATUS SCHEMAS
@@ -292,7 +290,6 @@ class GradingStatusResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # ASSIGNMENT PERFORMANCE SCHEMAS [This step answers the question: "How did my students perform on this assignment?"]
 # (Phase 6.1 Step 5)
@@ -306,7 +303,6 @@ class AssignmentPerformanceResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # COURSE PERFORMANCE SCHEMAS  [This step answers the question: "How did my students perform in this course overall?"]
 # (Phase 6.1 Step 6)
@@ -318,7 +314,6 @@ class CoursePerformanceResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # STUDENT PERFORMANCE SCHEMAS
@@ -332,8 +327,6 @@ class StudentPerformanceResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
-
 # ==========================================================
 # TOP STUDENTS SCHEMAS
 # (Phase 6.1 Step 8) [This step answers the question: "Who are the top-performing students in my course?"]
@@ -345,7 +338,6 @@ class TopStudentResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # PASS / FAIL STATISTICS SCHEMAS
@@ -360,8 +352,6 @@ class PassFailStatisticsResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
-
 # ==========================================================
 # GRADE DISTRIBUTION SCHEMAS
 # (Phase 6.1 Step 10)
@@ -370,6 +360,22 @@ class PassFailStatisticsResponse(BaseModel):
 class GradeDistributionResponse(BaseModel):
     grade_range: str
     student_count: int
+
+    class Config:
+        from_attributes = True
+
+
+
+# ==========================================================
+# STUDENT DASHBOARD SCHEMAS
+# (Phase 6.2 Step 1)
+# ==========================================================
+
+class StudentDashboardResponse(BaseModel):
+    total_courses: int        # Number of courses the student is enrolled in.
+    total_assignments: int
+    total_submissions: int
+    total_grades: int
 
     class Config:
         from_attributes = True
