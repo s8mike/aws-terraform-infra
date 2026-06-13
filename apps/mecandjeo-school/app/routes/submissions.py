@@ -15,25 +15,28 @@ from ..schemas import (
     SubmissionUpdate,
     SubmissionResponse
 )
-from ..auth import get_current_user
+from ..auth import (
+    get_current_user,
+    require_student
+)
 
 router = APIRouter(
     prefix="/submissions",
     tags=["Submissions"]  # For API documentation grouping, this will create a "Submissions" section in the Swagger UI
 )
 
-# Verify student role
-def require_student(
-    current_user: User = Depends(get_current_user)
-):
+# # Verify student role. This is now imported from app/auth.py
+# def require_student(
+#     current_user: User = Depends(get_current_user)
+# ):
 
-    if current_user.role != "student":
-        raise HTTPException(
-            status_code=403,
-            detail="Student access required"
-        )
+#     if current_user.role != "student":
+#         raise HTTPException(
+#             status_code=403,
+#             detail="Student access required"
+#         )
 
-    return current_user
+#     return current_user
 
 
 # Submit assignment

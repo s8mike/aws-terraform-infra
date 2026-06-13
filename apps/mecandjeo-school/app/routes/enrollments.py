@@ -14,7 +14,10 @@ from ..schemas import (
     EnrollmentCreate,
     EnrollmentResponse
 )
-from ..auth import get_current_user
+from ..auth import (
+    get_current_user,
+    require_student
+)
 
 
 router = APIRouter(
@@ -22,18 +25,18 @@ router = APIRouter(
     tags=["Enrollments"]
 )
 
-# Verify student role
-def require_student(
-    current_user: User = Depends(get_current_user)  # Authenticated user
-):
+# # Verify student role
+# def require_student(
+#     current_user: User = Depends(get_current_user)  # Authenticated user
+# ):
 
-    if current_user.role != "student":    # Role Authorization (Ensure only students can enroll)
-        raise HTTPException(
-            status_code=403,
-            detail="Student access required"
-        )
+#     if current_user.role != "student":    # Role Authorization (Ensure only students can enroll)
+#         raise HTTPException(
+#             status_code=403,
+#             detail="Student access required"
+#         )
 
-    return current_user
+#     return current_user
 
 
 # Enroll in a course

@@ -17,38 +17,42 @@ from ..schemas import (
     GradeResponse,
     StudentGradeResponse
 )
-from ..auth import get_current_user
+from ..auth import (
+    get_current_user,
+    require_student,
+    require_teacher
+)
 
 router = APIRouter(
     prefix="/grades",
     tags=["Grades"]
 )
 
-# Verify teacher role
-def require_teacher(
-    current_user: User = Depends(get_current_user)
-):
+# # Verify teacher role  # This is now imported from auth.py
+# def require_teacher(
+#     current_user: User = Depends(get_current_user)
+# ):
 
-    if current_user.role != "teacher":
-        raise HTTPException(
-            status_code=403,
-            detail="Teacher access required"
-        )
+#     if current_user.role != "teacher":
+#         raise HTTPException(
+#             status_code=403,
+#             detail="Teacher access required"
+#         )
 
-    return current_user
+#     return current_user
 
-# Verify student role  [PHASE 5.2 Step 9] [This will be used in the student grade view endpoint to ensure only students can access their grades]
-def require_student(
-    current_user: User = Depends(get_current_user)  # Who is allowed to access this endpoint?
-):
+# # Verify student role  [PHASE 5.2 Step 9] [This will be used in the student grade view endpoint to ensure only students can access their grades]
+# def require_student(
+#     current_user: User = Depends(get_current_user)  # Who is allowed to access this endpoint?
+# ):
 
-    if current_user.role != "student":
-        raise HTTPException(
-            status_code=403,
-            detail="Student access required"
-        )
+#     if current_user.role != "student":
+#         raise HTTPException(
+#             status_code=403,
+#             detail="Student access required"
+#         )
 
-    return current_user
+#     return current_user
 
 # Grade submission
 @router.post("/", response_model=GradeResponse)

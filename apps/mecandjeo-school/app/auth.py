@@ -1,5 +1,7 @@
 # Security utilities for password hashing and JWT token management
-#backend can identify authenticated users
+# Backend authentication and authorization utilities.
+# Provides password hashing, JWT management,
+# authenticated user retrieval, and role validation
 
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException  
@@ -20,6 +22,9 @@ pwd_context = CryptContext(schemes=["bcrypt"])
 # OAuth2 bearer token extraction [extracts JWT token from requests]
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/login")
 
+#============================================
+# AUTHENTICATION FUNCTIONS
+#============================================
 
 # Hash plain password
 def hash_password(password: str):
@@ -60,7 +65,8 @@ def get_current_user(
 
     email = payload.get("sub")
 
-# returns proper API errors if user is not found or token is invalid
+# Returns proper API errors if user is not found 
+# or token payload is invalid
     if not email:
         raise HTTPException(
             status_code=401,
@@ -76,6 +82,70 @@ def get_current_user(
         )
 
     return user
+
+# ==========================================================
+# ROLE AUTHORIZATION HELPERS [AUTHORIZATION FUNCTIONS]
+# ==========================================================
+# These helper functions are centralized in auth.py to avoid
+# duplicating role-validation logic across multiple route files.
+#
+# Before this refactor:
+# - teachers.py defined require_teacher()
+# - grades.py defined require_student() and require_teacher()
+# - submissions.py defined require_student()
+# - enrollments.py defined require_student()
+# - students.py defined require_student()
+#
+# Centralizing them here provides:
+#
+# 1. Single Source of Truth
+#    Any role validation change is made once.
+#
+# 2. Easier Maintenance
+#    Prevents inconsistent authorization logic across files.
+#
+# 3. Better Scalability
+#    Future roles such as:
+#    - admin
+#    - head_teacher
+#    - department_head
+#    can be managed centrally.
+#
+# 4. Cleaner Route Files
+#    Route files focus on business logic while auth.py
+#    handles authentication and authorization concerns.
+#
+# This follows the Separation of Concerns principle used in
+# professional FastAPI applications.
+# ==========================================================
+
+
+# Verify teacher role
+def require_teacher(
+    current_user: User = Depends(get_current_user)
+):
+
+    if current_user.role != "teacher":
+        raise HTTPException(
+            status_code=403,
+            detail="Teacher access required"
+        )
+
+    return current_user
+
+
+# Verify student role
+def require_student(
+    current_user: User = Depends(get_current_user)
+):
+
+    if current_user.role != "student":
+        raise HTTPException(
+            status_code=403,
+            detail="Student access required"
+        )
+
+    return current_user
 
 
 

@@ -6,15 +6,29 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from ..database import get_db
-from ..models import Student, User
+from ..models import (
+    Student, 
+    User,
+    Enrollment,
+    Assignment,
+    Submission,
+    Grade
+) 
 from ..schemas import (
     StudentCreate,
     StudentUpdate,
-    StudentResponse
+    StudentResponse,
+    StudentDashboardResponse
 )
-from ..auth import get_current_user
+from ..auth import (
+    get_current_user,
+    require_student
+)
 
-router = APIRouter(prefix="/students", tags=["Students"])
+router = APIRouter(
+    prefix="/students", 
+    tags=["Students"]
+)
 
 
 # Create student profile
@@ -92,3 +106,63 @@ def update_my_profile(
     db.refresh(profile)
 
     return profile
+
+
+# Student dashboard  [Phase 6.2 step1]
+@router.get(
+    "/dashboard",
+    response_model=StudentDashboardResponse
+)
+def student_dashboard(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    # Count enrolled courses
+    total_courses = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).count()
+
+    # Count submissions
+    total_submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).count()
+
+    # Count grades
+    total_grades = db.query(Grade).join(
+        Submission
+    ).filter(
+        Submission.student_id == student.id
+    ).count()
+
+    # Count assignments from enrolled courses
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    total_assignments = 0
+
+    for enrollment in enrollments:
+
+        assignment_count = db.query(Assignment).filter(
+            Assignment.course_id == enrollment.course_id
+        ).count()
+
+        total_assignments += assignment_count
+
+    return {
+        "total_courses": total_courses,
+        "total_assignments": total_assignments,
+        "total_submissions": total_submissions,
+        "total_grades": total_grades
+    }

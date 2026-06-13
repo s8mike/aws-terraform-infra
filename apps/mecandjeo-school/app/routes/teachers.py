@@ -29,26 +29,28 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     PassFailStatisticsResponse,
     GradeDistributionResponse
 )
-from ..auth import get_current_user
-
+from ..auth import (
+    get_current_user,
+    require_teacher
+) 
 
 router = APIRouter(
     prefix="/teachers",
     tags=["Teachers"]
 )
 
-# Verify teacher role
-def require_teacher(
-    current_user: User = Depends(get_current_user)
-):
+# # Verify teacher role
+# def require_teacher(
+#     current_user: User = Depends(get_current_user)
+# ):
 
-    if current_user.role != "teacher":
-        raise HTTPException(
-            status_code=403,
-            detail="Teacher access required"
-        )
+#     if current_user.role != "teacher":
+#         raise HTTPException(
+#             status_code=403,
+#             detail="Teacher access required"
+#         )
 
-    return current_user
+#     return current_user
 
 
 # Create teacher profile
