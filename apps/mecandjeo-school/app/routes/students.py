@@ -26,7 +26,8 @@ from ..schemas import (
     GradeHistoryResponse,
     StudentAnalyticsResponse,
     StudentPassFailResponse,
-    StudentGradeDistributionResponse
+    StudentGradeDistributionResponse,
+    StudentProgressReportResponse
 )
 from ..auth import (
     get_current_user,
@@ -521,3 +522,60 @@ def get_student_grade_distribution(
         )
 
     return results
+
+
+# Student progress report
+@router.get(
+    "/progress-report",
+    response_model=StudentProgressReportResponse
+)
+def get_progress_report(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    grades = []
+    passed = 0
+    failed = 0
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+
+            grades.append(grade.grade_value)
+
+            if grade.grade_value >= 50:
+                passed += 1
+            else:
+                failed += 1
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = sum(grades) / len(grades)
+
+    return {
+        "student_id": student.id,
+        "average_grade": average_grade,
+        "total_graded": len(grades),
+        "passed": passed,
+        "failed": failed
+    }

@@ -473,6 +473,22 @@ class StudentGradeDistributionResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# STUDENT PROGRESS REPORT SCHEMAS
+# (Phase 6.2 Step 9)
+# ==========================================================
+
+class StudentProgressReportResponse(BaseModel):
+    student_id: int
+    average_grade: float
+    total_graded: int
+    passed: int
+    failed: int
+
+    class Config:
+        from_attributes = True
+
+
 
 #########################################################################################################
 
