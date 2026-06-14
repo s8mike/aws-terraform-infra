@@ -433,6 +433,18 @@ class GradeHistoryResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# STUDENT PERFORMANCE ANALYTICS SCHEMAS
+# (Phase 6.2 Step 6)
+# ==========================================================
+
+class StudentAnalyticsResponse(BaseModel):
+    student_id: int
+    average_grade: float
+
+    class Config:
+        from_attributes = True
+
 
 
 #########################################################################################################

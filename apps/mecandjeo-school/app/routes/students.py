@@ -23,7 +23,8 @@ from ..schemas import (
     MyCourseResponse,
     MyAssignmentResponse,
     AssignmentSubmissionStatusResponse,
-    GradeHistoryResponse
+    GradeHistoryResponse,
+    StudentAnalyticsResponse
 )
 from ..auth import (
     get_current_user,
@@ -353,3 +354,49 @@ def get_grade_history(
             )
 
     return results
+
+
+# Student performance analytics
+@router.get(
+    "/performance-analytics",
+    response_model=StudentAnalyticsResponse
+)
+def get_performance_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    grades = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+            grades.append(grade.grade_value)
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = sum(grades) / len(grades)
+
+    return {
+        "student_id": student.id,
+        "average_grade": average_grade
+    }
