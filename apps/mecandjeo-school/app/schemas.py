@@ -405,6 +405,23 @@ class MyAssignmentResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# ASSIGNMENT SUBMISSION STATUS SCHEMAS
+# (Phase 6.2 Step 4)
+# ==========================================================
+
+class AssignmentSubmissionStatusResponse(BaseModel):
+    assignment_id: int
+    title: str
+    submitted: bool
+
+    class Config:
+        from_attributes = True
+
+
+
+
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

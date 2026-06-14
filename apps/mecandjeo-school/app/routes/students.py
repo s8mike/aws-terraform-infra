@@ -21,7 +21,8 @@ from ..schemas import (
     StudentResponse,
     StudentDashboardResponse,
     MyCourseResponse,
-    MyAssignmentResponse
+    MyAssignmentResponse,
+    AssignmentSubmissionStatusResponse
 )
 from ..auth import (
     get_current_user,
@@ -252,6 +253,56 @@ def get_my_assignments(
                 {
                     "assignment_id": assignment.id,
                     "title": assignment.title
+                }
+            )
+
+    return results
+
+
+# Assignment submission status
+@router.get(
+    "/assignment-submission-status",
+    response_model=list[AssignmentSubmissionStatusResponse]
+)
+def get_assignment_submission_status(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    results = []
+
+    for enrollment in enrollments:
+
+        assignments = db.query(Assignment).filter(
+            Assignment.course_id == enrollment.course_id
+        ).all()
+
+        for assignment in assignments:
+
+            submission = db.query(Submission).filter(
+                Submission.assignment_id == assignment.id,
+                Submission.student_id == student.id
+            ).first()
+
+            results.append(
+                {
+                    "assignment_id": assignment.id,
+                    "title": assignment.title,
+                    "submitted": submission is not None  # Converts submission to "True" if found and "False" if not found
                 }
             )
 
