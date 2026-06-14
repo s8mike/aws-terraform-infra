@@ -20,7 +20,8 @@ from ..schemas import (
     StudentUpdate,
     StudentResponse,
     StudentDashboardResponse,
-    MyCourseResponse
+    MyCourseResponse,
+    MyAssignmentResponse
 )
 from ..auth import (
     get_current_user,
@@ -207,6 +208,50 @@ def get_my_courses(
                 {
                     "course_id": course.id,
                     "title": course.title
+                }
+            )
+
+    return results
+
+
+# My assignments
+@router.get(
+    "/my-assignments",
+    response_model=list[MyAssignmentResponse]   # Multiple assignments
+)
+def get_my_assignments(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()       # All enrolled courses
+
+    results = []
+
+    for enrollment in enrollments:
+
+        assignments = db.query(Assignment).filter(
+            Assignment.course_id == enrollment.course_id
+        ).all()
+
+        for assignment in assignments:
+
+            results.append(
+                {
+                    "assignment_id": assignment.id,
+                    "title": assignment.title
                 }
             )
 

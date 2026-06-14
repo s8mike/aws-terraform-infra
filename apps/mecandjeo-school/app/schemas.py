@@ -393,6 +393,18 @@ class MyCourseResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# MY ASSIGNMENTS SCHEMAS
+# (Phase 6.2 Step 3)
+# ==========================================================
+
+class MyAssignmentResponse(BaseModel):
+    assignment_id: int
+    title: str
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
