@@ -10,6 +10,7 @@ from ..models import (
     Student, 
     User,
     Enrollment,
+    Course,
     Assignment,
     Submission,
     Grade
@@ -18,7 +19,8 @@ from ..schemas import (
     StudentCreate,
     StudentUpdate,
     StudentResponse,
-    StudentDashboardResponse
+    StudentDashboardResponse,
+    MyCourseResponse
 )
 from ..auth import (
     get_current_user,
@@ -166,3 +168,46 @@ def student_dashboard(
         "total_submissions": total_submissions,
         "total_grades": total_grades
     }
+
+# My courses
+@router.get(
+    "/my-courses",
+    response_model=list[MyCourseResponse]
+)
+def get_my_courses(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    results = []
+
+    for enrollment in enrollments:
+
+        course = db.query(Course).filter(
+            Course.id == enrollment.course_id
+        ).first()
+
+        if course:
+
+            results.append(
+                {
+                    "course_id": course.id,
+                    "title": course.title
+                }
+            )
+
+    return results

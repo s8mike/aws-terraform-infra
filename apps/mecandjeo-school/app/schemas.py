@@ -381,6 +381,18 @@ class StudentDashboardResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# MY COURSES SCHEMAS
+# (Phase 6.2 Step 2)
+# ==========================================================
+
+class MyCourseResponse(BaseModel):
+    course_id: int
+    title: str
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
