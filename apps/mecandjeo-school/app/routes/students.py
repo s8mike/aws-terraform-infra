@@ -22,7 +22,8 @@ from ..schemas import (
     StudentDashboardResponse,
     MyCourseResponse,
     MyAssignmentResponse,
-    AssignmentSubmissionStatusResponse
+    AssignmentSubmissionStatusResponse,
+    GradeHistoryResponse
 )
 from ..auth import (
     get_current_user,
@@ -303,6 +304,51 @@ def get_assignment_submission_status(
                     "assignment_id": assignment.id,
                     "title": assignment.title,
                     "submitted": submission is not None  # Converts submission to "True" if found and "False" if not found
+                }
+            )
+
+    return results
+
+
+# Grade history
+@router.get(
+    "/grade-history",
+    response_model=list[GradeHistoryResponse]
+)
+def get_grade_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    results = []
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+
+            results.append(
+                {
+                    "assignment_id": submission.assignment_id,
+                    "grade_value": grade.grade_value,
+                    "feedback": grade.feedback
                 }
             )
 

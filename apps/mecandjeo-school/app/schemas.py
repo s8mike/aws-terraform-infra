@@ -419,6 +419,19 @@ class AssignmentSubmissionStatusResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# GRADE HISTORY SCHEMAS
+# (Phase 6.2 Step 5)
+# ==========================================================
+
+class GradeHistoryResponse(BaseModel):
+    assignment_id: int
+    grade_value: int
+    feedback: Optional[str] = None
+
+    class Config:
+        from_attributes = True
+
 
 
 
