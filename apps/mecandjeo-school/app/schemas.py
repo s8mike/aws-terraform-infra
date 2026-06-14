@@ -446,6 +446,19 @@ class StudentAnalyticsResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# STUDENT PASS / FAIL STATISTICS SCHEMAS
+# (Phase 6.2 Step 7)
+# ==========================================================
+
+class StudentPassFailResponse(BaseModel):
+    total_graded: int
+    passed: int
+    failed: int
+
+    class Config:
+        from_attributes = True
+
 
 #########################################################################################################
 

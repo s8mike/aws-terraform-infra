@@ -24,7 +24,8 @@ from ..schemas import (
     MyAssignmentResponse,
     AssignmentSubmissionStatusResponse,
     GradeHistoryResponse,
-    StudentAnalyticsResponse
+    StudentAnalyticsResponse,
+    StudentPassFailResponse
 )
 from ..auth import (
     get_current_user,
@@ -399,4 +400,51 @@ def get_performance_analytics(
     return {
         "student_id": student.id,
         "average_grade": average_grade
+    }
+
+
+# Student pass / fail statistics
+@router.get(
+    "/pass-fail-statistics",
+    response_model=StudentPassFailResponse
+)
+def get_student_pass_fail_statistics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    passed = 0
+    failed = 0
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+
+            if grade.grade_value >= 50:
+                passed += 1
+            else:
+                failed += 1
+
+    return {
+        "total_graded": passed + failed,
+        "passed": passed,
+        "failed": failed
     }
