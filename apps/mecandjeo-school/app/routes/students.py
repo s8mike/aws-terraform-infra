@@ -27,7 +27,8 @@ from ..schemas import (
     StudentAnalyticsResponse,
     StudentPassFailResponse,
     StudentGradeDistributionResponse,
-    StudentProgressReportResponse
+    StudentProgressReportResponse,
+    StudentRankingResponse
 )
 from ..auth import (
     get_current_user,
@@ -578,4 +579,82 @@ def get_progress_report(
         "total_graded": len(grades),
         "passed": passed,
         "failed": failed
+    }
+
+
+# Student ranking
+@router.get(
+    "/ranking",
+    response_model=StudentRankingResponse
+)
+def get_student_ranking(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    students = db.query(Student).all()
+
+    rankings = []
+
+    for current_student in students:
+
+        submissions = db.query(Submission).filter(
+            Submission.student_id == current_student.id
+        ).all()
+
+        grades = []
+
+        for submission in submissions:
+
+            grade = db.query(Grade).filter(
+                Grade.submission_id == submission.id
+            ).first()
+
+            if grade:
+                grades.append(grade.grade_value)
+
+        average_grade = 0.0
+
+        if grades:
+            average_grade = sum(grades) / len(grades)
+
+        rankings.append(
+            {
+                "student_id": current_student.id,
+                "average_grade": average_grade
+            }
+        )
+
+    rankings.sort(
+        key=lambda student: student["average_grade"],
+        reverse=True
+    )
+
+    rank_position = 0
+
+    for index, ranking in enumerate(rankings, start=1):
+
+        if ranking["student_id"] == student.id:
+            rank_position = index
+            break
+
+    student_result = next(
+        item for item in rankings
+        if item["student_id"] == student.id
+    )
+
+    return {
+        "student_id": student.id,
+        "average_grade": student_result["average_grade"],
+        "rank": rank_position
     }

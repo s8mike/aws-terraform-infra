@@ -29,7 +29,7 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     PassFailStatisticsResponse,
     GradeDistributionResponse
 )
-from ..auth import (
+from ..auth import (     # From auth.py
     get_current_user,
     require_teacher
 ) 

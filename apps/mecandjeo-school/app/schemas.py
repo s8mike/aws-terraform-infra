@@ -489,6 +489,20 @@ class StudentProgressReportResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# STUDENT RANKING SCHEMAS
+# (Phase 6.2 Step 10)
+# ==========================================================
+
+class StudentRankingResponse(BaseModel):
+    student_id: int
+    average_grade: float
+    rank: int
+
+    class Config:
+        from_attributes = True
+
+
 
 #########################################################################################################
 
