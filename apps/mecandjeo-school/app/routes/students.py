@@ -25,7 +25,8 @@ from ..schemas import (
     AssignmentSubmissionStatusResponse,
     GradeHistoryResponse,
     StudentAnalyticsResponse,
-    StudentPassFailResponse
+    StudentPassFailResponse,
+    StudentGradeDistributionResponse
 )
 from ..auth import (
     get_current_user,
@@ -448,3 +449,75 @@ def get_student_pass_fail_statistics(
         "passed": passed,
         "failed": failed
     }
+
+# Student grade distribution
+@router.get(
+    "/grade-distribution",
+    response_model=list[StudentGradeDistributionResponse]
+)
+def get_student_grade_distribution(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    distribution = {
+        "90-100": 0,
+        "80-89": 0,
+        "70-79": 0,
+        "60-69": 0,
+        "50-59": 0,
+        "0-49": 0
+    }
+
+    for submission in submissions:
+
+        grade = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).first()
+
+        if grade:
+
+            if grade.grade_value >= 90:
+                distribution["90-100"] += 1
+
+            elif grade.grade_value >= 80:
+                distribution["80-89"] += 1
+
+            elif grade.grade_value >= 70:
+                distribution["70-79"] += 1
+
+            elif grade.grade_value >= 60:
+                distribution["60-69"] += 1
+
+            elif grade.grade_value >= 50:
+                distribution["50-59"] += 1
+
+            else:
+                distribution["0-49"] += 1
+
+    results = []
+
+    for grade_range, count in distribution.items():
+
+        results.append(
+            {
+                "grade_range": grade_range,
+                "assignment_count": count
+            }
+        )
+
+    return results
