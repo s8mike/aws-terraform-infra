@@ -33,7 +33,10 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     AnnouncementResponse,
     MyAnnouncementResponse,
     AnnouncementUpdate,
-    CourseAnnouncementResponse
+    CourseAnnouncementResponse,
+    CourseSummaryResponse,
+    CourseGradeDistributionResponse,
+    AtRiskStudentResponse
 )
 from ..auth import (     # From auth.py
     get_current_user,
@@ -924,3 +927,374 @@ def get_course_announcements(
     ).all()
 
     return announcements
+
+
+# Course summary report [phase 8.1c]
+@router.get(
+    "/courses/{course_id}/summary",
+    response_model=CourseSummaryResponse
+)
+def get_course_summary(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    total_students = db.query(Enrollment).filter(
+        Enrollment.course_id == course.id
+    ).count()
+
+    total_assignments = db.query(Assignment).filter(
+        Assignment.course_id == course.id
+    ).count()
+
+    assignment_ids = db.query(Assignment.id).filter(
+        Assignment.course_id == course.id
+    ).all()
+
+    assignment_ids = [a[0] for a in assignment_ids]   # Give me the first item or Create a new list from an existing collection
+
+    total_submissions = db.query(Submission).filter(
+        Submission.assignment_id.in_(assignment_ids)
+    ).count()
+
+    grades = db.query(Grade).join(
+        Submission
+    ).filter(
+        Submission.assignment_id.in_(assignment_ids)
+    ).all()
+
+    average_grade = 0.0
+
+    if grades:       # "if grades list contains at least one item"
+        average_grade = (
+            sum(g.grade_value for g in grades)   # Produce values one at a time or Extract values from objects and calculate the total.
+            / len(grades)
+        )
+
+    return {
+        "course_id": course.id,
+        "course_title": course.title,
+        "average_grade": round(average_grade, 2),
+        "total_students": total_students,
+        "total_assignments": total_assignments,
+        "total_submissions": total_submissions
+    }
+
+
+# Student performance report
+@router.get(
+    "/students/{student_id}/performance",
+    response_model=StudentPerformanceResponse
+)
+def get_student_performance(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    student = db.query(Student).filter(
+        Student.id == student_id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    total_submissions = len(submissions)
+
+    assignments_completed = total_submissions
+
+    grades = db.query(Grade).join(
+        Submission
+    ).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = (
+            sum(g.grade_value for g in grades)
+            / len(grades)
+        )
+
+    return {
+        "student_id": student.id,
+        "student_name": student.full_name,
+        "average_grade": round(average_grade, 2),   # Keep 2 digits after the decimal point
+        "assignments_completed": assignments_completed,
+        "total_submissions": total_submissions
+    }
+
+
+# Course grade distribution
+@router.get(
+    "/courses/{course_id}/grade-distribution",
+    response_model=list[CourseGradeDistributionResponse]
+)
+def get_course_grade_distribution(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    assignment_ids = db.query(Assignment.id).filter(
+        Assignment.course_id == course.id
+    ).all()
+
+    assignment_ids = [a[0] for a in assignment_ids]
+
+    grades = db.query(Grade).join(
+        Submission
+    ).filter(
+        Submission.assignment_id.in_(assignment_ids)
+    ).all()
+
+    distribution = {       # assumed that no student has this mark yet or counted. For grading purpose
+        "90-100": 0,
+        "80-89": 0,
+        "70-79": 0,
+        "60-69": 0,
+        "50-59": 0,
+        "0-49": 0
+    }
+
+    for grade in grades:   # Loop through every grade object one at a time.
+
+        value = grade.grade_value    # Extract the actual numeric score from the Grade object
+
+        if value >= 90:
+            distribution["90-100"] += 1      # += 1 means Add a student if he has this score [1 represents number of student]; increment
+
+        elif value >= 80:
+            distribution["80-89"] += 1
+
+        elif value >= 70:
+            distribution["70-79"] += 1
+
+        elif value >= 60:
+            distribution["60-69"] += 1
+
+        elif value >= 50:
+            distribution["50-59"] += 1
+
+        else:
+            distribution["0-49"] += 1
+
+    return [
+        {
+            "grade_range": grade_range,
+            "student_count": count
+        }
+        for grade_range, count in distribution.items()
+    ]
+
+
+# Top performing students [phase 8.1 sttep 4]
+@router.get(
+    "/courses/{course_id}/top-students",
+    response_model=list[TopStudentResponse]
+)
+def get_top_students(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.course_id == course.id
+    ).all()
+
+    results = []
+
+    for enrollment in enrollments:
+
+        student = db.query(Student).filter(
+            Student.id == enrollment.student_id
+        ).first()
+
+        grades = db.query(Grade).join(
+            Submission
+        ).filter(
+            Submission.student_id == student.id
+        ).all()
+
+        average_grade = 0.0
+
+        if grades:
+            average_grade = (
+                sum(g.grade_value for g in grades)
+                / len(grades)
+            )
+
+        results.append(
+            {
+                "student_id": student.id,
+                "student_name": student.full_name,
+                "average_grade": round(
+                    average_grade,
+                    2
+                )
+            }
+        )
+
+    results.sort(
+        key=lambda x: x["average_grade"],
+        reverse=True
+    )
+
+    return results
+
+
+# At-risk students [phase 8.1 step 5]
+@router.get(
+    "/courses/{course_id}/at-risk-students",
+    response_model=list[AtRiskStudentResponse]
+)
+def get_at_risk_students(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.course_id == course.id
+    ).all()
+
+    results = []
+
+    for enrollment in enrollments:
+
+        student = db.query(Student).filter(
+            Student.id == enrollment.student_id
+        ).first()
+
+        grades = db.query(Grade).join(
+            Submission
+        ).filter(
+            Submission.student_id == student.id
+        ).all()
+
+        if not grades:
+            continue
+
+        average_grade = (
+            sum(g.grade_value for g in grades)
+            / len(grades)
+        )
+
+        if average_grade < 50:
+
+            results.append(
+                {
+                    "student_id": student.id,
+                    "student_name": student.full_name,
+                    "average_grade": round(
+                        average_grade,
+                        2
+                    )
+                }
+            )
+
+    return results

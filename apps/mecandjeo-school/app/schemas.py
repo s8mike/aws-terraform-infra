@@ -725,6 +725,78 @@ class NotificationReadResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# COURSE SUMMARY REPORT SCHEMAS
+# (Phase 8.1 Step 1)
+# ==========================================================
+
+class CourseSummaryResponse(BaseModel):
+    course_id: int
+    course_title: str
+    average_grade: float
+    total_students: int
+    total_assignments: int
+    total_submissions: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# STUDENT PERFORMANCE REPORT SCHEMAS
+# (Phase 8.1 Step 2)
+# ==========================================================
+
+class StudentPerformanceResponse(BaseModel):
+    student_id: int
+    student_name: str
+    average_grade: float
+    assignments_completed: int
+    total_submissions: int
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# COURSE GRADE DISTRIBUTION SCHEMAS
+# (Phase 8.1 Step 3)
+# ==========================================================
+
+class CourseGradeDistributionResponse(BaseModel):
+    grade_range: str
+    student_count: int
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# TOP STUDENTS REPORT SCHEMAS
+# (Phase 8.1 Step 4)
+# ==========================================================
+
+class TopStudentResponse(BaseModel):
+    student_id: int
+    student_name: str
+    average_grade: float
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# AT-RISK STUDENTS REPORT SCHEMAS
+# (Phase 8.1 Step 5)
+# ==========================================================
+
+class AtRiskStudentResponse(BaseModel):
+    student_id: int
+    student_name: str
+    average_grade: float
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
