@@ -294,6 +294,32 @@ class Grade(Base):
         "Submission",
         back_populates="grade"
     )
+
+# Announcement domain model (phase 7)
+class Announcement(Base):
+    __tablename__ = "announcements"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    teacher_id = Column(
+        Integer,
+        ForeignKey("teachers.id"),
+        nullable=False
+    )
+
+    # Course that owns the announcement
+    course_id = Column(
+        Integer,
+        ForeignKey("courses.id"),
+        nullable=False
+    )
+
+
+    title = Column(String, nullable=False)
+
+    message = Column(String, nullable=False)
+
+
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.
 

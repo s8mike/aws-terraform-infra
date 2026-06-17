@@ -12,7 +12,8 @@ from ..models import (
     Grade,
     Enrollment,  # Enrollment model is imported for phase 6.1 step 2 to query the students enrolled in a specific course for the course roster endpoint.
     Student,     # Student model is imported for phase 6.1 step 2 to query the students enrolled in a specific course for the course roster endpoint.
-    User
+    User,
+    Announcement
 )
 from ..schemas import (     # imports from schemas.py [all teacher-related schemas are imported for teacher profile management endpoints.]
     TeacherCreate,
@@ -27,7 +28,12 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     StudentPerformanceResponse,
     TopStudentResponse,
     PassFailStatisticsResponse,
-    GradeDistributionResponse
+    GradeDistributionResponse,
+    AnnouncementCreate,
+    AnnouncementResponse,
+    MyAnnouncementResponse,
+    AnnouncementUpdate,
+    CourseAnnouncementResponse
 )
 from ..auth import (     # From auth.py
     get_current_user,
@@ -725,3 +731,196 @@ def get_grade_distribution(
         )
 
     return results
+
+
+# Create announcement
+@router.post(
+    "/announcements",
+    response_model=AnnouncementResponse
+)
+def create_announcement(
+    announcement: AnnouncementCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == announcement.course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    new_announcement = Announcement(
+        teacher_id=teacher.id,
+        course_id=announcement.course_id,
+        title=announcement.title,
+        message=announcement.message
+    )
+
+    db.add(new_announcement)
+    db.commit()
+    db.refresh(new_announcement)
+
+    return new_announcement
+
+
+# View my announcements
+@router.get(
+    "/announcements",
+    response_model=list[MyAnnouncementResponse]
+)
+def get_my_announcements(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    announcements = db.query(Announcement).filter(
+        Announcement.teacher_id == teacher.id
+    ).all()
+
+    return announcements
+
+
+# Update announcement
+@router.put(
+    "/announcements/{announcement_id}",
+    response_model=AnnouncementResponse
+)
+def update_announcement(
+    announcement_id: int,
+    announcement_data: AnnouncementUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    announcement = db.query(Announcement).filter(
+        Announcement.id == announcement_id,
+        Announcement.teacher_id == teacher.id
+    ).first()
+
+    if not announcement:
+        raise HTTPException(
+            status_code=404,
+            detail="Announcement not found"
+        )
+
+    announcement.title = announcement_data.title
+    announcement.message = announcement_data.message
+
+    db.commit()
+    db.refresh(announcement)
+
+    return announcement
+
+
+# Delete announcement
+@router.delete(
+    "/announcements/{announcement_id}"
+)
+def delete_announcement(
+    announcement_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    announcement = db.query(Announcement).filter(
+        Announcement.id == announcement_id,
+        Announcement.teacher_id == teacher.id
+    ).first()
+
+    if not announcement:
+        raise HTTPException(
+            status_code=404,
+            detail="Announcement not found"
+        )
+
+    db.delete(announcement)
+    db.commit()
+
+    return {
+        "message": "Announcement deleted successfully"
+    }
+
+
+# Course announcements
+@router.get(
+    "/courses/{course_id}/announcements",
+    response_model=list[CourseAnnouncementResponse]
+)
+def get_course_announcements(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    announcements = db.query(Announcement).filter(
+        Announcement.course_id == course_id
+    ).all()
+
+    return announcements

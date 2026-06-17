@@ -503,6 +503,64 @@ class StudentRankingResponse(BaseModel):
         from_attributes = True
 
 
+# ==========================================================
+# ANNOUNCEMENT SCHEMAS
+# (Phase 7.1 Step 1)
+# ==========================================================
+
+class AnnouncementCreate(BaseModel):
+    course_id: int                     # Teacher must tell us which course is the announcement for? (step 4)
+    title: str
+    message: str
+
+
+class AnnouncementResponse(BaseModel):
+    id: int
+    teacher_id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# MY ANNOUNCEMENTS SCHEMAS
+# (Phase 7.1 Step 2)
+# ==========================================================
+
+class MyAnnouncementResponse(BaseModel):
+    id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# UPDATE ANNOUNCEMENT SCHEMAS
+# (Phase 7.1 Step 3)
+# ==========================================================
+
+class AnnouncementUpdate(BaseModel):
+    title: str
+    message: str
+
+
+# ==========================================================
+# COURSE ANNOUNCEMENTS SCHEMAS
+# (Phase 7.1 Step 5)
+# ==========================================================
+
+class CourseAnnouncementResponse(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
 
 #########################################################################################################
 
