@@ -320,6 +320,23 @@ class Announcement(Base):
     message = Column(String, nullable=False)
 
 
+class AnnouncementRead(Base):
+    __tablename__ = "announcement_reads"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    announcement_id = Column(
+        Integer,
+        ForeignKey("announcements.id"),
+        nullable=False
+    )
+
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.
 

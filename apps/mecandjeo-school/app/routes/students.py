@@ -13,7 +13,9 @@ from ..models import (
     Course,
     Assignment,
     Submission,
-    Grade
+    Grade,
+    Announcement,
+    AnnouncementRead
 ) 
 from ..schemas import (
     StudentCreate,
@@ -28,7 +30,12 @@ from ..schemas import (
     StudentPassFailResponse,
     StudentGradeDistributionResponse,
     StudentProgressReportResponse,
-    StudentRankingResponse
+    StudentRankingResponse,
+    StudentAnnouncementResponse,
+    StudentCourseAnnouncementResponse,
+    UnreadAnnouncementResponse,
+    AnnouncementReadResponse,
+    AnnouncementHistoryResponse
 )
 from ..auth import (
     get_current_user,
@@ -658,3 +665,212 @@ def get_student_ranking(
         "average_grade": student_result["average_grade"],
         "rank": rank_position
     }
+
+
+# View announcements available to student [phase 7.2]
+@router.get(
+    "/announcements",
+    response_model=list[StudentAnnouncementResponse]
+)
+def get_student_announcements(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    results = []
+
+    for enrollment in enrollments:
+
+        announcements = db.query(Announcement).filter(
+            Announcement.course_id == enrollment.course_id
+        ).all()
+
+        results.extend(announcements)
+
+    return results
+
+# View announcements for a specific enrolled course
+@router.get(
+    "/courses/{course_id}/announcements",
+    response_model=list[StudentCourseAnnouncementResponse]
+)
+def get_course_announcements(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollment = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id,   # Enrolled student with id.
+        Enrollment.course_id == course_id
+    ).first()
+
+    if not enrollment:
+        raise HTTPException(
+            status_code=403,
+            detail="Not enrolled in this course"
+        )
+
+    announcements = db.query(Announcement).filter(
+        Announcement.course_id == course_id
+    ).all()
+
+    return announcements
+
+
+# Unread announcements
+@router.get(
+    "/unread-announcements",
+    response_model=list[UnreadAnnouncementResponse]
+)
+def get_unread_announcements(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    unread_announcements = []
+
+    for enrollment in enrollments:
+
+        announcements = db.query(Announcement).filter(
+            Announcement.course_id == enrollment.course_id
+        ).all()
+
+        for announcement in announcements:
+
+            already_read = db.query(AnnouncementRead).filter(
+                AnnouncementRead.student_id == student.id,
+                AnnouncementRead.announcement_id == announcement.id
+            ).first()
+
+            if not already_read:
+                unread_announcements.append(announcement)
+
+    return unread_announcements
+
+
+# Mark announcement as read
+@router.post(
+    "/announcements/{announcement_id}/read",
+    response_model=AnnouncementReadResponse
+)
+def mark_announcement_as_read(
+    announcement_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    announcement = db.query(Announcement).filter(
+        Announcement.id == announcement_id
+    ).first()
+
+    if not announcement:
+        raise HTTPException(
+            status_code=404,
+            detail="Announcement not found"
+        )
+
+    existing = db.query(AnnouncementRead).filter(
+        AnnouncementRead.student_id == student.id,
+        AnnouncementRead.announcement_id == announcement_id
+    ).first()
+
+    if existing:
+        return existing
+
+    read_record = AnnouncementRead(
+        student_id=student.id,
+        announcement_id=announcement_id
+    )
+
+    db.add(read_record)
+    db.commit()
+    db.refresh(read_record)
+
+    return read_record
+
+
+# Announcement history (read announcements)
+@router.get(
+    "/announcement-history",
+    response_model=list[AnnouncementHistoryResponse]
+)
+def get_announcement_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    read_records = db.query(AnnouncementRead).filter(
+        AnnouncementRead.student_id == student.id
+    ).all()
+
+    results = []
+
+    for record in read_records:
+
+        announcement = db.query(Announcement).filter(
+            Announcement.id == record.announcement_id
+        ).first()
+
+        if announcement:
+            results.append(announcement)
+
+    return results

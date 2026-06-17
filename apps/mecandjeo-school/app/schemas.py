@@ -504,7 +504,7 @@ class StudentRankingResponse(BaseModel):
 
 
 # ==========================================================
-# ANNOUNCEMENT SCHEMAS
+# ANNOUNCEMENT SCHEMAS [Teacher]
 # (Phase 7.1 Step 1)
 # ==========================================================
 
@@ -554,6 +554,80 @@ class AnnouncementUpdate(BaseModel):
 # ==========================================================
 
 class CourseAnnouncementResponse(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# STUDENT ANNOUNCEMENTS SCHEMAS
+# (Phase 7.2 Step 1)
+# ==========================================================
+
+class StudentAnnouncementResponse(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# STUDENT COURSE ANNOUNCEMENTS SCHEMAS
+# (Phase 7.2 Step 2)
+# ==========================================================
+
+class StudentCourseAnnouncementResponse(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# UNREAD ANNOUNCEMENTS SCHEMAS
+# (Phase 7.2 Step 3)
+# ==========================================================
+
+class UnreadAnnouncementResponse(BaseModel):
+    id: int
+    course_id: int
+    title: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# MARK ANNOUNCEMENT READ SCHEMAS
+# (Phase 7.2 Step 4A)
+# ==========================================================
+
+class AnnouncementReadResponse(BaseModel):
+    id: int
+    student_id: int
+    announcement_id: int
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# ANNOUNCEMENT HISTORY SCHEMAS
+# (Phase 7.2 Step 4B)
+# ==========================================================
+
+class AnnouncementHistoryResponse(BaseModel):
     id: int
     course_id: int
     title: str
