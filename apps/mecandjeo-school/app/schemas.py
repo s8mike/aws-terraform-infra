@@ -636,6 +636,95 @@ class AnnouncementHistoryResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
+# ==========================================================
+# NOTIFICATION SCHEMAS
+# (Phase 7.3 Step 1)
+# ==========================================================
+
+class NotificationResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# ASSIGNMENT NOTIFICATION SCHEMAS
+# (Phase 7.3 Step 1)
+# ==========================================================
+
+class AssignmentNotificationResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# GRADE NOTIFICATION SCHEMAS
+# (Phase 7.3 Step 2)
+# ==========================================================
+
+class GradeNotificationResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ANNOUNCEMENT NOTIFICATION SCHEMAS
+# (Phase 7.3 Step 3)
+# ==========================================================
+
+class AnnouncementNotificationResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# NOTIFICATION DASHBOARD SCHEMAS
+# (Phase 7.3 Step 4)
+# ==========================================================
+
+class NotificationDashboardResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+
+# ==========================================================
+# MARK NOTIFICATION READ SCHEMAS
+# (Phase 7.3 Step 5)
+# ==========================================================
+
+class NotificationReadResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

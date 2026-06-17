@@ -15,7 +15,8 @@ from ..models import (
     Submission,
     Grade,
     Announcement,
-    AnnouncementRead
+    AnnouncementRead,
+    Notification
 ) 
 from ..schemas import (
     StudentCreate,
@@ -35,7 +36,12 @@ from ..schemas import (
     StudentCourseAnnouncementResponse,
     UnreadAnnouncementResponse,
     AnnouncementReadResponse,
-    AnnouncementHistoryResponse
+    AnnouncementHistoryResponse,
+    AssignmentNotificationResponse,
+    GradeNotificationResponse,
+    AnnouncementNotificationResponse,
+    NotificationDashboardResponse,
+    NotificationReadResponse
 )
 from ..auth import (
     get_current_user,
@@ -874,3 +880,222 @@ def get_announcement_history(
             results.append(announcement)
 
     return results
+
+
+# Assignment notifications
+@router.post(
+    "/assignment-notifications",
+    response_model=list[AssignmentNotificationResponse]
+)
+def create_assignment_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    created_notifications = []
+
+    for enrollment in enrollments:
+
+        assignments = db.query(Assignment).filter(
+            Assignment.course_id == enrollment.course_id
+        ).all()
+
+        for assignment in assignments:
+
+            notification = Notification(
+                student_id=student.id,
+                message=f"New assignment available: {assignment.title}"
+            )
+
+            db.add(notification)
+            created_notifications.append(notification)
+
+    db.commit()
+
+    for notification in created_notifications:
+        db.refresh(notification)
+
+    return created_notifications
+
+
+# Grade notifications
+@router.post(
+    "/grade-notifications",
+    response_model=list[GradeNotificationResponse]
+)
+def create_grade_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    submissions = db.query(Submission).filter(
+        Submission.student_id == student.id
+    ).all()
+
+    created_notifications = []
+
+    for submission in submissions:
+
+        grades = db.query(Grade).filter(
+            Grade.submission_id == submission.id
+        ).all()
+
+        for grade in grades:
+
+            notification = Notification(
+                student_id=student.id,
+                message=f"Assignment graded: {grade.grade_value}"
+            )
+
+            db.add(notification)
+            created_notifications.append(notification)
+
+    db.commit()
+
+    for notification in created_notifications:
+        db.refresh(notification)
+
+    return created_notifications
+
+
+# Announcement notifications
+@router.post(
+    "/announcement-notifications",
+    response_model=list[AnnouncementNotificationResponse]
+)
+def create_announcement_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    enrollments = db.query(Enrollment).filter(
+        Enrollment.student_id == student.id
+    ).all()
+
+    created_notifications = []
+
+    for enrollment in enrollments:
+
+        announcements = db.query(Announcement).filter(
+            Announcement.course_id == enrollment.course_id
+        ).all()
+
+        for announcement in announcements:
+
+            notification = Notification(
+                student_id=student.id,
+                message=f"New announcement: {announcement.title}"
+            )
+
+            db.add(notification)
+            created_notifications.append(notification)
+
+    db.commit()
+
+    for notification in created_notifications:
+        db.refresh(notification)
+
+    return created_notifications
+
+
+# Notification dashboard
+@router.get(
+    "/notifications",
+    response_model=list[NotificationDashboardResponse]
+)
+def get_notifications(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    notifications = db.query(Notification).filter(
+        Notification.student_id == student.id
+    ).order_by(
+        Notification.id.desc()        # Sort by Notification ID in descending order [desc=descending]
+    ).all()
+
+    return notifications
+
+
+# Mark notification as read
+@router.put(
+    "/notifications/{notification_id}/read",
+    response_model=NotificationReadResponse
+)
+def mark_notification_as_read(
+    notification_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    notification = db.query(Notification).filter(
+        Notification.id == notification_id,
+        Notification.student_id == student.id
+    ).first()
+
+    if not notification:
+        raise HTTPException(
+            status_code=404,
+            detail="Notification not found"
+        )
+
+    notification.is_read = True
+
+    db.commit()
+    db.refresh(notification)
+
+    return notification

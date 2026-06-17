@@ -4,7 +4,13 @@
 
 # Database tables and ORM models
 
-from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy import (
+    Column, 
+    Integer, 
+    String, 
+    ForeignKey,
+    Boolean
+)
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -335,6 +341,28 @@ class AnnouncementRead(Base):
         Integer,
         ForeignKey("announcements.id"),
         nullable=False
+    )
+
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(Integer, primary_key=True, index=True)
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    message = Column(
+        String,
+        nullable=False
+    )
+
+    is_read = Column(
+        Boolean,
+        default=False
     )
 
 #=================================================================
