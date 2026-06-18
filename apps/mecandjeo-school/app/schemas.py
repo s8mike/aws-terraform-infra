@@ -203,7 +203,6 @@ class SubmissionResponse(SubmissionBase):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # GRADE DOMAIN SCHEMAS (Phase 5.2 Step 8)
 # ==========================================================
@@ -364,8 +363,6 @@ class GradeDistributionResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
-
 # ==========================================================
 # STUDENT DASHBOARD SCHEMAS
 # (Phase 6.2 Step 1)
@@ -379,7 +376,6 @@ class StudentDashboardResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # MY COURSES SCHEMAS
@@ -418,7 +414,6 @@ class AssignmentSubmissionStatusResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # GRADE HISTORY SCHEMAS
 # (Phase 6.2 Step 5)
@@ -432,7 +427,6 @@ class GradeHistoryResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # STUDENT PERFORMANCE ANALYTICS SCHEMAS
 # (Phase 6.2 Step 6)
@@ -444,7 +438,6 @@ class StudentAnalyticsResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # STUDENT PASS / FAIL STATISTICS SCHEMAS
@@ -459,7 +452,6 @@ class StudentPassFailResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # STUDENT GRADE DISTRIBUTION SCHEMAS
 # (Phase 6.2 Step 8)
@@ -471,7 +463,6 @@ class StudentGradeDistributionResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # STUDENT PROGRESS REPORT SCHEMAS
@@ -488,7 +479,6 @@ class StudentProgressReportResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # STUDENT RANKING SCHEMAS
 # (Phase 6.2 Step 10)
@@ -502,7 +492,6 @@ class StudentRankingResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # ANNOUNCEMENT SCHEMAS [Teacher]
 # (Phase 7.1 Step 1)
@@ -513,7 +502,6 @@ class AnnouncementCreate(BaseModel):
     title: str
     message: str
 
-
 class AnnouncementResponse(BaseModel):
     id: int
     teacher_id: int
@@ -523,7 +511,6 @@ class AnnouncementResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # MY ANNOUNCEMENTS SCHEMAS
@@ -547,7 +534,6 @@ class AnnouncementUpdate(BaseModel):
     title: str
     message: str
 
-
 # ==========================================================
 # COURSE ANNOUNCEMENTS SCHEMAS
 # (Phase 7.1 Step 5)
@@ -561,7 +547,6 @@ class CourseAnnouncementResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # STUDENT ANNOUNCEMENTS SCHEMAS
@@ -577,7 +562,6 @@ class StudentAnnouncementResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # STUDENT COURSE ANNOUNCEMENTS SCHEMAS
 # (Phase 7.2 Step 2)
@@ -591,7 +575,6 @@ class StudentCourseAnnouncementResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # UNREAD ANNOUNCEMENTS SCHEMAS
@@ -607,7 +590,6 @@ class UnreadAnnouncementResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # MARK ANNOUNCEMENT READ SCHEMAS
 # (Phase 7.2 Step 4A)
@@ -620,7 +602,6 @@ class AnnouncementReadResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # ANNOUNCEMENT HISTORY SCHEMAS
@@ -636,7 +617,6 @@ class AnnouncementHistoryResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # NOTIFICATION SCHEMAS
 # (Phase 7.3 Step 1)
@@ -651,7 +631,6 @@ class NotificationResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # ASSIGNMENT NOTIFICATION SCHEMAS
 # (Phase 7.3 Step 1)
@@ -665,7 +644,6 @@ class AssignmentNotificationResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # GRADE NOTIFICATION SCHEMAS
@@ -694,7 +672,6 @@ class AnnouncementNotificationResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # NOTIFICATION DASHBOARD SCHEMAS
@@ -756,7 +733,6 @@ class StudentPerformanceResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # COURSE GRADE DISTRIBUTION SCHEMAS
 # (Phase 8.1 Step 3)
@@ -768,7 +744,6 @@ class CourseGradeDistributionResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
 
 # ==========================================================
 # TOP STUDENTS REPORT SCHEMAS
@@ -783,7 +758,6 @@ class TopStudentResponse(BaseModel):
     class Config:
         from_attributes = True
 
-
 # ==========================================================
 # AT-RISK STUDENTS REPORT SCHEMAS
 # (Phase 8.1 Step 5)
@@ -792,6 +766,79 @@ class TopStudentResponse(BaseModel):
 class AtRiskStudentResponse(BaseModel):
     student_id: int
     student_name: str
+    average_grade: float
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ADMIN DASHBOARD SCHEMAS
+# (Phase 8.2 Step 1)
+# ==========================================================
+
+class AdminDashboardResponse(BaseModel):
+    total_users: int
+    total_students: int
+    total_teachers: int
+    total_courses: int
+    total_assignments: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ADMIN USER MANAGEMENT SCHEMAS
+# (Phase 8.2 Step 2)
+# ==========================================================
+
+class AdminUserResponse(BaseModel):
+    id: int
+    email: str
+    role: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ROLE MANAGEMENT SCHEMAS
+# (Phase 8.2 Step 3)
+# ==========================================================
+
+class UpdateUserRoleRequest(BaseModel):
+    role: str
+
+
+class UpdateUserRoleResponse(BaseModel):
+    id: int
+    email: str
+    role: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# COURSE OVERSIGHT SCHEMAS
+# (Phase 8.2 Step 4)
+# ==========================================================
+
+class AdminCourseResponse(BaseModel):
+    id: int
+    title: str
+    description: str
+    teacher_id: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ACADEMIC OVERVIEW SCHEMAS
+# (Phase 8.2 Step 5)
+# ==========================================================
+
+class AcademicOverviewResponse(BaseModel):
+    total_students: int
+    total_courses: int
+    total_assignments: int
     average_grade: float
 
     class Config:
