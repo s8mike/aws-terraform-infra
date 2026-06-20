@@ -13,7 +13,8 @@ from ..models import (
     Enrollment,  # Enrollment model is imported for phase 6.1 step 2 to query the students enrolled in a specific course for the course roster endpoint.
     Student,     # Student model is imported for phase 6.1 step 2 to query the students enrolled in a specific course for the course roster endpoint.
     User,
-    Announcement
+    Announcement,
+    Attendance
 )
 from ..schemas import (     # imports from schemas.py [all teacher-related schemas are imported for teacher profile management endpoints.]
     TeacherCreate,
@@ -36,7 +37,9 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     CourseAnnouncementResponse,
     CourseSummaryResponse,
     CourseGradeDistributionResponse,
-    AtRiskStudentResponse
+    AtRiskStudentResponse,
+    AttendanceCreate,
+    AttendanceResponse
 )
 from ..auth import (     # From auth.py
     get_current_user,
@@ -1298,3 +1301,48 @@ def get_at_risk_students(
             )
 
     return results
+
+# Mark student attendance
+@router.post(
+    "/attendance",
+    response_model=AttendanceResponse
+)
+def mark_attendance(
+    attendance: AttendanceCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = db.query(Teacher).filter(
+        Teacher.user_id == current_user.id
+    ).first()
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    course = db.query(Course).filter(
+        Course.id == attendance.course_id,
+        Course.teacher_id == teacher.id
+    ).first()
+
+    if not course:
+        raise HTTPException(
+            status_code=404,
+            detail="Course not found"
+        )
+
+    new_attendance = Attendance(
+        student_id=attendance.student_id,
+        course_id=attendance.course_id,
+        attendance_date=attendance.attendance_date,
+        status=attendance.status
+    )
+
+    db.add(new_attendance)
+    db.commit()
+    db.refresh(new_attendance)
+
+    return new_attendance

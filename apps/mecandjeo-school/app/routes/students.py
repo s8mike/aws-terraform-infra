@@ -16,7 +16,8 @@ from ..models import (
     Grade,
     Announcement,
     AnnouncementRead,
-    Notification
+    Notification,
+    Attendance
 ) 
 from ..schemas import (
     StudentCreate,
@@ -41,7 +42,11 @@ from ..schemas import (
     GradeNotificationResponse,
     AnnouncementNotificationResponse,
     NotificationDashboardResponse,
-    NotificationReadResponse
+    NotificationReadResponse,
+    AttendanceHistoryResponse,
+    AttendanceStatisticsResponse,
+    AttendanceAnalyticsResponse,
+    AttendanceAlertResponse
 )
 from ..auth import (
     get_current_user,
@@ -1099,3 +1104,234 @@ def mark_notification_as_read(
     db.refresh(notification)
 
     return notification
+
+# Student attendance history
+@router.get(
+    "/attendance-history",
+    response_model=list[AttendanceHistoryResponse]
+)
+def get_attendance_history(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .order_by(
+            Attendance.attendance_date.desc()
+        )
+        .all()
+    )
+
+    return attendance_records
+
+# Student attendance statistics
+@router.get(
+    "/attendance-statistics",
+    response_model=AttendanceStatisticsResponse
+)
+def get_attendance_statistics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    absent_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "absent"
+    )
+
+    late_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "late"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    return {
+        "total_records": total_records,
+        "present": present_count,
+        "absent": absent_count,
+        "late": late_count,
+        "attendance_percentage": round(
+            attendance_percentage,
+            2
+        )
+    }
+
+# Student attendance analytics
+@router.get(
+    "/attendance-analytics",
+    response_model=AttendanceAnalyticsResponse
+)
+def get_attendance_analytics(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    if attendance_percentage >= 90:
+        rating = "Excellent"
+        risk = "Low"
+
+    elif attendance_percentage >= 75:
+        rating = "Good"
+        risk = "Moderate"
+
+    elif attendance_percentage >= 50:
+        rating = "Poor"
+        risk = "High"
+
+    else:
+        rating = "Critical"
+        risk = "Very High"
+
+    return {
+        "attendance_percentage": round(
+            attendance_percentage,
+            2
+        ),
+        "attendance_rating": rating,
+        "risk_level": risk
+    }
+
+# Student attendance risk alerts
+@router.get(
+    "/attendance-alerts",
+    response_model=AttendanceAlertResponse
+)
+def get_attendance_alerts(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    if attendance_percentage >= 90:
+        return {
+            "at_risk": False,
+            "risk_level": "Low",
+            "message": "Attendance is satisfactory."
+        }
+
+    elif attendance_percentage >= 75:
+        return {
+            "at_risk": False,
+            "risk_level": "Moderate",
+            "message": "Attendance should be monitored."
+        }
+
+    else:
+        return {
+            "at_risk": True,
+            "risk_level": "High",
+            "message": "Attendance intervention recommended."
+        }

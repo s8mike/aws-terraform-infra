@@ -9,7 +9,8 @@ from sqlalchemy import (
     Integer, 
     String, 
     ForeignKey,
-    Boolean
+    Boolean,
+    Date
 )
 from sqlalchemy.orm import relationship
 
@@ -363,6 +364,41 @@ class Notification(Base):
     is_read = Column(
         Boolean,
         default=False
+    )
+# ==========================================================
+# ATTENDANCE MODEL
+# (Phase 9.1 Step 1)
+# ==========================================================
+
+class Attendance(Base):
+    __tablename__ = "attendance"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
+        nullable=False
+    )
+
+    course_id = Column(
+        Integer,
+        ForeignKey("courses.id"),
+        nullable=False
+    )
+
+    attendance_date = Column(
+        Date,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        nullable=False
     )
 
 #=================================================================

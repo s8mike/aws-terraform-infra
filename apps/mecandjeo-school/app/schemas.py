@@ -844,6 +844,86 @@ class AcademicOverviewResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# ATTENDANCE SCHEMAS
+# (Phase 9.1 Step 1)= Teacher
+# ==========================================================
+
+from datetime import date
+
+
+class AttendanceCreate(BaseModel):
+    student_id: int
+    course_id: int
+    attendance_date: date
+    status: str
+
+
+class AttendanceResponse(BaseModel):
+    id: int
+    student_id: int
+    course_id: int
+    attendance_date: date
+    status: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ATTENDANCE HISTORY SCHEMAS
+# (Phase 9.1 Step 2)= Student
+# ==========================================================
+
+class AttendanceHistoryResponse(BaseModel):
+    id: int
+    course_id: int
+    attendance_date: date
+    status: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ATTENDANCE STATISTICS SCHEMAS
+# (Phase 9.1 Step 3)
+# ==========================================================
+
+class AttendanceStatisticsResponse(BaseModel):
+    total_records: int
+    present: int
+    absent: int
+    late: int
+    attendance_percentage: float
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ATTENDANCE ANALYTICS SCHEMAS
+# (Phase 9.1 Step 4)
+# ==========================================================
+
+class AttendanceAnalyticsResponse(BaseModel):
+    attendance_percentage: float
+    attendance_rating: str
+    risk_level: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ATTENDANCE ALERT SCHEMAS
+# (Phase 9.1 Step 5)
+# ==========================================================
+
+class AttendanceAlertResponse(BaseModel):
+    at_risk: bool
+    risk_level: str
+    message: str
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
