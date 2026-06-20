@@ -46,7 +46,11 @@ from ..schemas import (
     AttendanceHistoryResponse,
     AttendanceStatisticsResponse,
     AttendanceAnalyticsResponse,
-    AttendanceAlertResponse
+    AttendanceAlertResponse,
+    PerformanceSummaryResponse,
+    PerformanceTrendResponse,
+    StudentRiskAssessmentResponse,
+    InterventionRecommendationResponse
 )
 from ..auth import (
     get_current_user,
@@ -1335,3 +1339,387 @@ def get_attendance_alerts(
             "risk_level": "High",
             "message": "Attendance intervention recommended."
         }
+    
+# Student performance summary
+@router.get(
+    "/performance-summary",
+    response_model=PerformanceSummaryResponse
+)
+def get_performance_summary(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    # --------------------------------------------------
+    # Grades
+    # --------------------------------------------------
+
+    grades = (
+        db.query(Grade)
+        .join(
+            Submission,
+            Grade.submission_id == Submission.id
+        )
+        .filter(
+            Submission.student_id == student.id
+        )
+        .all()
+    )
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = (
+            sum(
+                grade.grade_value
+                for grade in grades
+            )
+            / len(grades)
+        )
+
+    # --------------------------------------------------
+    # Attendance
+    # --------------------------------------------------
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    # --------------------------------------------------
+    # Assignments Completed
+    # --------------------------------------------------
+
+    assignments_completed = (
+        db.query(Submission)
+        .filter(
+            Submission.student_id == student.id
+        )
+        .count()
+    )
+
+    return {
+        "average_grade": round(
+            average_grade,
+            2
+        ),
+        "attendance_percentage": round(
+            attendance_percentage,
+            2
+        ),
+        "assignments_completed": assignments_completed
+    }
+
+
+# Student performance trend analysis
+@router.get(
+    "/performance-trend",
+    response_model=PerformanceTrendResponse
+)
+def get_performance_trend(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    grades = (
+        db.query(Grade)
+        .join(
+            Submission,
+            Grade.submission_id == Submission.id
+        )
+        .filter(
+            Submission.student_id == student.id
+        )
+        .all()
+    )
+
+    # --------------------------------------------------
+    # Initial Version
+    # --------------------------------------------------
+
+    if len(grades) < 2:
+        return {
+            "trend": "Stable",
+            "reason": (
+                "Insufficient historical data "
+                "for comparison."
+            )
+        }
+
+    latest_grade = grades[-1].grade_value      # Negative indexes count from the end, -1 = first value from the end.
+    previous_grade = grades[-2].grade_value    # -2 = second value from the end
+
+    if latest_grade > previous_grade:
+        return {
+            "trend": "Improving",
+            "reason": (
+                f"Grade improved from "
+                f"{previous_grade} to {latest_grade}."
+            )
+        }
+
+    elif latest_grade < previous_grade:
+        return {
+            "trend": "Declining",
+            "reason": (
+                f"Grade decreased from "
+                f"{previous_grade} to {latest_grade}."
+            )
+        }
+
+    return {
+        "trend": "Stable",
+        "reason": "Performance remains consistent."
+    }
+
+# Student risk assessment
+@router.get(
+    "/risk-assessment",
+    response_model=StudentRiskAssessmentResponse
+)
+def get_risk_assessment(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    # --------------------------------------------
+    # Grades
+    # --------------------------------------------
+
+    grades = (
+        db.query(Grade)
+        .join(
+            Submission,
+            Grade.submission_id == Submission.id
+        )
+        .filter(
+            Submission.student_id == student.id
+        )
+        .all()
+    )
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = (
+            sum(
+                grade.grade_value
+                for grade in grades
+            )
+            / len(grades)
+        )
+
+    # --------------------------------------------
+    # Attendance
+    # --------------------------------------------
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    # --------------------------------------------
+    # Risk Logic
+    # --------------------------------------------
+
+    if (
+        average_grade >= 70
+        and attendance_percentage >= 75
+    ):
+        return {
+            "at_risk": False,
+            "risk_level": "Low",
+            "reason": (
+                "Strong grades and attendance."
+            )
+        }
+
+    elif (
+        average_grade >= 50
+        or attendance_percentage >= 50
+    ):
+        return {
+            "at_risk": False,
+            "risk_level": "Moderate",
+            "reason": (
+                "Performance should be monitored."
+            )
+        }
+
+    return {
+        "at_risk": True,
+        "risk_level": "High",
+        "reason": (
+            "Academic intervention recommended."
+        )
+    }
+
+# Academic intervention recommendation
+@router.get(
+    "/intervention-recommendation",
+    response_model=InterventionRecommendationResponse
+)
+def get_intervention_recommendation(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_student)
+):
+
+    student = db.query(Student).filter(
+        Student.user_id == current_user.id
+    ).first()
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student profile not found"
+        )
+
+    # -----------------------------------------
+    # Average Grade
+    # -----------------------------------------
+
+    grades = (
+        db.query(Grade)
+        .join(
+            Submission,
+            Grade.submission_id == Submission.id
+        )
+        .filter(
+            Submission.student_id == student.id
+        )
+        .all()
+    )
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = (
+            sum(
+                grade.grade_value
+                for grade in grades
+            )
+            / len(grades)
+        )
+
+    # -----------------------------------------
+    # Attendance Percentage
+    # -----------------------------------------
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.student_id == student.id
+        )
+        .all()
+    )
+
+    total_records = len(attendance_records)
+
+    present_count = sum(
+        1
+        for record in attendance_records
+        if record.status.lower() == "present"
+    )
+
+    attendance_percentage = 0.0
+
+    if total_records > 0:
+        attendance_percentage = (
+            present_count / total_records
+        ) * 100
+
+    # -----------------------------------------
+    # Recommendation Logic
+    # -----------------------------------------
+
+    if (
+        average_grade >= 70
+        and attendance_percentage >= 75
+    ):
+        recommendation = (
+            "Continue current performance."
+        )
+
+    elif (
+        average_grade >= 50
+        or attendance_percentage >= 50
+    ):
+        recommendation = (
+            "Monitor performance closely."
+        )
+
+    else:
+        recommendation = (
+            "Immediate academic intervention "
+            "recommended."
+        )
+
+    return {
+        "recommendation": recommendation
+    }

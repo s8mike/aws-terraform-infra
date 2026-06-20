@@ -39,7 +39,8 @@ from ..schemas import (     # imports from schemas.py [all teacher-related schem
     CourseGradeDistributionResponse,
     AtRiskStudentResponse,
     AttendanceCreate,
-    AttendanceResponse
+    AttendanceResponse,
+    TeacherPerformanceDashboardResponse
 )
 from ..auth import (     # From auth.py
     get_current_user,
@@ -1346,3 +1347,152 @@ def mark_attendance(
     db.refresh(new_attendance)
 
     return new_attendance
+
+# Teacher performance dashboard
+@router.get(
+    "/performance-dashboard",
+    response_model=TeacherPerformanceDashboardResponse
+)
+def get_teacher_performance_dashboard(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_teacher)
+):
+
+    teacher = (
+        db.query(Teacher)
+        .filter(
+            Teacher.user_id == current_user.id
+        )
+        .first()
+    )
+
+    if not teacher:
+        raise HTTPException(
+            status_code=404,
+            detail="Teacher profile not found"
+        )
+
+    courses = (
+        db.query(Course)
+        .filter(
+            Course.teacher_id == teacher.id
+        )
+        .all()
+    )
+
+    course_ids = [course.id for course in courses]
+
+    # -----------------------------------------
+    # Average Grade
+    # -----------------------------------------
+
+    grades = (
+        db.query(Grade)
+        .join(
+            Submission,
+            Grade.submission_id == Submission.id
+        )
+        .join(
+            Enrollment,
+            Enrollment.student_id == Submission.student_id
+        )
+        .filter(
+            Enrollment.course_id.in_(course_ids)
+        )
+        .all()
+    )
+
+    average_grade = 0.0
+
+    if grades:
+        average_grade = (
+            sum(
+                grade.grade_value
+                for grade in grades
+            )
+            / len(grades)
+        )
+
+    # -----------------------------------------
+    # Attendance
+    # -----------------------------------------
+
+    attendance_records = (
+        db.query(Attendance)
+        .filter(
+            Attendance.course_id.in_(course_ids)
+        )
+        .all()
+    )
+
+    average_attendance = 0.0
+
+    if attendance_records:
+
+        present_count = sum(
+            1
+            for record in attendance_records
+            if record.status.lower() == "present"
+        )
+
+        average_attendance = (
+            present_count
+            / len(attendance_records)
+        ) * 100
+
+    # -----------------------------------------
+    # Risk Students
+    # -----------------------------------------
+
+    at_risk_students = 0
+
+    student_ids = {
+        enrollment.student_id
+        for enrollment in (
+            db.query(Enrollment)
+            .filter(
+                Enrollment.course_id.in_(course_ids)
+            )
+            .all()
+        )
+    }
+
+    for student_id in student_ids:
+
+        student_grades = (
+            db.query(Grade)
+            .join(
+                Submission,
+                Grade.submission_id == Submission.id
+            )
+            .filter(
+                Submission.student_id == student_id
+            )
+            .all()
+        )
+
+        if not student_grades:
+            continue
+
+        avg_grade = (
+            sum(
+                grade.grade_value
+                for grade in student_grades
+            )
+            / len(student_grades)
+        )
+
+        if avg_grade < 50:
+            at_risk_students += 1
+
+    return {
+        "average_grade": round(
+            average_grade,
+            2
+        ),
+        "average_attendance": round(
+            average_attendance,
+            2
+        ),
+        "at_risk_students": at_risk_students
+    }

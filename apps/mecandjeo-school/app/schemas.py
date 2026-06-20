@@ -924,6 +924,68 @@ class AttendanceAlertResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# PERFORMANCE SUMMARY SCHEMAS
+# (Phase 9.2 Step 1) == Student
+# ==========================================================
+
+class PerformanceSummaryResponse(BaseModel):
+    average_grade: float
+    attendance_percentage: float
+    assignments_completed: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PERFORMANCE TREND SCHEMAS
+# (Phase 9.2 Step 2) == Student
+# ==========================================================
+
+class PerformanceTrendResponse(BaseModel):
+    trend: str
+    reason: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# STUDENT RISK ASSESSMENT SCHEMAS
+# (Phase 9.2 Step 3)
+# ==========================================================
+
+class StudentRiskAssessmentResponse(BaseModel):
+    at_risk: bool
+    risk_level: str
+    reason: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# TEACHER PERFORMANCE DASHBOARD SCHEMAS
+# (Phase 9.2 Step 4)
+# ==========================================================
+
+class TeacherPerformanceDashboardResponse(BaseModel):
+    average_grade: float
+    average_attendance: float
+    at_risk_students: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# INTERVENTION RECOMMENDATION SCHEMAS
+# (Phase 9.2 Step 5)
+# ==========================================================
+
+class InterventionRecommendationResponse(BaseModel):
+    recommendation: str
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.
