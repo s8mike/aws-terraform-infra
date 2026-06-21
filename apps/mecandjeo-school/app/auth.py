@@ -161,6 +161,19 @@ def require_admin(
 
     return current_user
 
+# Verify Parent authorization
+
+def require_parent(
+    current_user: User = Depends(get_current_user)
+):
+
+    if current_user.role != "parent":
+        raise HTTPException(
+            status_code=403,
+            detail="Parent access required"
+        )
+
+    return current_user
 
 
 ###########################################################################################

@@ -1040,6 +1040,87 @@ class ParentStudentLinkResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# PARENT STUDENT PROFILE SCHEMAS
+# (Phase 10.2 Step 1)
+# ==========================================================
+
+class ParentStudentProfileResponse(BaseModel):
+    student_id: int
+    full_name: str
+    grade: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT ACADEMIC PERFORMANCE SCHEMAS
+# (Phase 10.2 Step 2) = Parent Access to Student Info
+# ==========================================================
+
+class ParentAcademicPerformanceResponse(BaseModel):
+    student_id: int
+    student_name: str
+    average_grade: float
+    assignments_completed: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT ATTENDANCE MONITORING SCHEMAS
+# (Phase 10.2 Step 3)
+# ==========================================================
+
+class ParentAttendanceResponse(BaseModel):
+    student_id: int
+    student_name: str
+    attendance_percentage: float
+    total_records: int
+    present: int
+    absent: int
+    late: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT RISK ALERT SCHEMAS
+# (Phase 10.2 Step 4)
+# ==========================================================
+
+class ParentRiskAlertResponse(BaseModel):
+    student_id: int
+    student_name: str
+    at_risk: bool
+    risk_level: str
+    reason: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT DASHBOARD SCHEMAS
+# (Phase 10.2 Step 5)
+# ==========================================================
+
+class ParentDashboardResponse(BaseModel):
+    student_id: int
+    student_name: str
+    grade: str
+
+    average_grade: float
+    assignments_completed: int
+
+    attendance_percentage: float
+    total_attendance_records: int
+
+    at_risk: bool
+    risk_level: str
+    risk_reason: str
+
+    class Config:
+        from_attributes = True
 #########################################################################################################
 
 ## Starting Point for Schemas.
