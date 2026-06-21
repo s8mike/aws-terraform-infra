@@ -986,6 +986,60 @@ class InterventionRecommendationResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# ==========================================================
+# PARENT SCHEMAS
+# (Phase 10.1 Step 1)
+# ==========================================================
+
+class ParentResponse(BaseModel):
+    id: int
+    user_id: int
+    full_name: str
+    phone_number: str | None = None
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT REGISTRATION SCHEMAS
+# (Phase 10.1 Step 2)
+# ==========================================================
+
+class ParentCreate(BaseModel):
+    email: str
+    password: str
+    full_name: str
+    phone_number: str | None = None
+
+
+class ParentRegistrationResponse(BaseModel):
+    id: int
+    email: str
+    role: str
+    full_name: str
+    phone_number: str | None = None  # Phone number can be string or no value (None). Optional
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# PARENT STUDENT LINK SCHEMAS
+# (Phase 10.1 Step 3)
+# ==========================================================
+
+class ParentStudentLinkCreate(BaseModel):
+    parent_id: int
+    student_id: int
+
+
+class ParentStudentLinkResponse(BaseModel):
+    id: int
+    parent_id: int
+    student_id: int
+
+    class Config:
+        from_attributes = True
+
 #########################################################################################################
 
 ## Starting Point for Schemas.

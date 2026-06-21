@@ -110,6 +110,38 @@ class Teacher(Base):
         "Course",
         back_populates="teacher"
     )
+
+
+# ==========================================================
+# PARENT MODEL
+# (Phase 10.1 Step 1)
+# ==========================================================
+
+class Parent(Base):
+    __tablename__ = "parents"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False,
+        unique=True           # One User account, One Parent profile 
+    )
+
+    full_name = Column(
+        String,
+        nullable=False
+    )
+
+    phone_number = Column(
+        String,
+        nullable=True
+    )
     
 
 # Course domain model  (phase 5.2-step 4)
@@ -398,6 +430,32 @@ class Attendance(Base):
 
     status = Column(
         String,
+        nullable=False
+    )
+
+# ==========================================================
+# PARENT STUDENT LINK
+# (Phase 10.1 Step 3)
+# ==========================================================
+
+class ParentStudentLink(Base):
+    __tablename__ = "parent_student_links"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    parent_id = Column(
+        Integer,
+        ForeignKey("parents.id"),
+        nullable=False
+    )
+
+    student_id = Column(
+        Integer,
+        ForeignKey("students.id"),
         nullable=False
     )
 

@@ -9,7 +9,9 @@ from ..models import (
     Course,
     Grade,
     Submission,
-    Assignment
+    Assignment,
+    Parent,
+    ParentStudentLink
 )
 from ..schemas import (
     AdminDashboardResponse,
@@ -17,7 +19,9 @@ from ..schemas import (
     UpdateUserRoleRequest,
     UpdateUserRoleResponse,
     AdminCourseResponse,
-    AcademicOverviewResponse
+    AcademicOverviewResponse,
+    ParentStudentLinkCreate,
+    ParentStudentLinkResponse
 )
 
 from ..auth import require_admin   # import from app/auth.py
@@ -144,6 +148,69 @@ def delete_user(
         "message": f"User {user_id} deleted"
     }
 
+@router.post(
+    "/parent-student-links",
+    response_model=ParentStudentLinkResponse
+)
+def create_parent_student_link(
+    link_data: ParentStudentLinkCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_admin)
+):
+
+    parent = (
+        db.query(Parent)
+        .filter(
+            Parent.id == link_data.parent_id
+        )
+        .first()
+    )
+
+    if not parent:
+        raise HTTPException(
+            status_code=404,
+            detail="Parent not found"
+        )
+
+    student = (
+        db.query(Student)
+        .filter(
+            Student.id == link_data.student_id
+        )
+        .first()
+    )
+
+    if not student:
+        raise HTTPException(
+            status_code=404,
+            detail="Student not found"
+        )
+
+    existing_link = (
+        db.query(ParentStudentLink)
+        .filter(
+            ParentStudentLink.parent_id == link_data.parent_id,
+            ParentStudentLink.student_id == link_data.student_id
+        )
+        .first()
+    )
+
+    if existing_link:
+        raise HTTPException(
+            status_code=400,
+            detail="Link already exists"
+        )
+
+    new_link = ParentStudentLink(
+        parent_id=link_data.parent_id,
+        student_id=link_data.student_id
+    )
+
+    db.add(new_link)
+    db.commit()
+    db.refresh(new_link)
+
+    return new_link
 
 # List all courses in the LMS [Course Oversight] -- Step 4
 @router.get(
