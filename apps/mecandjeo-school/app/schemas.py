@@ -1121,6 +1121,30 @@ class ParentDashboardResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+# ==========================================================
+# MESSAGE SCHEMAS
+# (Phase 11.1 Step 1)
+# ==========================================================
+
+class MessageResponse(BaseModel):
+    id: int
+    sender_id: int
+    receiver_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# MESSAGE CREATE SCHEMA
+# (Phase 11.1 Step 2)
+# ==========================================================
+
+class MessageCreate(BaseModel):
+    receiver_id: int
+    message: str
 #########################################################################################################
 
 ## Starting Point for Schemas.

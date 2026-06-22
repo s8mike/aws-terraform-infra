@@ -3,6 +3,7 @@
 # It allows you to navigate from one model to the other in both directions. 
 
 # Database tables and ORM models
+from datetime import datetime
 
 from sqlalchemy import (
     Column, 
@@ -10,7 +11,8 @@ from sqlalchemy import (
     String, 
     ForeignKey,
     Boolean,
-    Date
+    Date,
+    DateTime
 )
 from sqlalchemy.orm import relationship
 
@@ -458,6 +460,49 @@ class ParentStudentLink(Base):
         ForeignKey("students.id"),
         nullable=False
     )
+
+
+# ==========================================================
+# MESSAGE MODEL
+# (Phase 11.1 Step 1)
+# ==========================================================
+
+class Message(Base):
+    __tablename__ = "messages"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    sender_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
+    receiver_id = Column(
+        Integer,
+        ForeignKey("users.id"),
+        nullable=False
+    )
+
+    message = Column(
+        String,
+        nullable=False
+    )
+
+    is_read = Column(
+        Boolean,
+        default=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
 
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.

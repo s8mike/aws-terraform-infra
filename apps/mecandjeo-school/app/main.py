@@ -13,7 +13,8 @@ from .routes import (
     assignments,
     submissions,
     grades,
-    parents
+    parents,
+    messages
 )            # from .routes import auth, users, admin, etc
 
 
@@ -70,3 +71,4 @@ app.include_router(assignments.router)
 app.include_router(submissions.router)
 app.include_router(grades.router)
 app.include_router(parents.router)
+app.include_router(messages.router)
