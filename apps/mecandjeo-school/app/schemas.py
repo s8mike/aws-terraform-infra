@@ -1175,6 +1175,60 @@ class MeetingRequestCreate(BaseModel):
 # Step 4
 class MeetingRequestStatusUpdate(BaseModel):
     status: str
+
+
+# ==========================================================
+# ANNOUNCEMENT SCHEMAS [Teacher-School Communication]
+# (Phase 11.3)
+# ==========================================================
+class AnnouncementCreate(BaseModel):
+    title: str
+    message: str
+    course_id: int | None = None
+
+
+class AnnouncementResponse(BaseModel):
+    id: int
+    teacher_id: int
+    title: str
+    message: str
+    course_id: int | None = None
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# ANNOUNCEMENT READ SCHEMAS [Student]
+# (Phase 11.3 Step 3)
+# ==========================================================
+
+class AnnouncementReadResponse(BaseModel):
+    id: int
+    student_id: int
+    announcement_id: int
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# NOTIFICATION SCHEMAS
+# (Phase 11.3 Step 4)
+# ==========================================================
+
+class NotificationResponse(BaseModel):
+    id: int
+    student_id: int
+    message: str
+    is_read: bool
+
+    class Config:
+        from_attributes = True
+
+class CommunicationDashboardResponse(BaseModel):
+    total_announcements: int
+    unread_announcements: int
+    total_notifications: int
+    unread_notifications: int
 #########################################################################################################
 
 ## Starting Point for Schemas.

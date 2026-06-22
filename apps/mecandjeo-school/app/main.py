@@ -15,7 +15,8 @@ from .routes import (
     grades,
     parents,
     messages,
-    meetings
+    meetings,
+    announcements
 )            # from .routes import auth, users, admin, etc
 
 
@@ -74,3 +75,4 @@ app.include_router(grades.router)
 app.include_router(parents.router)
 app.include_router(messages.router)
 app.include_router(meetings.router)
+app.include_router(announcements.router)
