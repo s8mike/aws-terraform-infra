@@ -503,7 +503,51 @@ class Message(Base):
         default=datetime.utcnow
     )
 
+# ==========================================================
+# MEETING REQUEST MODEL
+# (Phase 11.2 Step 1)
+# ==========================================================
 
+class MeetingRequest(Base):
+    __tablename__ = "meeting_requests"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        index=True
+    )
+
+    parent_id = Column(
+        Integer,
+        ForeignKey("parents.id"),
+        nullable=False
+    )
+
+    teacher_id = Column(
+        Integer,
+        ForeignKey("teachers.id"),
+        nullable=False
+    )
+
+    subject = Column(
+        String,
+        nullable=False
+    )
+
+    message = Column(
+        String,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        default="Pending"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.
 

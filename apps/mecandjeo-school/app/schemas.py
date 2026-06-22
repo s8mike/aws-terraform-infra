@@ -1145,6 +1145,36 @@ class MessageResponse(BaseModel):
 class MessageCreate(BaseModel):
     receiver_id: int
     message: str
+
+
+# ==========================================================
+# MEETING REQUEST SCHEMA
+# (Phase 11.2 Step 1)
+# ==========================================================
+class MeetingRequestResponse(BaseModel):
+    id: int
+    parent_id: int
+    teacher_id: int
+    subject: str
+    message: str
+    status: str
+
+    class Config:
+        from_attributes = True
+
+# ==========================================================
+# MEETING REQUEST SCHEMAS
+# (Phase 11.2 Step 2)
+# ==========================================================
+
+class MeetingRequestCreate(BaseModel):
+    teacher_id: int
+    subject: str
+    message: str
+
+# Step 4
+class MeetingRequestStatusUpdate(BaseModel):
+    status: str
 #########################################################################################################
 
 ## Starting Point for Schemas.
