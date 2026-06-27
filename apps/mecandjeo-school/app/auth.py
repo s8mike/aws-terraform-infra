@@ -8,13 +8,19 @@ from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 import jwt
-import os
 
 from .database import get_db
 from .models import User
+from datetime import datetime, timedelta
+from .logger import logger   # added at phase 12.1 step 5
 
 # Secret key used for JWT signing
-SECRET = os.getenv("SECRET_KEY", "secret")
+from .config import (
+    SECRET_KEY,
+    JWT_EXPIRE_HOURS
+)
+
+ALGORITHM = "HS256"
 
 # Password hashing configuration
 pwd_context = CryptContext(schemes=["bcrypt"])
@@ -36,22 +42,43 @@ def verify_password(password, hashed):
     return pwd_context.verify(password, hashed)
 
 
-# Create JWT token
-def create_token(data: dict):
-    return jwt.encode(data, SECRET, algorithm="HS256")
+# Create JWT token for a User and to expire after certain hours [Modified at phase 12.1 step 2]
+def create_token(data: dict): # Fxn expects a dictionary
 
+    payload = data.copy()
+
+    expire = (
+        datetime.utcnow()       # Current UTC time and date [utc=coordinated universal time]
+        + timedelta(hours=JWT_EXPIRE_HOURS)
+    )
+
+    payload["exp"] = expire  # add an expiration field to JWT payload
+
+    return jwt.encode(
+        payload,
+        SECRET_KEY,
+        algorithm=ALGORITHM
+    )
 
 # Decode and validate JWT token [checks if JWT token is valid]
 def verify_token(token: str):
 
     try:
-        payload = jwt.decode(token, SECRET, algorithms=["HS256"])
+        payload = jwt.decode(
+            token, 
+            SECRET_KEY, 
+            algorithms=[ALGORITHM]
+        )
         return payload
 
     except jwt.PyJWTError:
+
+        logger.warning(
+            "Authentication failed due to an invalid or expired JWT."
+        )    
         raise HTTPException(
             status_code=401,
-            detail="Invalid or expired token"
+            detail="Authentication failed"
         )
 
 
@@ -70,15 +97,15 @@ def get_current_user(
     if not email:
         raise HTTPException(
             status_code=401,
-            detail="Invalid token payload"
+            detail="Authentication failed"
         )
 
     user = db.query(User).filter(User.email == email).first()
 
     if not user:
         raise HTTPException(                    
-            status_code=404,
-            detail="User not found"
+            status_code=401,
+            detail="Authentication failed"
         )
 
     return user
@@ -88,6 +115,7 @@ def get_current_user(
 # ==========================================================
 # These helper functions are centralized in auth.py to avoid
 # duplicating role-validation logic across multiple route files.
+# It acts as a single source of truth
 #
 # Before this refactor:
 # - teachers.py defined require_teacher()
@@ -95,25 +123,7 @@ def get_current_user(
 # - submissions.py defined require_student()
 # - enrollments.py defined require_student()
 # - students.py defined require_student()
-#
-# Centralizing them here provides:
-#
-# 1. Single Source of Truth
-#    Any role validation change is made once.
-#
-# 2. Easier Maintenance
-#    Prevents inconsistent authorization logic across files.
-#
-# 3. Better Scalability
-#    Future roles such as:
-#    - admin
-#    - head_teacher
-#    - department_head
-#    can be managed centrally.
-#
-# 4. Cleaner Route Files
-#    Route files focus on business logic while auth.py
-#    handles authentication and authorization concerns.
+
 #
 # This follows the Separation of Concerns principle used in
 # professional FastAPI applications.
@@ -196,4 +206,4 @@ def require_parent(
 #     return pwd_context.verify(password, hashed)
 
 # def create_token(data: dict):
-#     return jwt.encode(data, SECRET, algorithm="HS256")
+#     return jwt.encode(data, SECRET, algorithm="ALGORITHM")

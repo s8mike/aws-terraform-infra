@@ -7,6 +7,7 @@ from ..database import get_db
 from ..models import User
 from ..schemas import UserCreate, UserLogin, UserResponse
 from ..auth import hash_password, verify_password, create_token
+from ..logger import logger  # phase 12.1 step 5
 
 router = APIRouter()
 
@@ -53,6 +54,11 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     # Generate JWT token
     token = create_token({"sub": db_user.email})
+
+    logger.info(    # added at phase 12.1 step 5
+        "User '%s' logged in successfully.",
+        db_user.email
+    )
 
     return {
         "access_token": token,

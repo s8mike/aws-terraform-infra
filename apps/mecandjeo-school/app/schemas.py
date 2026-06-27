@@ -1,6 +1,12 @@
 # Validation schemas for authentication and school-domain entities
-
-from pydantic import BaseModel, EmailStr
+import re            # re=regular expression
+from pydantic import (
+    BaseModel, 
+    # added @ phase 12.1 step 6
+    EmailStr, 
+    Field,
+    field_validator
+)
 from typing import Optional
 
 
@@ -14,14 +20,57 @@ class UserBase(BaseModel):
 
 
 # User registration
-class UserCreate(UserBase):
-    password: str
+class UserCreate(UserBase): 
+    # create a new class model "userCreate". 
+    # It inherit from "userbase"
 
+    password: str = Field(
+        min_length=8,
+        max_length=128
+    )
+
+    @field_validator("password")
+    # Validate password complexity during user registration.
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+
+        value = value.strip()  # removes spaces at the beginning and end
+
+        if value == "":
+                raise ValueError(
+                "Password cannot be empty or contain only spaces."
+            )
+
+        if not re.search(r"[A-Z]", value):
+            raise ValueError(
+                "Password must contain at least one uppercase letter."
+            )
+
+        if not re.search(r"[a-z]", value):
+            raise ValueError(
+                "Password must contain at least one lowercase letter."
+            )
+
+        if not re.search(r"\d", value):
+            raise ValueError(
+                "Password must contain at least one number."
+            )
+
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=/\\[\];'`~]", value):
+            raise ValueError(
+                "Password must contain at least one special character."
+            )
+
+        return value
 
 # User login
 class UserLogin(BaseModel):
+
     email: EmailStr
-    password: str
+    password: str = Field(
+        min_length=8,
+        max_length=128
+    )
 
 
 # User API response
@@ -39,9 +88,39 @@ class UserResponse(UserBase):
 
 # Shared student fields
 class StudentBase(BaseModel):
-    grade: str
-    full_name: Optional[str] = None
+    grade: str = Field(        # LMS uses value like 'Grade 10', etc
+        min_length=1,
+        max_length=20
+    )
 
+    full_name: Optional[str] = Field(
+        default=None,
+        max_length=100   # 100 characters is a sensible limit for real-world names.
+    )
+   
+    @field_validator(
+        "grade",
+        "full_name"
+    )
+    @classmethod
+    # Validate student profile fields by removing leading/trailing
+    # whitespace and rejecting empty values.
+    def validate_student_fields(
+        cls,
+        value: str | None
+    ):
+
+        if value is None:
+            return value
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Field cannot be empty or contain only spaces."
+            )
+
+        return value
 
 # Create student profile
 class StudentCreate(StudentBase):
@@ -69,8 +148,38 @@ class StudentResponse(StudentBase):
 
 # Shared teacher fields
 class TeacherBase(BaseModel):
-    full_name: str
-    subject: str
+
+# phase 12 step 6 (security hardening)
+    full_name: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    subject: str = Field(
+        min_length=1,
+        max_length=50
+    )
+    @field_validator(
+    "full_name",
+    "subject"
+    )
+    @classmethod
+    def validate_teacher_fields(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and reject empty values.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Field cannot be empty or contain only spaces."
+            )
+
+        return value
 
 
 # Create teacher profile
@@ -97,11 +206,44 @@ class TeacherResponse(TeacherBase):
 # COURSE DOMAIN SCHEMAS (Phase 5.2 Step 4)
 # ==========================================================
 
-# Shared course fields
+# Shared course fields (Security Hardenining at phase 12 step 6)
 class CourseBase(BaseModel):
-    title: str
-    description: Optional[str] = None
 
+    title: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    description: Optional[str] = Field(
+        default=None,
+        max_length=500
+    )
+
+    @field_validator(
+    "title",
+    "description"
+    )
+
+    @classmethod
+    def validate_course_fields(
+        cls,
+        value: str | None
+    ):
+        """
+        Remove surrounding whitespace and reject empty values.
+        """
+
+        if value is None:
+            return value
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Field cannot be empty or contain only spaces."
+            )
+
+        return value
 
 # Create course
 class CourseCreate(CourseBase):
@@ -151,10 +293,43 @@ class EnrollmentResponse(BaseModel):
 # ==========================================================
 
 # Shared assignment fields
-class AssignmentBase(BaseModel):
-    title: str
-    description: Optional[str] = None
 
+# Security Hardenining at phase 12 step 6
+class AssignmentBase(BaseModel):
+    title: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    description: Optional[str] = Field(
+        default=None,
+        max_length=1000  # Assignment descriptions are usually longer than course descriptions.
+    )
+
+    @field_validator(
+        "title",
+        "description"
+    )
+    @classmethod
+    def validate_assignment_fields(
+        cls,
+        value: str | None
+    ):
+        """
+        Remove surrounding whitespace and reject empty values.
+        """
+
+        if value is None:
+            return value
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Field cannot be empty or contain only spaces."
+            )
+
+        return value
 
 # Create assignment
 class AssignmentCreate(AssignmentBase):
@@ -179,10 +354,31 @@ class AssignmentResponse(AssignmentBase):
 # SUBMISSION DOMAIN SCHEMAS (Phase 5.2 Step 7)
 # ==========================================================
 
-# Shared submission fields
+# Shared submission fields (Security Hardening at phase 12.1 step 6)
 class SubmissionBase(BaseModel):
-    content: str                  # Student's answer or work for the assignment, could be text, a link to a file, etc.
+    content: str = Field(
+        min_length=1,
+        max_length=10000   # Because submissions can legitimately be large
+    )
 
+    @field_validator("content")
+    @classmethod
+    def validate_submission_content(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and reject empty submissions.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Submission content cannot be empty."
+            )
+
+        return value
 
 # Create submission
 class SubmissionCreate(SubmissionBase):
@@ -207,11 +403,38 @@ class SubmissionResponse(SubmissionBase):
 # GRADE DOMAIN SCHEMAS (Phase 5.2 Step 8)
 # ==========================================================
 
-# Shared grade fields [Stores the actual grade value and optional feedback from the teacher]
+# Shared grade fields [Security Hardening at phase 12.1 step 6]
 class GradeBase(BaseModel):
-    grade_value: int
-    feedback: Optional[str] = None
+    grade_value: int = Field(
+        ge=0,
+        le=100
+    )
+    feedback: Optional[str] = Field(
+        default=None,
+        max_length=1000
+    )
 
+    @field_validator("feedback")
+    @classmethod
+    def validate_feedback(
+        cls,
+        value: str | None
+    ):
+        """
+        Remove surrounding whitespace and reject empty feedback.
+        """
+
+        if value is None:
+            return value
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Feedback cannot contain only spaces."
+            )
+
+        return value
 
 # Create grade [Teacher must specify which submission they are grading among the ones submitted by students]
 class GradeCreate(GradeBase):
@@ -805,8 +1028,43 @@ class AdminUserResponse(BaseModel):
 # ==========================================================
 
 class UpdateUserRoleRequest(BaseModel):
-    role: str
 
+    role: str = Field(
+        min_length=1,
+        max_length=20
+    )
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and validate
+        supported user roles.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Role cannot be empty."
+            )
+
+        allowed_roles = {
+            "admin",
+            "teacher",
+            "student",
+            "parent"
+        }
+
+        if value not in allowed_roles:
+            raise ValueError(
+                f"Role must be one of: {', '.join(sorted(allowed_roles))}."
+            )
+
+        return value
 
 class UpdateUserRoleResponse(BaseModel):
     id: int
@@ -856,7 +1114,42 @@ class AttendanceCreate(BaseModel):
     student_id: int
     course_id: int
     attendance_date: date
-    status: str
+
+    status: str = Field(
+        min_length=1,
+        max_length=20
+    )
+
+    @field_validator("status")
+    @classmethod
+    def validate_status(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and validate attendance status.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Attendance status cannot be empty."
+            )
+
+        allowed_status = {
+            "Present",
+            "Absent",
+            "Late",
+            "Excused"
+        }
+
+        if value not in allowed_status:
+            raise ValueError(
+                f"Status must be one of: {', '.join(sorted(allowed_status))}."
+            )
+
+        return value
 
 
 class AttendanceResponse(BaseModel):
@@ -1006,10 +1299,92 @@ class ParentResponse(BaseModel):
 # ==========================================================
 
 class ParentCreate(BaseModel):
-    email: str
-    password: str
-    full_name: str
-    phone_number: str | None = None
+    email: EmailStr
+
+    password: str = Field(
+        min_length=8,
+        max_length=128
+    )
+    
+    @field_validator("password")
+    # Validate password complexity during user registration.
+    @classmethod
+    def validate_password(cls, value: str) -> str:
+
+        value = value.strip()  # removes spaces at the beginning and end
+
+        if value == "":
+                raise ValueError(
+                "Password cannot be empty or contain only spaces."
+            )
+
+        if not re.search(r"[A-Z]", value):
+            raise ValueError(
+                "Password must contain at least one uppercase letter."
+            )
+
+        if not re.search(r"[a-z]", value):
+            raise ValueError(
+                "Password must contain at least one lowercase letter."
+            )
+
+        if not re.search(r"\d", value):
+            raise ValueError(
+                "Password must contain at least one number."
+            )
+
+        if not re.search(r"[!@#$%^&*(),.?\":{}|<>_\-+=/\\[\];'`~]", value):
+            raise ValueError(
+                "Password must contain at least one special character."
+            )
+
+        return value
+
+
+    full_name: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    @field_validator("full_name")
+    @classmethod
+    def validate_full_name(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and reject empty values.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Full name cannot be empty."
+            )
+
+        return value
+
+
+    phone_number: Optional[str] = Field(
+        default=None,
+        max_length=20
+    )
+    
+    @field_validator("phone_number")
+    @classmethod
+    def validate_phone(
+        cls,
+        value: str | None
+    ):
+        """
+        Remove surrounding whitespace from phone numbers.
+        """
+
+        if value is None:
+            return value
+
+        return value.strip()
 
 
 class ParentRegistrationResponse(BaseModel):
@@ -1144,7 +1519,29 @@ class MessageResponse(BaseModel):
 
 class MessageCreate(BaseModel):
     receiver_id: int
-    message: str
+    message: str = Field(
+        min_length=1,
+        max_length=5000  # Messages can legitimately be long:
+    )
+
+    @field_validator("message")
+    @classmethod
+    def validate_message(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and reject empty messages.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Message cannot be empty."
+            )
+
+        return value
 
 
 # ==========================================================
@@ -1169,8 +1566,38 @@ class MeetingRequestResponse(BaseModel):
 
 class MeetingRequestCreate(BaseModel):
     teacher_id: int
-    subject: str
-    message: str
+
+    subject: str = Field(
+        min_length=1,
+        max_length=100  # Meeting subjects are naturally short.
+    )
+
+    message: str = Field(
+        min_length=1,
+        max_length=3000  # Meeting requests are usually explanatory but not essay-length.
+    )
+
+@field_validator(
+    "subject",
+    "message"
+)
+@classmethod
+def validate_meeting_fields(
+    cls,
+    value: str
+):
+    """
+    Remove surrounding whitespace and reject empty values.
+    """
+
+    value = value.strip()
+
+    if value == "":
+        raise ValueError(
+            "Field cannot be empty or contain only spaces."
+        )
+
+    return value
 
 # Step 4
 class MeetingRequestStatusUpdate(BaseModel):
@@ -1182,10 +1609,40 @@ class MeetingRequestStatusUpdate(BaseModel):
 # (Phase 11.3)
 # ==========================================================
 class AnnouncementCreate(BaseModel):
-    title: str
-    message: str
+
+    title: str = Field(
+        min_length=1,
+        max_length=100
+    )
+
+    message: str = Field(
+        min_length=1,
+        max_length=5000  # Announcements can be detailed:
+    )
+
     course_id: int | None = None
 
+    @field_validator(
+        "title",
+        "message"
+    )
+    @classmethod
+    def validate_announcement_fields(
+        cls,
+        value: str
+    ):
+        """
+        Remove surrounding whitespace and reject empty values.
+        """
+
+        value = value.strip()
+
+        if value == "":
+            raise ValueError(
+                "Field cannot be empty or contain only spaces."
+            )
+
+        return value
 
 class AnnouncementResponse(BaseModel):
     id: int

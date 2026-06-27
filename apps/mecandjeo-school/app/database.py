@@ -1,16 +1,12 @@
 # DB sessions 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
-from dotenv import load_dotenv
-import os
-
-# Load environment variables into python runtime. Without it, python cannot access the os.getenv("DATABASE_URL") variable.
-load_dotenv()
 
 # Database connection URL
-DATABASE_URL = os.getenv("DATABASE_URL")
+from .config import DATABASE_URL
 
-# Create SQLAlchemy engine. SQLAlchemy uses this engine to communicate with PostgreSQL database.
+# Create SQLAlchemy engine. 
+# SQLAlchemy uses this engine to communicate with PostgreSQL database.
 engine = create_engine(DATABASE_URL)
 
 # Create database session factory

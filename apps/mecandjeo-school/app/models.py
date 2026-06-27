@@ -1,5 +1,6 @@
 
-# "back_populates" means: This relationship is connected to another relationship on the other model. It creates a two-way relationship.
+# "back_populates" means: This relationship is connected to another relationship on the other model. 
+# It creates a two-way relationship.
 # It allows you to navigate from one model to the other in both directions. 
 
 # Database tables and ORM models
