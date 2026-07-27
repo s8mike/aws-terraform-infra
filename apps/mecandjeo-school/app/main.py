@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from .database import Base, engine
 from .routes import (
     auth,
+    bootstrap,
     users,
     admin,
     students,
@@ -112,9 +113,21 @@ def home():
 # ─────────────────────────────────────────
 # Routes
 # ─────────────────────────────────────────
+# ─────────────────────────────────────────
+# Authentication & System Initialization
+# ─────────────────────────────────────────
 app.include_router(auth.router, prefix="/api")
+app.include_router(bootstrap.router)
+
+# ─────────────────────────────────────────
+# User & Administration
+# ─────────────────────────────────────────
 app.include_router(users.router, prefix="/api/users")
 app.include_router(admin.router)
+
+# ─────────────────────────────────────────
+# Academic Management
+# ─────────────────────────────────────────
 app.include_router(students.router)
 app.include_router(teachers.router)
 app.include_router(courses.router)
@@ -122,6 +135,10 @@ app.include_router(enrollments.router)
 app.include_router(assignments.router)
 app.include_router(submissions.router)
 app.include_router(grades.router)
+
+# ─────────────────────────────────────────
+# Communication
+# ─────────────────────────────────────────
 app.include_router(parents.router)
 app.include_router(messages.router)
 app.include_router(meetings.router)

@@ -51,11 +51,24 @@ def admin_dashboard(
     }
 
 # Protected admin user listing [User Management]-- Step 2
-@router.get("/users")
+# ---------------------------------------------------------
+# Retrieve all registered users.
+#
+# Access:
+#   Administrator only.
+#
+# Response:
+#   Returns all registered users without exposing
+#   password hashes.
+# ---------------------------------------------------------
+@router.get(
+    "/users",
+    response_model=list[AdminUserResponse]
+)
 def admin_get_users(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_admin)
-):
+) -> list[AdminUserResponse]:
 
     return db.query(User).all()
 

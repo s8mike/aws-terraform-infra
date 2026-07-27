@@ -95,13 +95,6 @@ def get_linked_students(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_parent)
 ):
-# # This is commented out because it is centralized in auth.py
-    # if current_user.role != "parent":
-    #     raise HTTPException(
-    #         status_code=403,
-    #         detail="Parent access required"
-    #     )
-
     parent = (
         db.query(Parent)
         .filter(

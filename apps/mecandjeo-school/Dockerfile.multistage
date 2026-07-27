@@ -10,7 +10,7 @@
 # This file is not the selected Version 1 production Dockerfile.
 #
 # See:
-# STEP-7-DOCKER-IMAGE-OPTIMIZATION/
+# PHASE 12.2 STEP-7-DOCKER-IMAGE-OPTIMIZATION/
 # ============================================================
 
 # ============================================================
@@ -23,6 +23,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
+# use pip to build or collect wheel artifacts for all dependencies listed in requirements.txt
 RUN pip wheel \
     --no-cache-dir \
     --wheel-dir /wheels \

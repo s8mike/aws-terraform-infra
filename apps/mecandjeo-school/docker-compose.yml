@@ -1,0 +1,95 @@
+services:
+  # FastAPI application service
+  school-app:
+    # Build the application image from the current project
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    # Explicit image name and version [from environment variables (.env)]
+    image: ${IMAGE_NAME}:${IMAGE_TAG}
+
+    # Friendly container name for easier management
+    container_name: school-app
+
+    # Restart automatically unless manually stopped
+    restart: unless-stopped
+
+    # Load application environment variables
+    env_file:
+      - .env.docker
+
+    # Publish the application to the host
+    ports:
+      - "${APP_PORT}:8002"
+
+    # Start only after PostgreSQL has become healthy
+    depends_on:
+      school-db:
+        condition: service_healthy
+
+    # Verify the FastAPI application is responding
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health')"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+
+    # Connect to the internal application network
+    networks:
+      - school-network
+
+
+  # PostgreSQL database service
+  school-db:
+    # Use a version-pinned PostgreSQL image [from environment variables (.env)]
+    image: ${POSTGRES_IMAGE}:${POSTGRES_VERSION}
+
+    # Friendly container name
+    container_name: school-db
+
+    # Restart automatically unless manually stopped
+    restart: unless-stopped
+
+    # Configure the PostgreSQL database [From environment variables (.env)]
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
+    # Persist database data across container recreation
+    volumes:
+      - school-postgres-data:/var/lib/postgresql/data
+
+    # Verify PostgreSQL is ready before allowing dependent services
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U postgres -d school_platform"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    # Keep the database private inside Docker
+    networks:
+      - school-network
+
+
+# Named volume used to persist PostgreSQL data
+volumes:
+  school-postgres-data:
+
+
+# Private network shared by the application and database
+networks:
+  school-network:
+    driver: bridge

@@ -1,7 +1,7 @@
 # Validation schemas for authentication and school-domain entities
 import re            # re=regular expression
 from pydantic import (
-    BaseModel, 
+    BaseModel,
     # added @ phase 12.1 step 6
     EmailStr, 
     Field,
@@ -30,7 +30,7 @@ class UserCreate(UserBase):
     )
 
     @field_validator("password")
-    # Validate password complexity during user registration.
+    # Validate password complexity during user registration [Security check].
     @classmethod
     def validate_password(cls, value: str) -> str:
 
@@ -82,13 +82,43 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+# ------------------------------------------------------------------
+# Bootstrap Admin Schemas
+# ------------------------------------------------------------------
+
+class BootstrapAdminRequest(BaseModel):
+    """
+    Request model for creating the first administrator.
+
+    This endpoint is only available when the system has
+    no administrator account.
+    """
+
+    email: EmailStr
+    password: str = Field(min_length=8)
+
+
+class BootstrapAdminResponse(BaseModel):
+    """
+    Response returned after successfully creating
+    the first administrator.
+    """
+
+    id: int
+    email: EmailStr
+    role: str
+
+    class Config:
+        from_attributes = True
+
+
 # ==========================================================
 # STUDENT DOMAIN SCHEMAS
 # ==========================================================
 
 # Shared student fields
 class StudentBase(BaseModel):
-    grade: str = Field(        # LMS uses value like 'Grade 10', etc
+    grade: str = Field(        # Academic grade or class (e.g. JSS1, Grade 10, Year 7)
         min_length=1,
         max_length=20
     )

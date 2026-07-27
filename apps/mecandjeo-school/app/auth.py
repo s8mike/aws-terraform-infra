@@ -116,15 +116,7 @@ def get_current_user(
 # These helper functions are centralized in auth.py to avoid
 # duplicating role-validation logic across multiple route files.
 # It acts as a single source of truth
-#
-# Before this refactor:
-# - teachers.py defined require_teacher()
-# - grades.py defined require_student() and require_teacher()
-# - submissions.py defined require_student()
-# - enrollments.py defined require_student()
-# - students.py defined require_student()
 
-#
 # This follows the Separation of Concerns principle used in
 # professional FastAPI applications.
 # ==========================================================

@@ -53,7 +53,6 @@ from ..schemas import (
     InterventionRecommendationResponse
 )
 from ..auth import (
-    get_current_user,
     require_student
 )
 
@@ -68,7 +67,7 @@ router = APIRouter(
 def create_student_profile(
     student: StudentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_student)
 ):
 
     # Prevent duplicate student profiles
@@ -98,7 +97,7 @@ def create_student_profile(
 @router.get("/me", response_model=StudentResponse)
 def get_my_profile(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_student)
 ):
 
     profile = db.query(Student).filter(
@@ -118,7 +117,7 @@ def get_my_profile(
 def update_my_profile(
     student_data: StudentUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_student)
 ):
 
     profile = db.query(Student).filter(

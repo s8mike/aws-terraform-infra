@@ -28,8 +28,8 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
     # Create new user
     db_user = User(
         email=user.email,
-        password=hash_password(user.password),
-        grade=user.grade
+        password=hash_password(user.password)
+        # grade=user.grade
     )
 
     db.add(db_user)

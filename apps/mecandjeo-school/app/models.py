@@ -28,13 +28,23 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
 
     # User email for authentication
-    email = Column(String, unique=True, index=True, nullable=False)
+    email = Column(
+        String,
+        unique=True,
+        index=True,
+        nullable=False
+    )
 
     # Hashed password storage
     password = Column(String, nullable=False)
 
+
     # User role (student, teacher, admin)
-    role = Column(String, default="student", nullable=False)
+    role = Column(
+        String,
+        default="student",    # defaults to student role if not specified during registration.
+        nullable=False
+    )
 
     # One-to-one relationship with student profile
     student_profile = relationship(

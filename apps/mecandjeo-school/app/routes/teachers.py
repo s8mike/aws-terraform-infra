@@ -52,26 +52,12 @@ router = APIRouter(
     tags=["Teachers"]
 )
 
-# # Verify teacher role
-# def require_teacher(
-#     current_user: User = Depends(get_current_user)
-# ):
-
-#     if current_user.role != "teacher":
-#         raise HTTPException(
-#             status_code=403,
-#             detail="Teacher access required"
-#         )
-
-#     return current_user
-
-
 # Create teacher profile
 @router.post("/", response_model=TeacherResponse)
 def create_teacher_profile(
     teacher: TeacherCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(require_teacher)  # current_user: User = Depends(get_current_user) (Protect teacher creation)
+    current_user: User = Depends(require_teacher)  # current_user: User = Depends(require_teacher) (Protect teacher creation)
 ):
 
     # Prevent duplicate teacher profiles
@@ -101,7 +87,7 @@ def create_teacher_profile(
 @router.get("/me", response_model=TeacherResponse)
 def get_my_teacher_profile(
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_teacher)
 ):
 
     profile = db.query(Teacher).filter(
@@ -121,7 +107,7 @@ def get_my_teacher_profile(
 def update_my_teacher_profile(
     teacher: TeacherUpdate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_teacher)
 ):
 
     profile = db.query(Teacher).filter(
