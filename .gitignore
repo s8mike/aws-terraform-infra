@@ -92,3 +92,4 @@ pipelines-testing
 
 # Safety account/project metadata
 .safety-project.ini
+!apps/mecandjeo-school/frontend/README.md
