@@ -82,6 +82,13 @@ class UserResponse(UserBase):
         from_attributes = True
 
 
+# Login response returned after successful authentication [added during frontend integration]
+class LoginResponse(BaseModel):
+    access_token: str
+    token_type: str
+    user: UserResponse
+
+
 # ------------------------------------------------------------------
 # Bootstrap Admin Schemas
 # ------------------------------------------------------------------

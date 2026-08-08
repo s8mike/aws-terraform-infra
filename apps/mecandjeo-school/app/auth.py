@@ -176,26 +176,3 @@ def require_parent(
         )
 
     return current_user
-
-
-###########################################################################################
-## Early Starting Version with users having all permissions and no authentication.
-#Backend trusted everyone.
-
-# # Security utilities for password hashing and JWT token creation
-# from passlib.context import CryptContext
-# import jwt
-# import os
-
-# SECRET = os.getenv("SECRET_KEY", "secret")
-
-# pwd_context = CryptContext(schemes=["bcrypt"])
-
-# def hash_password(password: str):
-#     return pwd_context.hash(password)
-
-# def verify_password(password, hashed):
-#     return pwd_context.verify(password, hashed)
-
-# def create_token(data: dict):
-#     return jwt.encode(data, SECRET, algorithm="ALGORITHM")

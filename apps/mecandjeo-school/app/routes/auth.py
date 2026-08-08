@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 
 from ..database import get_db
 from ..models import User
-from ..schemas import UserCreate, UserLogin, UserResponse
+from ..schemas import UserCreate, UserLogin, UserResponse, LoginResponse
 from ..auth import hash_password, verify_password, create_token
+from ..auth import get_current_user
 from ..logger import logger  # phase 12.1 step 5
 
 router = APIRouter()
@@ -40,8 +41,14 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
 
 
 # Login existing user
-@router.post("/login")
-def login(user: UserLogin, db: Session = Depends(get_db)):
+@router.post(
+    "/login",
+    response_model=LoginResponse
+)
+def login(
+    user: UserLogin,
+    db: Session = Depends(get_db)
+):
 
     db_user = db.query(User).filter(User.email == user.email).first()
 
@@ -62,5 +69,21 @@ def login(user: UserLogin, db: Session = Depends(get_db)):
 
     return {
         "access_token": token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user": {
+            "id": db_user.id,
+            "email": db_user.email,
+            "role": db_user.role
+        }
     }
+
+
+# Return currently authenticated user
+@router.get(
+    "/me",
+    response_model=UserResponse
+)
+def get_me(
+    current_user: User = Depends(get_current_user)
+):
+    return current_user

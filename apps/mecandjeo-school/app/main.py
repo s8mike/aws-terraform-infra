@@ -2,7 +2,11 @@ from fastapi import (
     FastAPI,
     Request
 )
+
 from fastapi.responses import HTMLResponse
+from fastapi.middleware.cors import CORSMiddleware   # added for CORS support during frontend development
+
+
 
 from .database import Base, engine
 from .routes import (
@@ -32,6 +36,37 @@ Base.metadata.create_all(bind=engine)  # Look at all SQLAlchemy models, Check th
 app = FastAPI(
     title="School Platform", 
     version="0.1.0")
+
+# ==========================================================
+# CORS Middleware
+#
+# Allows the React frontend to communicate with the API.
+#
+# Development Frontend:
+# http://localhost:5173
+#
+# Future Production Frontend:
+# Will be updated during deployment.
+# ==========================================================
+
+app.add_middleware(
+    CORSMiddleware,
+
+    # Allowed frontend origins
+    allow_origins=[
+        "http://localhost:5173",
+    ],
+
+    # Allow cookies and authorization headers
+    allow_credentials=True,
+
+    # Allow all HTTP methods
+    allow_methods=["*"],
+
+    # Allow all request headers
+    allow_headers=["*"],
+)
+
 
 # ==========================================================
 # Security Headers Middleware
