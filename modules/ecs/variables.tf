@@ -98,3 +98,15 @@ variable "app_version" {
   type        = string
   default     = "1.0.0"
 }
+
+variable "database_url_secret_arn" {
+  description = "ARN of the Secrets Manager secret containing DATABASE_URL"
+  type        = string
+  sensitive   = true
+}
+
+variable "secret_key_secret_arn" {
+  description = "ARN of the Secrets Manager secret containing SECRET_KEY"
+  type        = string
+  sensitive   = true
+}

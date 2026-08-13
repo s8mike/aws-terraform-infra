@@ -17,6 +17,18 @@ data "terraform_remote_state" "shared" {
   }
 }
 
+# ── Application Secrets [AWS-Deployment] ────────────────────────────────────────
+
+data "aws_secretsmanager_secret" "database_url" {
+  name = "mecandjeo-school/dev/database-url"
+}
+
+data "aws_secretsmanager_secret" "secret_key" {
+  name = "mecandjeo-school/dev/secret-key"
+}
+
+
+
 locals {
   vpc_id                      = data.terraform_remote_state.shared.outputs.vpc_id
   public_subnet_ids           = data.terraform_remote_state.shared.outputs.public_subnet_ids
@@ -57,7 +69,9 @@ module "ecs_school" {
   target_group_arn            = module.alb_school.target_group_arn
   app_environment             = var.environment
   app_project_name            = "mecandjeo-school"
-  app_version                 = "1.0.0"
+  app_version                 = "1.0.2"
+  database_url_secret_arn     = data.aws_secretsmanager_secret.database_url.arn
+  secret_key_secret_arn       = data.aws_secretsmanager_secret.secret_key.arn
 }
 
 # ── School Auto Scaling ───────────────────────────────────────

@@ -18,6 +18,11 @@ variable "allowed_ssh_cidr" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region used by the resources"
+  type        = string
+}
+
 # # New variables for application. Not needed since ports are addeded to locals & dynamically fetched in the security main.tf.
 # variable "http_port" {
 # variable "container_port" {

@@ -35,6 +35,7 @@ module "security" {
 
   project_name     = var.project_name
   environment      = var.environment
+  aws_region       = var.aws_region
   vpc_id           = module.vpc.vpc_id
   allowed_ssh_cidr = var.allowed_ssh_cidr
 }
