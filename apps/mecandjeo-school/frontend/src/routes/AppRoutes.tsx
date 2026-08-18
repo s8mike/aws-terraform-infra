@@ -7,6 +7,7 @@ import {
   BrowserRouter,
   Routes,
   Route,
+  Navigate,
 } from "react-router-dom";
 
 import LoginPage from "../pages/auth/LoginPage";
@@ -25,6 +26,12 @@ export default function AppRoutes() {
     <BrowserRouter>
 
       <Routes>
+
+        {/* Default route */}
+        <Route
+          path="/"
+          element={<Navigate to="/login" replace />}
+        />
 
         {/* Public authentication route */}
         <Route
