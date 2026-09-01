@@ -1,11 +1,10 @@
 /**
  * Main authenticated dashboard.
  *
- * Provides a role-aware dashboard foundation
- * and retrieves live administrator statistics
- * when the authenticated user has the admin role.
+ * Provides role-aware dashboard content and
+ * retrieves live administrator statistics.
  *
- * Phase 17.15.4 - Live Admin Dashboard Integration
+ * Phase 19.6 - Dashboard Content & Information Hierarchy
  */
 
 import { useEffect, useState } from "react";
@@ -27,7 +26,7 @@ export default function DashboardPage() {
   const [adminStats, setAdminStats] =
     useState<AdminDashboardResponse | null>(null);
 
-  // Tracks dashboard API loading state.
+  // Tracks administrator dashboard loading state.
   const [loading, setLoading] = useState(false);
 
   // Stores a user-safe dashboard error message.
@@ -35,7 +34,7 @@ export default function DashboardPage() {
     null
   );
 
-  // Retrieve live dashboard statistics for administrators.
+  // Retrieve live statistics only for administrators.
   useEffect(() => {
     if (user?.role !== "admin") {
       return;
@@ -66,37 +65,65 @@ export default function DashboardPage() {
     loadAdminDashboard();
   }, [user?.role]);
 
-  // Define role-specific dashboard content.
-  const isAdmin = user?.role === "admin";
+  const role = user?.role;
 
-  const title = isAdmin
-    ? "Administrator Dashboard"
-    : "Dashboard";
+  const isAdmin = role === "admin";
+  const isTeacher = role === "teacher";
+  const isStudent = role === "student";
+  const isParent = role === "parent";
 
-  const description = isAdmin
-    ? "Manage the school platform, users, courses, and system activity."
-    : "Welcome to the Mecandjeo School LMS.";
+  // Define dashboard identity and context by role.
+  const dashboardContent = isAdmin
+    ? {
+        title: "Administrator Dashboard",
+        description:
+          "Manage the school platform, users, courses, and system activity.",
+      }
+    : isTeacher
+      ? {
+          title: "Teacher Dashboard",
+          description:
+            "Manage your teaching activities, classes, courses, and assignments.",
+        }
+      : isStudent
+        ? {
+            title: "Student Dashboard",
+            description:
+              "View your courses, assignments, learning progress, and results.",
+          }
+        : isParent
+          ? {
+              title: "Parent Dashboard",
+              description:
+                "Monitor your child's courses, attendance, progress, and results.",
+            }
+          : {
+              title: "Dashboard",
+              description:
+                "Welcome to the Mecandjeo School LMS.",
+            };
 
   return (
     <div className="mx-auto max-w-7xl">
-      {/* Dashboard heading and authenticated-user context */}
+
+      {/* Dashboard identity and authenticated-user context */}
       <DashboardHeader
-        title={title}
+        title={dashboardContent.title}
         description={
           user
-            ? `Welcome back, ${user.email}. ${description}`
-            : description
+            ? `Welcome back, ${user.email}. ${dashboardContent.description}`
+            : dashboardContent.description
         }
       />
 
-      {/* Display dashboard loading state while API data is retrieved */}
+      {/* Display administrator API loading state */}
       {loading && (
         <p className="mb-4 text-sm text-gray-500">
           Loading dashboard statistics...
         </p>
       )}
 
-      {/* Display a safe error message when the API request fails */}
+      {/* Display a safe API error message */}
       {error && (
         <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4">
           <p className="text-sm text-red-700">
@@ -105,99 +132,275 @@ export default function DashboardPage() {
         </div>
       )}
 
-      {/* Display live administrator dashboard statistics */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <DashboardCard
-          title="Students"
-          value={
-            adminStats?.total_students ??
-            "—"
-          }
-          description={
-            adminStats
-              ? "Students currently registered"
-              : "Data integration pending"
-          }
-        />
+      {/* Administrator statistics come from the live backend API. */}
+      {isAdmin && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 
-        <DashboardCard
-          title="Teachers"
-          value={
-            adminStats?.total_teachers ??
-            "—"
-          }
-          description={
-            adminStats
-              ? "Teachers currently registered"
-              : "Data integration pending"
-          }
-        />
+          <DashboardCard
+            title="Students"
+            value={
+              adminStats?.total_students ?? "—"
+            }
+            description={
+              adminStats
+                ? "Students currently registered"
+                : "Data integration pending"
+            }
+          />
 
-        <DashboardCard
-          title="Courses"
-          value={
-            adminStats?.total_courses ??
-            "—"
-          }
-          description={
-            adminStats
-              ? "Courses currently available"
-              : "Data integration pending"
-          }
-        />
+          <DashboardCard
+            title="Teachers"
+            value={
+              adminStats?.total_teachers ?? "—"
+            }
+            description={
+              adminStats
+                ? "Teachers currently registered"
+                : "Data integration pending"
+            }
+          />
 
-        <DashboardCard
-          title="Users"
-          value={
-            adminStats?.total_users ??
-            "—"
-          }
-          description={
-            adminStats
-              ? "Registered LMS users"
-              : "Data integration pending"
-          }
-        />
-      </div>
+          <DashboardCard
+            title="Courses"
+            value={
+              adminStats?.total_courses ?? "—"
+            }
+            description={
+              adminStats
+                ? "Courses currently available"
+                : "Data integration pending"
+            }
+          />
 
-      {/* Dashboard information and quick-action area */}
+          <DashboardCard
+            title="Users"
+            value={
+              adminStats?.total_users ?? "—"
+            }
+            description={
+              adminStats
+                ? "Registered LMS users"
+                : "Data integration pending"
+            }
+          />
+
+        </div>
+      )}
+
+      {/* Role-specific dashboard summaries without inventing backend data. */}
+      {!isAdmin && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+
+          {isTeacher && (
+            <>
+              <DashboardCard
+                title="My Students"
+                value="—"
+                description="Student data integration pending"
+              />
+
+              <DashboardCard
+                title="My Courses"
+                value="—"
+                description="Course data integration pending"
+              />
+
+              <DashboardCard
+                title="Assignments"
+                value="—"
+                description="Assignment data integration pending"
+              />
+
+              <DashboardCard
+                title="Classes"
+                value="—"
+                description="Class data integration pending"
+              />
+            </>
+          )}
+
+          {isStudent && (
+            <>
+              <DashboardCard
+                title="My Courses"
+                value="—"
+                description="Course data integration pending"
+              />
+
+              <DashboardCard
+                title="Assignments"
+                value="—"
+                description="Assignment data integration pending"
+              />
+
+              <DashboardCard
+                title="Results"
+                value="—"
+                description="Results data integration pending"
+              />
+
+              <DashboardCard
+                title="Progress"
+                value="—"
+                description="Progress data integration pending"
+              />
+            </>
+          )}
+
+          {isParent && (
+            <>
+              <DashboardCard
+                title="Children"
+                value="—"
+                description="Child data integration pending"
+              />
+
+              <DashboardCard
+                title="Courses"
+                value="—"
+                description="Course data integration pending"
+              />
+
+              <DashboardCard
+                title="Attendance"
+                value="—"
+                description="Attendance data integration pending"
+              />
+
+              <DashboardCard
+                title="Results"
+                value="—"
+                description="Results data integration pending"
+              />
+            </>
+          )}
+
+        </div>
+      )}
+
+      {/* Shared activity and role-appropriate actions. */}
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
+
         <DashboardSection title="Recent Activity">
-          {/* Activity integration will be implemented later */}
           <p className="text-sm text-gray-500">
             No recent activity is available yet.
           </p>
         </DashboardSection>
 
         <DashboardSection title="Quick Actions">
-          {/* Administrator actions prepared for future
-              navigation and API integration. */}
-          <div className="space-y-4">
-            <div className="rounded-md border p-4">
-              {/* Administrator user-management action */}
-              <h3 className="font-medium text-gray-900">
-                Manage Users
-              </h3>
 
-              <p className="mt-1 text-sm text-gray-600">
-                Manage students, teachers, parents,
-                and other platform users.
-              </p>
+          {/* Administrator actions are displayed only to administrators. */}
+          {isAdmin && (
+            <div className="space-y-4">
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Manage Users
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Manage students, teachers, parents,
+                  and other platform users.
+                </p>
+              </div>
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Manage Courses
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Create and manage courses across the
+                  school platform.
+                </p>
+              </div>
+
             </div>
+          )}
 
-            <div className="rounded-md border p-4">
-              {/* Administrator course-management action */}
-              <h3 className="font-medium text-gray-900">
-                Manage Courses
-              </h3>
+          {/* Teacher actions are prepared for future API integration. */}
+          {isTeacher && (
+            <div className="space-y-4">
 
-              <p className="mt-1 text-sm text-gray-600">
-                Create and manage courses across the
-                school platform.
-              </p>
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  My Courses
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  View and manage your teaching courses.
+                </p>
+              </div>
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Assignments
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Manage assignments for your students.
+                </p>
+              </div>
+
             </div>
-          </div>
+          )}
+
+          {/* Student actions are prepared for future API integration. */}
+          {isStudent && (
+            <div className="space-y-4">
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  My Courses
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  View your enrolled courses.
+                </p>
+              </div>
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Assignments
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  View your current assignments.
+                </p>
+              </div>
+
+            </div>
+          )}
+
+          {/* Parent actions are prepared for future API integration. */}
+          {isParent && (
+            <div className="space-y-4">
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Child Progress
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  Monitor your child's learning progress.
+                </p>
+              </div>
+
+              <div className="rounded-md border p-4">
+                <h3 className="font-medium text-gray-900">
+                  Results
+                </h3>
+
+                <p className="mt-1 text-sm text-gray-600">
+                  View your child's academic results.
+                </p>
+              </div>
+
+            </div>
+          )}
+
         </DashboardSection>
+
       </div>
     </div>
   );
