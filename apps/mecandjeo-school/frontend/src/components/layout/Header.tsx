@@ -7,16 +7,14 @@
  * Provides logout functionality through
  * the global AuthContext.
  *
- * Phase 13.2 - Step 7.6
+ * Phase 19.2 - Application Shell & Global Layout
  */
 
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-
 export default function Header() {
-
   const {
     user,
     logout,
@@ -24,10 +22,8 @@ export default function Header() {
 
   const navigate = useNavigate();
 
-
   // Handle authenticated user logout
   const handleLogout = () => {
-
     logout();
 
     navigate("/login", {
@@ -35,40 +31,43 @@ export default function Header() {
     });
   };
 
-
   return (
-    <header className="border-b bg-white px-6 py-4">
+    <header className="sticky top-0 z-30 border-b bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
 
-      <div className="flex items-center justify-between">
+      <div className="flex min-h-10 items-center justify-between gap-4">
 
         {/* Application identity */}
-        <div className="text-lg font-bold">
-          MECANDJEO LMS
-        </div>
+        <div className="min-w-0">
+          <div className="truncate text-lg font-bold tracking-tight text-gray-900">
+            MECANDJEO LMS
+          </div>
 
+          <div className="hidden text-xs text-gray-500 sm:block">
+            School Management Platform
+          </div>
+        </div>
 
         {/* Authenticated user information */}
         {user && (
-          <div className="flex items-center gap-4">
+          <div className="flex shrink-0 items-center gap-3">
 
-            <div className="text-right">
+            <div className="hidden text-right sm:block">
 
-              <div className="text-sm font-medium">
+              <div className="text-sm font-medium text-gray-900">
                 {user.email}
               </div>
 
-              <div className="text-xs text-gray-500 capitalize">
+              <div className="text-xs capitalize text-gray-500">
                 {user.role}
               </div>
 
             </div>
 
-
             {/* Logout */}
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-md bg-black px-4 py-2 text-sm font-medium text-white hover:opacity-90"
+              className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             >
               Logout
             </button>
