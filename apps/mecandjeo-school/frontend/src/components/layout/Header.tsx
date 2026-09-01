@@ -4,10 +4,7 @@
  * Displays application identity and
  * authenticated user information.
  *
- * Provides logout functionality through
- * the global AuthContext.
- *
- * Phase 19.2 - Application Shell & Global Layout
+ * Phase 19.3 - Header & User Account Experience
  */
 
 import { useNavigate } from "react-router-dom";
@@ -22,7 +19,7 @@ export default function Header() {
 
   const navigate = useNavigate();
 
-  // Handle authenticated user logout
+  // Clear the session and return to login.
   const handleLogout = () => {
     logout();
 
@@ -42,28 +39,37 @@ export default function Header() {
             MECANDJEO LMS
           </div>
 
+          {/* Show supporting identity on tablet and desktop. */}
           <div className="hidden text-xs text-gray-500 sm:block">
             School Management Platform
           </div>
         </div>
 
-        {/* Authenticated user information */}
         {user && (
           <div className="flex shrink-0 items-center gap-3">
 
+            {/* Hide detailed identity on smaller screens. */}
             <div className="hidden text-right sm:block">
-
-              <div className="text-sm font-medium text-gray-900">
+              <div className="max-w-56 truncate text-sm font-medium text-gray-900">
                 {user.email}
               </div>
 
+              {/* Display the authenticated user's role. */}
               <div className="text-xs capitalize text-gray-500">
                 {user.role}
               </div>
-
             </div>
 
-            {/* Logout */}
+            {/* Provide a compact identity indicator on mobile. */}
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white sm:hidden"
+              aria-label={`Signed in as ${user.role}`}
+              title={user.email}
+            >
+              {user.email.charAt(0).toUpperCase()}
+            </div>
+
+            {/* End the authenticated session. */}
             <button
               type="button"
               onClick={handleLogout}
