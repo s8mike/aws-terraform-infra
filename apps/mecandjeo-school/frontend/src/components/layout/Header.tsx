@@ -4,14 +4,24 @@
  * Displays application identity and
  * authenticated user information.
  *
- * Phase 19.3 - Header & User Account Experience
+ * Phase 19.5 - Responsive/Mobile Navigation
  */
 
+import { Menu, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function Header() {
+interface HeaderProps {
+  onMenuToggle: () => void;
+  isMobileMenuOpen: boolean;
+}
+
+export default function Header({
+  onMenuToggle,
+  isMobileMenuOpen,
+}: HeaderProps) {
+
   const {
     user,
     logout,
@@ -29,51 +39,61 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
+    <header className="border-b bg-white px-4 py-3 sm:px-6">
 
-      <div className="flex min-h-10 items-center justify-between gap-4">
+      <div className="flex items-center justify-between gap-4">
 
-        {/* Application identity */}
-        <div className="min-w-0">
-          <div className="truncate text-lg font-bold tracking-tight text-gray-900">
+        {/* Mobile/tablet menu button. */}
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="rounded-md p-2 text-gray-700 hover:bg-gray-100 lg:hidden"
+          aria-label={
+            isMobileMenuOpen
+              ? "Close navigation menu"
+              : "Open navigation menu"
+          }
+          aria-expanded={isMobileMenuOpen}
+        >
+          {isMobileMenuOpen ? (
+            <X size={22} />
+          ) : (
+            <Menu size={22} />
+          )}
+        </button>
+
+        {/* Application identity. */}
+        <div className="mr-auto">
+          <div className="text-lg font-bold">
             MECANDJEO LMS
           </div>
 
-          {/* Show supporting identity on tablet and desktop. */}
           <div className="hidden text-xs text-gray-500 sm:block">
             School Management Platform
           </div>
         </div>
 
+        {/* Authenticated user information. */}
         {user && (
-          <div className="flex shrink-0 items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-4">
 
-            {/* Hide detailed identity on smaller screens. */}
             <div className="hidden text-right sm:block">
-              <div className="max-w-56 truncate text-sm font-medium text-gray-900">
+
+              <div className="text-sm font-medium">
                 {user.email}
               </div>
 
-              {/* Display the authenticated user's role. */}
               <div className="text-xs capitalize text-gray-500">
                 {user.role}
               </div>
+
             </div>
 
-            {/* Provide a compact identity indicator on mobile. */}
-            <div
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-gray-900 text-sm font-semibold text-white sm:hidden"
-              aria-label={`Signed in as ${user.role}`}
-              title={user.email}
-            >
-              {user.email.charAt(0).toUpperCase()}
-            </div>
-
-            {/* End the authenticated session. */}
+            {/* Logout remains available on every screen size. */}
             <button
               type="button"
               onClick={handleLogout}
-              className="rounded-md bg-gray-900 px-3 py-2 text-sm font-medium text-white transition hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
+              className="rounded-md bg-black px-3 py-2 text-sm font-medium text-white hover:opacity-90 sm:px-4"
             >
               Logout
             </button>

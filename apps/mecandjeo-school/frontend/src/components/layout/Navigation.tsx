@@ -4,15 +4,21 @@
  * Provides role-aware navigation for
  * authenticated application pages.
  *
- * Phase 19.4 - Sidebar & Role-Aware Navigation UI
+ * Phase 19.5 - Responsive/Mobile Navigation
  */
 
 import { NavLink } from "react-router-dom";
 
 import { useAuth } from "../../contexts/AuthContext";
 
-// Navigation component
-export default function Navigation() {
+interface NavigationProps {
+  onNavigate?: () => void;
+}
+
+export default function Navigation({
+  onNavigate,
+}: NavigationProps) {
+
   const { user } = useAuth();
 
   // Do not render navigation without authenticated user state.
@@ -34,54 +40,59 @@ export default function Navigation() {
       aria-label="Main navigation"
     >
 
-      {/* Primary navigation section */}
+      {/* Primary navigation section. */}
       <div className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
         Main
       </div>
 
-      {/* Common dashboard destination */}
+      {/* Common dashboard destination. */}
       <NavLink
         to="/dashboard"
         className={linkClassName}
+        onClick={onNavigate}
       >
         Dashboard
       </NavLink>
 
-      {/* Administrator destination */}
+      {/* Administrator destination. */}
       {user.role === "admin" && (
         <NavLink
           to="/admin/dashboard"
           className={linkClassName}
+          onClick={onNavigate}
         >
           Admin Dashboard
         </NavLink>
       )}
 
-      {/* Teacher destination */}
+      {/* Teacher destination. */}
       {user.role === "teacher" && (
         <NavLink
           to="/teacher/dashboard"
           className={linkClassName}
+          onClick={onNavigate}
         >
           Teacher Dashboard
         </NavLink>
       )}
 
-      {/* Student destination */}
+      {/* Student destination. */}
       {user.role === "student" && (
         <NavLink
           to="/student/dashboard"
           className={linkClassName}
+          onClick={onNavigate}
         >
           Student Dashboard
         </NavLink>
       )}
 
-      {/* Parent destination */}
+      {/* Parent destination. */}
       {user.role === "parent" && (
         <NavLink
           to="/parent/dashboard"
           className={linkClassName}
+          onClick={onNavigate}
         >
           Parent Dashboard
         </NavLink>
