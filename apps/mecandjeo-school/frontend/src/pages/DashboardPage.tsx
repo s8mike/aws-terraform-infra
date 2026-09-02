@@ -293,7 +293,7 @@ export default function DashboardPage() {
           {isAdmin && (
             <div className="space-y-4">
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Manage Users
                 </h3>
@@ -304,7 +304,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Manage Courses
                 </h3>
@@ -322,7 +322,7 @@ export default function DashboardPage() {
           {isTeacher && (
             <div className="space-y-4">
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   My Courses
                 </h3>
@@ -332,7 +332,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Assignments
                 </h3>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
           {isStudent && (
             <div className="space-y-4">
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   My Courses
                 </h3>
@@ -359,7 +359,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Assignments
                 </h3>
@@ -376,7 +376,7 @@ export default function DashboardPage() {
           {isParent && (
             <div className="space-y-4">
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Child Progress
                 </h3>
@@ -386,7 +386,7 @@ export default function DashboardPage() {
                 </p>
               </div>
 
-              <div className="rounded-md border p-4">
+              <div className="rounded-lg border border-gray-200 p-4 transition hover:-translate-y-0.5 hover:bg-gray-50 hover:shadow-sm">
                 <h3 className="font-medium text-gray-900">
                   Results
                 </h3>
