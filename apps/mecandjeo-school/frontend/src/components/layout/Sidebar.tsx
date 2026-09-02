@@ -51,6 +51,7 @@ export default function Sidebar({
 
       {/* Mobile/tablet navigation drawer. */}
       <aside
+        id="mobile-navigation"
         className={`fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] border-r bg-white shadow-lg transition-transform duration-200 lg:hidden ${
           isMobileMenuOpen
             ? "translate-x-0"

@@ -47,18 +47,19 @@ export default function Header({
         <button
           type="button"
           onClick={onMenuToggle}
-          className="rounded-md p-2 text-gray-700 hover:bg-gray-100 lg:hidden"
+          className="rounded-md p-2 text-gray-700 hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 lg:hidden"
           aria-label={
             isMobileMenuOpen
               ? "Close navigation menu"
               : "Open navigation menu"
           }
           aria-expanded={isMobileMenuOpen}
+          aria-controls="mobile-navigation"
         >
           {isMobileMenuOpen ? (
-            <X size={22} />
+            <X size={22} aria-hidden="true" />
           ) : (
-            <Menu size={22} />
+            <Menu size={22} aria-hidden="true" />
           )}
         </button>
 

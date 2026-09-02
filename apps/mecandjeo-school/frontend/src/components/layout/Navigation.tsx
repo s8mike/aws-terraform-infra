@@ -28,11 +28,11 @@ export default function Navigation({
 
   // Shared navigation styling keeps active and hover states consistent.
   const linkClassName = ({ isActive }: { isActive: boolean }) =>
-    `flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition ${
-      isActive
-        ? "bg-blue-50 text-blue-700"
-        : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
-    }`;
+  `flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 ${
+    isActive
+      ? "bg-blue-50 text-blue-700"
+      : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+  }`;
 
   return (
     <nav

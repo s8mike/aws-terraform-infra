@@ -118,8 +118,8 @@ export default function DashboardPage() {
 
       {error && (
         <div
-          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4"
           role="alert"
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4"
         >
           {/* User-safe API error feedback */}
           <p className="text-sm font-medium text-red-800">

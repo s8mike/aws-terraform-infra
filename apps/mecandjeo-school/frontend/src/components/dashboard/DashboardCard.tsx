@@ -29,6 +29,7 @@ export default function DashboardCard({
         /* Loading placeholder while dashboard data is retrieved */
         <div
           className="mt-3 h-7 w-16 animate-pulse rounded bg-gray-200"
+          role="status"
           aria-label="Loading"
         />
       ) : (

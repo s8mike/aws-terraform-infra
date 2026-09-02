@@ -2,9 +2,9 @@
  * Login page for application authentication.
  *
  * Provides credential validation, authentication
- * submission, and user feedback.
+ * submission, and accessible user feedback.
  *
- * Phase 19.9 - Forms & Interactions
+ * Phase 19.10 - Accessibility
  */
 
 import { useState } from "react";
@@ -141,7 +141,7 @@ export default function LoginPage() {
                 {...register("password")}
               />
 
-              {/* Password visibility control. */}
+              {/* Accessible password visibility control. */}
               <button
                 type="button"
                 onClick={() =>
@@ -157,12 +157,18 @@ export default function LoginPage() {
                     ? "Hide password"
                     : "Show password"
                 }
-                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-2 text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600"
               >
                 {showPassword ? (
-                  <EyeOff size={18} />
+                  <EyeOff
+                    size={18}
+                    aria-hidden="true"
+                  />
                 ) : (
-                  <Eye size={18} />
+                  <Eye
+                    size={18}
+                    aria-hidden="true"
+                  />
                 )}
               </button>
             </div>
@@ -187,11 +193,11 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Disable duplicate submissions while authentication is pending. */}
+          {/* Prevent duplicate submissions while authentication is pending. */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-md bg-black px-4 py-2.5 font-medium text-white transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-md bg-black px-4 py-2.5 font-medium text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {loading ? "Logging in..." : "Login"}
           </button>
