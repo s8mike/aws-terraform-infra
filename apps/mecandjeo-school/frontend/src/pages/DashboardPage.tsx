@@ -116,19 +116,24 @@ export default function DashboardPage() {
         }
       />
 
-      {/* Display administrator API loading state */}
-      {loading && (
-        <p className="mb-4 text-sm text-gray-500">
-          Loading dashboard statistics...
-        </p>
-      )}
-
-      {/* Display a safe API error message */}
       {error && (
-        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-700">
+        <div
+          className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4"
+          role="alert"
+        >
+          {/* User-safe API error feedback */}
+          <p className="text-sm font-medium text-red-800">
             {error}
           </p>
+
+          {/* Retry the failed dashboard request */}
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="mt-3 rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-700 hover:bg-red-100"
+          >
+            Retry
+          </button>
         </div>
       )}
 
@@ -146,6 +151,7 @@ export default function DashboardPage() {
                 ? "Students currently registered"
                 : "Data integration pending"
             }
+            loading={loading}
           />
 
           <DashboardCard
@@ -158,6 +164,7 @@ export default function DashboardPage() {
                 ? "Teachers currently registered"
                 : "Data integration pending"
             }
+            loading={loading}
           />
 
           <DashboardCard
@@ -170,6 +177,7 @@ export default function DashboardPage() {
                 ? "Courses currently available"
                 : "Data integration pending"
             }
+            loading={loading}
           />
 
           <DashboardCard
@@ -182,6 +190,7 @@ export default function DashboardPage() {
                 ? "Registered LMS users"
                 : "Data integration pending"
             }
+            loading={loading}
           />
 
         </div>
