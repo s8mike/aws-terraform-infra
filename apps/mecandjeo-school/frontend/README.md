@@ -34,18 +34,18 @@ Those responsibilities remain enforced by the backend.
 
 ## Technology Stack
 
-| Technology | Purpose |
-| --- | --- |
-| React | UI development |
-| TypeScript | Type-safe application development |
-| Vite | Development server and production build |
-| React Router | Client-side routing |
-| Axios | Backend API communication |
-| React Hook Form | Form management |
-| Zod | Form validation |
-| Lucide React | UI icons |
-| TanStack React Table | Table/data presentation |
-| Tailwind CSS | Styling and responsive design |
+| Technology           | Purpose                                 |
+| -------------------- | --------------------------------------- |
+| React                | UI development                          |
+| TypeScript           | Type-safe application development       |
+| Vite                 | Development server and production build |
+| React Router         | Client-side routing                     |
+| Axios                | Backend API communication               |
+| React Hook Form      | Form management                         |
+| Zod                  | Form validation                         |
+| Lucide React         | UI icons                                |
+| TanStack React Table | Table/data presentation                 |
+| Tailwind CSS         | Styling and responsive design           |
 
 ---
 
