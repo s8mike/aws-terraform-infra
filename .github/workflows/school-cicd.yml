@@ -216,3 +216,37 @@ jobs:
           name: school-docker-image-${{ steps.build.outputs.image_tag }}
           path: school-image.tar
           retention-days: 5
+
+  # ============================================================
+  # CONTAINER SECURITY SCAN
+  # Scan the exact Docker image artifact produced by docker-build.
+  # ============================================================
+  container-security-scan:
+    name: Container Security Scan
+    runs-on: ubuntu-latest
+    needs:
+      - docker-build
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download Docker Image Artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: school-docker-image-${{ needs.docker-build.outputs.image_tag }}
+
+      - name: Verify Docker Image Artifact
+        run: |
+          ls -lh school-image.tar
+          test -f school-image.tar
+
+      - name: Run Trivy Container Security Scan
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          scan-type: image
+          input: school-image.tar
+          pkg-types: os,library
+          severity: CRITICAL,HIGH
+          ignore-unfixed: true
+          exit-code: '1'
+          format: table
