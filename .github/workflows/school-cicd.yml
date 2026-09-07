@@ -322,3 +322,76 @@ jobs:
             --region "${AWS_REGION}" \
             --query 'imageDetails[0].{Tag:imageTags[0],Digest:imageDigest,Size:imageSizeInBytes}' \
             --output table
+
+  # ============================================================
+  # ECS DEPLOYMENT
+  # Deploy the exact immutable image published to ECR.
+  # ============================================================
+  ecs-deploy:
+    name: Deploy to ECS
+    runs-on: ubuntu-latest
+    needs:
+      - docker-build
+      - ecr-publish
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    defaults:
+      run:
+        working-directory: resources/school/dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-school/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+
+      - name: Build Deployment Image URI
+        run: |
+          IMAGE_TAG="${{ needs.docker-build.outputs.image_tag }}"
+          ECR_IMAGE="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:${IMAGE_TAG}"
+
+          echo "Deployment image:"
+          echo "${ECR_IMAGE}"
+
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
+          echo "ECR_IMAGE=${ECR_IMAGE}" >> "$GITHUB_ENV"
+
+      - name: Terraform Plan
+        run: |
+          echo "Planning School ECS deployment..."
+          echo "Container image: ${ECR_IMAGE}"
+
+          terraform plan \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="container_image=${ECR_IMAGE}" \
+            -out=ecs-deployment.tfplan
+
+      - name: Terraform Apply
+        run: |
+          echo "Applying School ECS deployment..."
+          echo "Container image: ${ECR_IMAGE}"
+
+          terraform apply \
+            -auto-approve \
+            ecs-deployment.tfplan
