@@ -18,7 +18,13 @@ on:
       - 'resources/school/**'
       - 'modules/**'
       - '.github/workflows/school-cicd.yml'
+
   workflow_dispatch:
+    inputs:
+      rollback_image_tag:
+        description: "Existing ECR image tag to deploy for rollback"
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -395,3 +401,86 @@ jobs:
           terraform apply \
             -auto-approve \
             ecs-deployment.tfplan
+
+  # ============================================================
+  # MANUAL ROLLBACK
+  # Redeploy a previously published immutable ECR image.
+  # ============================================================
+  ecs-rollback:
+    name: Rollback ECS Deployment
+    runs-on: ubuntu-latest
+
+    if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
+
+    defaults:
+      run:
+        working-directory: resources/school/dev
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Verify ECR Image
+        run: |
+          IMAGE_TAG="${{ inputs.rollback_image_tag }}"
+
+          echo "Verifying rollback image:"
+          echo "${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+          aws ecr describe-images \
+            --repository-name "${ECR_REPOSITORY}" \
+            --image-ids imageTag="${IMAGE_TAG}" \
+            --region "${AWS_REGION}" \
+            --query 'imageDetails[0].{Tags:imageTags,Digest:imageDigest,Pushed:imagePushedAt}' \
+            --output table
+
+      - name: Terraform Init
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ vars.TF_STATE_BUCKET_DEV }}" \
+            -backend-config="key=mecandjeo-school/dev/terraform.tfstate" \
+            -backend-config="region=${{ env.AWS_REGION }}" \
+            -backend-config="use_lockfile=true" \
+            -backend-config="encrypt=true"
+
+      - name: Build Rollback Image URI
+        run: |
+          IMAGE_TAG="${{ inputs.rollback_image_tag }}"
+          ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${IMAGE_TAG}"
+
+          echo "Rollback image:"
+          echo "${ECR_IMAGE}"
+
+          echo "ECR_IMAGE=${ECR_IMAGE}" >> "$GITHUB_ENV"
+
+      - name: Terraform Plan
+        run: |
+          echo "Planning ECS rollback..."
+          echo "Container image: ${ECR_IMAGE}"
+
+          terraform plan \
+            -var-file="terraform.tfvars.pipeline" \
+            -var="container_image=${ECR_IMAGE}" \
+            -out=ecs-rollback.tfplan
+
+      - name: Terraform Apply
+        run: |
+          echo "Applying ECS rollback..."
+          echo "Container image: ${ECR_IMAGE}"
+
+          terraform apply \
+            -auto-approve \
+            ecs-rollback.tfplan
