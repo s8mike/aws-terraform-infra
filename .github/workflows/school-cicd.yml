@@ -48,6 +48,9 @@ jobs:
     name: Frontend CI
     runs-on: ubuntu-latest
 
+    # Skip application CI during manual rollback.
+    if: github.event_name != 'workflow_dispatch'
+
     defaults:
       run:
         working-directory: apps/mecandjeo-school/frontend
@@ -81,6 +84,9 @@ jobs:
     name: Backend CI
     runs-on: ubuntu-latest
 
+    # Skip application CI during manual rollback.
+    if: github.event_name != 'workflow_dispatch'
+
     defaults:
       run:
         working-directory: apps/mecandjeo-school
@@ -110,6 +116,9 @@ jobs:
   terraform-ci:
     name: Terraform CI
     runs-on: ubuntu-latest
+
+    # Skip validation plan during manual rollback.
+    if: github.event_name != 'workflow_dispatch'
 
     defaults:
       run:
