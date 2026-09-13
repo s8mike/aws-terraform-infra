@@ -30,7 +30,7 @@ export interface AdminDashboardResponse {
 export async function getAdminDashboard(): Promise<AdminDashboardResponse> {
   const response =
     await rootApi.get<AdminDashboardResponse>(
-      "/admin/dashboard"
+      "/api/admin/dashboard"
     );
 
   return response.data;

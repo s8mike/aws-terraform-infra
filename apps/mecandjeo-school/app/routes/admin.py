@@ -27,7 +27,7 @@ from ..schemas import (
 from ..auth import require_admin   # import from app/auth.py
 
 router = APIRouter(
-    prefix="/admin",
+    prefix="/api/admin",
     tags=["Admin"]
 )
 
@@ -282,7 +282,7 @@ def academic_overview(
 # from ..database import SessionLocal
 # from ..models import User
 
-# router = APIRouter(prefix="/admin")
+# router = APIRouter(prefix="/api/admin")
 
 
 # # Dependency
