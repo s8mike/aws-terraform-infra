@@ -37,6 +37,9 @@ env:
   ECR_REPOSITORY: mecandjeo-school-platform-dev
   IMAGE_TAG: ${{ github.sha }}
 
+  # Production API URL injected into the Vite build at CI time.
+  VITE_API_BASE_URL: ${{ vars.SCHOOL_FRONTEND_API_URL }}
+
 jobs:
 
   # ============================================================
@@ -56,9 +59,12 @@ jobs:
         working-directory: apps/mecandjeo-school/frontend
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Install the Node.js version used by the frontend project.
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -66,19 +72,88 @@ jobs:
           cache: npm
           cache-dependency-path: apps/mecandjeo-school/frontend/package-lock.json
 
+      # Install the exact dependency versions from package-lock.json.
       - name: Install frontend dependencies
         run: npm ci
 
+      # Run the frontend linting checks.
       - name: Lint frontend
         run: npm run lint
 
+      # Build the production frontend.
+      # npm run build performs TypeScript validation and Vite production build.
       - name: Build frontend
         run: npm run build
+
+      # Preserve the CI-validated frontend build for the deployment job.
+      - name: Upload frontend build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: school-frontend-dist-${{ github.sha }}
+          path: apps/mecandjeo-school/frontend/dist
+          retention-days: 5
+
+
+  # ============================================================
+  # FRONTEND DEPLOYMENT
+  # Deploy the exact frontend build artifact that passed CI.
+  # Only runs after Frontend CI succeeds on a push to main.
+  # ============================================================
+  frontend-deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+
+    # Deploy only production builds from the main branch.
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    # Frontend deployment must wait for the validated frontend build.
+    needs:
+      - frontend-ci
+
+    steps:
+
+      # Download the exact dist/ artifact produced by Frontend CI.
+      - name: Download frontend build artifact
+        uses: actions/download-artifact@v5
+        with:
+          name: school-frontend-dist-${{ github.sha }}
+          path: frontend-dist
+
+      # Configure AWS credentials for S3 and CloudFront operations.
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # Verify the downloaded frontend artifact before deployment.
+      - name: Verify frontend build artifact
+        run: |
+          test -f frontend-dist/index.html
+          echo "Frontend build artifact verified."
+
+      # Deploy the approved frontend build to the private S3 bucket.
+      - name: Deploy frontend to S3
+        run: |
+          aws s3 sync frontend-dist/ \
+            "s3://${{ vars.SCHOOL_FRONTEND_BUCKET }}" \
+            --delete
+          # --delete removes destination objects that are no longer present
+          # in the current frontend build, keeping S3 synchronized with dist/.
+          # This does not delete the S3 bucket itself.
+
+      # Invalidate CloudFront so the new frontend files are served immediately.
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id "${{ vars.SCHOOL_CLOUDFRONT_DISTRIBUTION_ID }}" \
+            --paths "/*"
 
 
   # ============================================================
   # BACKEND CI
-  # Validate Python application syntax and dependencies.
+  # Validate the FastAPI backend source code.
   # ============================================================
   backend-ci:
     name: Backend CI
@@ -92,9 +167,12 @@ jobs:
         working-directory: apps/mecandjeo-school
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Install the Python version used by the backend.
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -102,9 +180,11 @@ jobs:
           cache: pip
           cache-dependency-path: apps/mecandjeo-school/requirements.txt
 
+      # Install backend dependencies.
       - name: Install backend dependencies
         run: pip install -r requirements.txt
 
+      # Compile Python source files to detect syntax errors.
       - name: Validate Python source
         run: python -m compileall app
 
@@ -125,15 +205,19 @@ jobs:
         working-directory: resources/school/dev
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Install the pinned Terraform version used by the pipeline.
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
           terraform_wrapper: false
 
+      # Configure AWS credentials for Terraform operations.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -141,9 +225,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Verify Terraform formatting.
       - name: Terraform Format Check
         run: terraform fmt -check -recursive
 
+      # Initialize Terraform using the configured remote state backend.
       - name: Terraform Init
         run: |
           terraform init \
@@ -153,9 +239,11 @@ jobs:
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
+      # Validate the Terraform configuration.
       - name: Terraform Validate
         run: terraform validate
 
+      # Generate the Terraform execution plan without applying changes.
       - name: Terraform Plan
         run: |
           terraform plan \
@@ -163,6 +251,7 @@ jobs:
             -var="container_image=${{ env.ECR_REGISTRY }}/${{ env.ECR_REPOSITORY }}:latest" \
             -no-color | tee terraform-plan.txt
 
+      # Preserve the Terraform plan as a workflow artifact.
       - name: Upload Terraform Plan
         uses: actions/upload-artifact@v4
         with:
@@ -178,11 +267,14 @@ jobs:
   docker-build:
     name: Build Docker Image
     runs-on: ubuntu-latest
+
+    # Docker build requires all three validation stages to pass.
     needs:
       - frontend-ci
       - backend-ci
       - terraform-ci
 
+    # Build production images only from the main branch.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     outputs:
@@ -190,12 +282,16 @@ jobs:
       image_name: ${{ steps.build.outputs.image_name }}
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Enable Docker Buildx for image builds.
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      # Build the backend Docker image and expose its tag as a job output.
       - name: Build Docker Image
         id: build
         run: |
@@ -213,24 +309,28 @@ jobs:
           echo "image_tag=${SHORT_TAG}" >> "$GITHUB_OUTPUT"
           echo "image_name=${IMAGE_NAME}" >> "$GITHUB_OUTPUT"
 
+      # Inspect the built image metadata before publishing it.
       - name: Inspect Docker Image
         run: |
           docker image inspect \
             "${{ steps.build.outputs.image_name }}:${{ steps.build.outputs.image_tag }}" \
             --format 'Image: {{.RepoTags}} | User: {{.Config.User}} | Size: {{.Size}} bytes'
 
+      # Save the exact Docker image as an artifact for downstream jobs.
       - name: Save Docker Image
         run: |
           docker save \
             "${{ steps.build.outputs.image_name }}:${{ steps.build.outputs.image_tag }}" \
             --output school-image.tar
 
+      # Upload the immutable Docker image artifact.
       - name: Upload Docker Image Artifact
         uses: actions/upload-artifact@v4
         with:
           name: school-docker-image-${{ steps.build.outputs.image_tag }}
           path: school-image.tar
           retention-days: 5
+
 
   # ============================================================
   # CONTAINER SECURITY SCAN
@@ -239,22 +339,29 @@ jobs:
   container-security-scan:
     name: Container Security Scan
     runs-on: ubuntu-latest
+
+    # Security scanning requires the Docker build to succeed.
     needs:
       - docker-build
 
+    # Run the production security gate only on main.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+
+      # Download the exact Docker image produced by docker-build.
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v5
         with:
           name: school-docker-image-${{ needs.docker-build.outputs.image_tag }}
 
+      # Verify that the Docker image artifact exists.
       - name: Verify Docker Image Artifact
         run: |
           ls -lh school-image.tar
           test -f school-image.tar
 
+      # Scan the Docker image for HIGH and CRITICAL vulnerabilities.
       - name: Run Trivy Container Security Scan
         uses: aquasecurity/trivy-action@v0.36.0
         with:
@@ -266,6 +373,7 @@ jobs:
           exit-code: '1'
           format: table
 
+
   # ============================================================
   # ECR PUBLISH
   # Publish the exact Docker image artifact that passed security.
@@ -273,13 +381,18 @@ jobs:
   ecr-publish:
     name: Publish Image to ECR
     runs-on: ubuntu-latest
+
+    # Publishing requires both the image build and security scan.
     needs:
       - docker-build
       - container-security-scan
 
+    # Publish production images only from main.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+
+      # Configure AWS credentials for ECR operations.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -287,29 +400,35 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Verify that the target ECR repository exists.
       - name: Verify ECR Repository
         run: |
           aws ecr describe-repositories \
             --repository-names "${ECR_REPOSITORY}" \
             --region "${AWS_REGION}"
 
+      # Download the exact Docker image that passed security scanning.
       - name: Download Docker Image Artifact
         uses: actions/download-artifact@v5
         with:
           name: school-docker-image-${{ needs.docker-build.outputs.image_tag }}
 
+      # Verify that the Docker image artifact exists.
       - name: Verify Docker Image Artifact
         run: |
           ls -lh school-image.tar
           test -f school-image.tar
 
+      # Load the Docker image into the local Docker daemon.
       - name: Load Docker Image
         run: |
           docker load --input school-image.tar
 
+      # Authenticate Docker with Amazon ECR.
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v2
 
+      # Tag the validated image with its ECR repository URI.
       - name: Tag Image for ECR
         run: |
           LOCAL_IMAGE="${{ needs.docker-build.outputs.image_name }}:${{ needs.docker-build.outputs.image_tag }}"
@@ -320,6 +439,7 @@ jobs:
 
           docker tag "${LOCAL_IMAGE}" "${ECR_IMAGE}"
 
+      # Push the validated image to ECR.
       - name: Push Image to ECR
         run: |
           ECR_IMAGE="${ECR_REGISTRY}/${ECR_REPOSITORY}:${{ needs.docker-build.outputs.image_tag }}"
@@ -327,6 +447,7 @@ jobs:
           echo "Publishing image to ECR..."
           docker push "${ECR_IMAGE}"
 
+      # Verify that the image was successfully published to ECR.
       - name: Verify ECR Image
         run: |
           IMAGE_TAG="${{ needs.docker-build.outputs.image_tag }}"
@@ -338,6 +459,7 @@ jobs:
             --query 'imageDetails[0].{Tag:imageTags[0],Digest:imageDigest,Size:imageSizeInBytes}' \
             --output table
 
+
   # ============================================================
   # ECS DEPLOYMENT
   # Deploy the exact immutable image published to ECR.
@@ -345,10 +467,13 @@ jobs:
   ecs-deploy:
     name: Deploy to ECS
     runs-on: ubuntu-latest
+
+    # ECS deployment requires the built image and successful ECR publish.
     needs:
       - docker-build
       - ecr-publish
 
+    # Deploy production infrastructure only from main.
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     defaults:
@@ -356,15 +481,19 @@ jobs:
         working-directory: resources/school/dev
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Install the pinned Terraform version.
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
           terraform_wrapper: false
 
+      # Configure AWS credentials for Terraform deployment.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -372,6 +501,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Initialize Terraform against the remote state backend.
       - name: Terraform Init
         run: |
           terraform init \
@@ -381,6 +511,7 @@ jobs:
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
+      # Build the immutable ECR image URI for deployment.
       - name: Build Deployment Image URI
         run: |
           IMAGE_TAG="${{ needs.docker-build.outputs.image_tag }}"
@@ -392,6 +523,7 @@ jobs:
           echo "IMAGE_TAG=${IMAGE_TAG}" >> "$GITHUB_ENV"
           echo "ECR_IMAGE=${ECR_IMAGE}" >> "$GITHUB_ENV"
 
+      # Create the Terraform deployment plan using the published image.
       - name: Terraform Plan
         run: |
           echo "Planning School ECS deployment..."
@@ -402,6 +534,7 @@ jobs:
             -var="container_image=${ECR_IMAGE}" \
             -out=ecs-deployment.tfplan
 
+      # Apply the reviewed Terraform deployment plan.
       - name: Terraform Apply
         run: |
           echo "Applying School ECS deployment..."
@@ -411,6 +544,7 @@ jobs:
             -auto-approve \
             ecs-deployment.tfplan
 
+
   # ============================================================
   # MANUAL ROLLBACK
   # Redeploy a previously published immutable ECR image.
@@ -419,6 +553,7 @@ jobs:
     name: Rollback ECS Deployment
     runs-on: ubuntu-latest
 
+    # Rollback is available only through manual workflow dispatch on main.
     if: github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main'
 
     defaults:
@@ -426,15 +561,19 @@ jobs:
         working-directory: resources/school/dev
 
     steps:
+
+      # Checkout the repository source code.
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Install the pinned Terraform version.
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
           terraform_wrapper: false
 
+      # Configure AWS credentials for ECR and Terraform.
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -442,6 +581,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      # Verify that the requested rollback image exists in ECR.
       - name: Verify ECR Image
         run: |
           IMAGE_TAG="${{ inputs.rollback_image_tag }}"
@@ -456,6 +596,7 @@ jobs:
             --query 'imageDetails[0].{Tags:imageTags,Digest:imageDigest,Pushed:imagePushedAt}' \
             --output table
 
+      # Initialize Terraform against the remote state backend.
       - name: Terraform Init
         run: |
           terraform init \
@@ -465,6 +606,7 @@ jobs:
             -backend-config="use_lockfile=true" \
             -backend-config="encrypt=true"
 
+      # Build the immutable ECR image URI selected for rollback.
       - name: Build Rollback Image URI
         run: |
           IMAGE_TAG="${{ inputs.rollback_image_tag }}"
@@ -475,6 +617,7 @@ jobs:
 
           echo "ECR_IMAGE=${ECR_IMAGE}" >> "$GITHUB_ENV"
 
+      # Create the Terraform rollback plan.
       - name: Terraform Plan
         run: |
           echo "Planning ECS rollback..."
@@ -485,6 +628,7 @@ jobs:
             -var="container_image=${ECR_IMAGE}" \
             -out=ecs-rollback.tfplan
 
+      # Apply the Terraform rollback plan.
       - name: Terraform Apply
         run: |
           echo "Applying ECS rollback..."
