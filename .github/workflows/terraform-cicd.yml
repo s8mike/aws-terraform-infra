@@ -24,17 +24,7 @@
 name: MecandjeoOps Dashboard CI/CD
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'apps/mecandjeo-dashboard/**'
-      - 'modules/**'
-      - 'resources/dashboard**'
-      - '.github/workflows/terraform-cicd.yml'
-  pull_request:
-    branches:
-      - main
+  workflow_dispatch:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
