@@ -4,7 +4,7 @@
 # It allows you to navigate from one model to the other in both directions. 
 
 # Database tables and ORM models
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     Column, 
@@ -511,7 +511,7 @@ class Message(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
 
 # ==========================================================
@@ -557,7 +557,7 @@ class MeetingRequest(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=lambda: datetime.now(timezone.utc)
     )
 #=================================================================
 # FIRST BASIC MODEL FOR A SINGLE USER ROLE (STUDENT) - TO BE EXPANDED WITH TEACHER AND ADMIN ROLES LATER (SCALABLE DESIGN), ETC.

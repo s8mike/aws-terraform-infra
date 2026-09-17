@@ -11,7 +11,7 @@ import jwt
 
 from .database import get_db
 from .models import User
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from .logger import logger   # added at phase 12.1 step 5
 
 # Secret key used for JWT signing
@@ -48,7 +48,7 @@ def create_token(data: dict): # Fxn expects a dictionary
     payload = data.copy()
 
     expire = (
-        datetime.utcnow()       # Current UTC time and date [utc=coordinated universal time]
+        datetime.now(timezone.utc)       # Current UTC time and date [utc=coordinated universal time]
         + timedelta(hours=JWT_EXPIRE_HOURS)
     )
 
