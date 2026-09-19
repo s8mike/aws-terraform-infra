@@ -30,13 +30,16 @@ module "vpc" {
 }
 
 module "security" {
-  source = "../../modules/security"
-
+  source           = "../../modules/security"
+  aws_region       = var.aws_region
   project_name     = var.project_name
   environment      = var.environment
   vpc_id           = module.vpc.vpc_id
   allowed_ssh_cidr = var.allowed_ssh_cidr
-  container_port   = var.container_port
+  secret_arns = [
+    var.database_url_secret_arn,
+    var.secret_key_secret_arn
+  ]
 }
 
 module "compute" {
@@ -69,7 +72,8 @@ module "ecs" {
   environment                 = var.environment
   aws_region                  = var.aws_region
   vpc_id                      = module.vpc.vpc_id
-  public_subnet_ids           = module.vpc.public_subnet_ids
+  subnet_ids                  = module.vpc.public_subnet_ids
+  assign_public_ip            = true
   ecs_security_group_id       = module.security.ecs_security_group_id
   ecs_task_execution_role_arn = module.security.ecs_task_execution_role_arn
   container_image             = var.container_image
@@ -81,6 +85,8 @@ module "ecs" {
   app_environment             = var.environment
   app_project_name            = var.project_name
   app_version                 = var.app_version
+  database_url_secret_arn     = var.database_url_secret_arn
+  secret_key_secret_arn       = var.secret_key_secret_arn
 }
 
 module "autoscaling" {

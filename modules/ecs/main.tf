@@ -20,12 +20,15 @@
 # CloudWatch Log Group
 # ─────────────────────────────────────────
 resource "aws_cloudwatch_log_group" "ecs" {
-  #checkov:skip=CKV_AWS_158:KMS encryption deferred to production
+  # Retain ECS logs for the configured period and optionally encrypt
+  # them with a customer-managed KMS key when one is provided.
   name              = "/ecs/${var.project_name}-${var.environment}"
-  retention_in_days = 365 # changed from 7 — CKV_AWS_338
+  retention_in_days = var.log_retention_in_days
+  kms_key_id        = var.log_kms_key_id
 
   tags = {
-    Name = "${var.project_name}-${var.environment}-ecs-logs"
+    Name        = "${var.project_name}-${var.environment}-logs"
+    Environment = var.environment
   }
 }
 
@@ -90,7 +93,12 @@ resource "aws_ecs_task_definition" "main" {
         }
       ]
 
-      secrets = [
+      # Inject DATABASE_URL and SECRET_KEY from AWS Secrets Manager
+      # when both secret ARNs are provided; otherwise, pass no secrets.
+      secrets = (
+        var.database_url_secret_arn != null &&
+        var.secret_key_secret_arn != null
+        ) ? [
         {
           name      = "DATABASE_URL"
           valueFrom = var.database_url_secret_arn
@@ -99,7 +107,7 @@ resource "aws_ecs_task_definition" "main" {
           name      = "SECRET_KEY"
           valueFrom = var.secret_key_secret_arn
         }
-      ]
+      ] : []
 
       logConfiguration = {
         logDriver = "awslogs"
@@ -132,7 +140,7 @@ resource "aws_ecs_task_definition" "main" {
 # ECS Service
 # ─────────────────────────────────────────
 resource "aws_ecs_service" "main" {
-  #checkov:skip=CKV_AWS_333:Public IP required in dev — no NAT Gateway
+  #checkov:skip=CKV_AWS_333:Public IP assignment is configurable; enabled for current environments without private-subnet egress.
   name            = "${var.project_name}-${var.environment}-service"
   cluster         = aws_ecs_cluster.main.id
   task_definition = aws_ecs_task_definition.main.arn
@@ -158,10 +166,10 @@ resource "aws_ecs_service" "main" {
   #   assign_public_ip = false
   # }
 
-  network_configuration { # added temporarily for testing with public subnets
-    subnets          = var.public_subnet_ids
+  network_configuration {
+    subnets          = var.subnet_ids
     security_groups  = [var.ecs_security_group_id]
-    assign_public_ip = true
+    assign_public_ip = var.assign_public_ip
   }
 
   # ALB Block added at stage 6 to register ECS tasks with the ALB target group created in the load balancer module. This allows the ALB to route traffic to the ECS tasks.

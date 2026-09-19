@@ -9,6 +9,7 @@ locals {
 # EC2 Security Group
 # ─────────────────────────────────────────
 resource "aws_security_group" "ec2" {
+  # checkov:skip=CKV2_AWS_5:Security group is attached to its workload through environment-level module wiring.
   name        = "${var.project_name}-${var.environment}-ec2-sg"
   description = "Security group for EC2 - SSH from trusted IP only"
   vpc_id      = var.vpc_id
@@ -38,10 +39,11 @@ resource "aws_security_group" "ec2" {
 # ALB Security Group
 # ─────────────────────────────────────────
 resource "aws_security_group" "alb" {
+  # checkov:skip=CKV2_AWS_5:Security group is attached to its workload through environment-level module wiring.
   name        = "${var.project_name}-${var.environment}-alb-sg"
   description = "Security group for ALB - HTTP from internet"
   vpc_id      = var.vpc_id
-
+  # checkov:skip=CKV_AWS_260:HTTP port 80 is retained for current environment compatibility; HTTPS requires an ACM certificate and explicit environment configuration.
   ingress {
     description = "HTTP from internet"
     from_port   = 80
@@ -67,6 +69,7 @@ resource "aws_security_group" "alb" {
 # ECS Security Group (Elastic Container Service)
 # ─────────────────────────────────────────
 resource "aws_security_group" "ecs" {
+  # checkov:skip=CKV2_AWS_5:Security group is attached to its workload through environment-level module wiring.
   name        = "${var.project_name}-${var.environment}-ecs-sg"
   description = "Security group for ECS tasks - traffic from ALB only"
   vpc_id      = var.vpc_id
@@ -130,7 +133,11 @@ resource "aws_iam_role_policy_attachment" "ecs_task_execution" {
 # ECS Task Execution — Secrets Manager Access
 # ─────────────────────────────────────────
 
+# Allow ECS task execution to retrieve only the configured secrets.
+# No policy is created when secret_arns is empty.
 resource "aws_iam_role_policy" "ecs_secrets_access" {
+  count = length(var.secret_arns) > 0 ? 1 : 0
+
   name = "${var.project_name}-${var.environment}-ecs-secrets-access"
   role = aws_iam_role.ecs_task_execution.id
 
@@ -139,16 +146,9 @@ resource "aws_iam_role_policy" "ecs_secrets_access" {
 
     Statement = [
       {
-        Effect = "Allow"
-
-        Action = [
-          "secretsmanager:GetSecretValue"
-        ]
-
-        Resource = [
-          "arn:aws:secretsmanager:${var.aws_region}:776735193826:secret:mecandjeo-school/dev/database-url-*",
-          "arn:aws:secretsmanager:${var.aws_region}:776735193826:secret:mecandjeo-school/dev/secret-key-*"
-        ]
+        Effect   = "Allow"
+        Action   = ["secretsmanager:GetSecretValue"]
+        Resource = var.secret_arns
       }
     ]
   })
@@ -178,25 +178,4 @@ resource "aws_iam_role" "ecs_task_role" {
   tags = {
     Name = "${var.project_name}-${var.environment}-ecs-task-role"
   }
-}
-
-# ➕ OPTIONAL POLICY (safe baseline)
-# Allows basic logging + future extension
-resource "aws_iam_role_policy" "ecs_task_policy" {
-  name = "${var.project_name}-${var.environment}-ecs-task-policy"
-  role = aws_iam_role.ecs_task_role.id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "logs:CreateLogStream",
-          "logs:PutLogEvents"
-        ]
-        Resource = "*"
-      }
-    ]
-  })
 }

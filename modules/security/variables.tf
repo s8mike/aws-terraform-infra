@@ -23,10 +23,8 @@ variable "aws_region" {
   type        = string
 }
 
-# # New variables for application. Not needed since ports are addeded to locals & dynamically fetched in the security main.tf.
-# variable "http_port" {
-# variable "container_port" {
-#   description = "Port the container listens on"
-#   type        = number
-#   default     = 8000
-# }
+variable "secret_arns" {
+  description = "Secrets Manager ARNs the ECS task execution role can access"
+  type        = list(string)
+  default     = []
+}

@@ -6,10 +6,10 @@ locals {
 # Application Load Balancer
 # ─────────────────────────────────────────
 resource "aws_lb" "main" {
-  #checkov:skip=CKV_AWS_150:Deletion protection disabled intentionally in dev
-  #checkov:skip=CKV_AWS_91:Access logging requires S3 bucket — deferred to prod
-  #checkov:skip=CKV2_AWS_28:WAF protection deferred to production
-  #checkov:skip=CKV2_AWS_20:HTTPS redirect requires certificate — prod only
+  #checkov:skip=CKV_AWS_150:Deletion protection is configurable but disabled by default; enable per environment.
+  #checkov:skip=CKV_AWS_91:Access logging is configurable but disabled by default; requires a compatible S3 bucket.
+  #checkov:skip=CKV2_AWS_28:WAF association is configurable but disabled by default; requires a verified Web ACL.
+  #checkov:skip=CKV2_AWS_20:HTTP-to-HTTPS redirect is configurable but disabled by default.
   name                       = "${var.project_name}-${var.environment}-alb"
   internal                   = false # Internet-facing ALB (set to true for internal ALB)
   load_balancer_type         = "application"
@@ -17,8 +17,18 @@ resource "aws_lb" "main" {
   subnets                    = var.public_subnet_ids
   drop_invalid_header_fields = true # added — CKV_AWS_131
 
-  # Set to true (production) if you want to prevent accidental deletion
-  enable_deletion_protection = false # Allows terraform destory. 
+  # Allow environments to enable protection against accidental ALB deletion.
+  enable_deletion_protection = var.enable_deletion_protection
+  # Send ALB access logs to an existing S3 bucket when enabled.
+  dynamic "access_logs" {
+    for_each = var.access_logs_enabled ? [1] : []
+
+    content {
+      enabled = true
+      bucket  = var.access_logs_bucket
+      prefix  = var.access_logs_prefix
+    }
+  }
 
   tags = {
     Name = "${var.project_name}-${var.environment}-alb"
@@ -29,7 +39,7 @@ resource "aws_lb" "main" {
 # Target Group
 # ─────────────────────────────────────────
 resource "aws_lb_target_group" "main" {
-  #checkov:skip=CKV_AWS_378:HTTP protocol used in dev — HTTPS in prod
+  #checkov:skip=CKV_AWS_378:Target group uses HTTP; ALB-to-target encryption is not configured.
   name        = "${var.project_name}-${var.environment}-tg"
   port        = var.container_port
   protocol    = "HTTP"
@@ -55,11 +65,50 @@ resource "aws_lb_target_group" "main" {
 # HTTP Listener
 # ─────────────────────────────────────────
 resource "aws_lb_listener" "http" {
-  #checkov:skip=CKV_AWS_2:HTTPS requires ACM certificate — prod only
-  #checkov:skip=CKV_AWS_103:TLS requires HTTPS listener — prod only
+  #checkov:skip=CKV_AWS_2:HTTP listener retained for compatibility; HTTPS is optional and requires an ACM certificate.
+  #checkov:skip=CKV_AWS_103:HTTP listener has no TLS; HTTPS listener is optional.
   load_balancer_arn = aws_lb.main.arn
   port              = 80
   protocol          = "HTTP"
+
+  default_action {
+    type = var.http_to_https_redirect ? "redirect" : "forward"
+
+    dynamic "redirect" {
+      for_each = var.http_to_https_redirect ? [1] : []
+
+      content {
+        port        = "443"
+        protocol    = "HTTPS"
+        status_code = "HTTP_301"
+      }
+    }
+
+    dynamic "forward" {
+      for_each = var.http_to_https_redirect ? [] : [1]
+
+      content {
+        target_group {
+          arn = aws_lb_target_group.main.arn
+        }
+      }
+    }
+  }
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-http-listener"
+  }
+}
+
+# Create an HTTPS listener only when HTTPS is enabled.
+resource "aws_lb_listener" "https" {
+  count = var.https_enabled ? 1 : 0
+
+  load_balancer_arn = aws_lb.main.arn
+  port              = 443
+  protocol          = "HTTPS"
+  certificate_arn   = var.acm_certificate_arn
+  ssl_policy        = "ELBSecurityPolicy-TLS13-1-2-2021-06"
 
   default_action {
     type             = "forward"
@@ -67,6 +116,14 @@ resource "aws_lb_listener" "http" {
   }
 
   tags = {
-    Name = "${var.project_name}-${var.environment}-http-listener"
+    Name = "${var.project_name}-${var.environment}-https-listener"
   }
+}
+
+# Associate an existing WAF Web ACL with the ALB when an ARN is provided.
+resource "aws_wafv2_web_acl_association" "main" {
+  count = var.waf_web_acl_arn != null ? 1 : 0
+
+  resource_arn = aws_lb.main.arn
+  web_acl_arn  = var.waf_web_acl_arn
 }

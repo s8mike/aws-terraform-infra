@@ -9,6 +9,18 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_default_security_group" "main" {
+  vpc_id = aws_vpc.main.id
+
+  # No ingress or egress rules: restrict all traffic.
+  ingress = []
+  egress  = []
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-default-sg"
+  }
+}
+
 # Internet Gateway
 resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
@@ -78,4 +90,18 @@ resource "aws_route_table_association" "private" {
   count          = length(var.private_subnet_cidrs)
   subnet_id      = aws_subnet.private[count.index].id
   route_table_id = aws_route_table.private.id
+}
+
+# Captures accepted and rejected VPC traffic records in S3 for network troubleshooting and security review.
+resource "aws_flow_log" "main" {
+  count = var.flow_logs_s3_bucket_arn == null ? 0 : 1
+
+  log_destination      = var.flow_logs_s3_bucket_arn
+  log_destination_type = "s3"
+  traffic_type         = "ALL"
+  vpc_id               = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.project_name}-${var.environment}-vpc-flow-logs"
+  }
 }

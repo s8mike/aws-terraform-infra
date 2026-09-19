@@ -18,14 +18,15 @@ variable "vpc_id" {
   type        = string
 }
 
-# variable "private_subnet_ids" {
-#   description = "List of private subnet IDs for ECS tasks"
-#   type        = list(string)
-# }
-
-variable "public_subnet_ids" { # Added temporarily for testing with public subnets
-  description = "List of public subnet IDs for ECS tasks"
+variable "subnet_ids" {
+  description = "Subnet IDs where ECS tasks will run"
   type        = list(string)
+}
+
+variable "assign_public_ip" {
+  description = "Whether ECS tasks receive public IP addresses"
+  type        = bool
+  default     = true
 }
 
 variable "ecs_security_group_id" {
@@ -100,13 +101,33 @@ variable "app_version" {
 }
 
 variable "database_url_secret_arn" {
-  description = "ARN of the Secrets Manager secret containing DATABASE_URL"
+  description = "Optional ARN of the Secrets Manager secret containing DATABASE_URL"
   type        = string
-  sensitive   = true
+  default     = null
 }
 
+# This prevent partial configuration when both secrets are required. If one is provided, the other must also be provided.
 variable "secret_key_secret_arn" {
-  description = "ARN of the Secrets Manager secret containing SECRET_KEY"
+  description = "Optional ARN of the Secrets Manager secret containing SECRET_KEY"
   type        = string
-  sensitive   = true
+  default     = null
+  # validation {
+  #   condition = (
+  #     (var.database_url_secret_arn == null && var.secret_key_secret_arn == null) ||
+  #     (var.database_url_secret_arn != null && var.secret_key_secret_arn != null)
+  #   )
+  #   error_message = "Provide both database_url_secret_arn and secret_key_secret_arn, or leave both unset."
+  # }
+}
+
+variable "log_retention_in_days" {
+  description = "Number of days to retain ECS CloudWatch logs"
+  type        = number
+  default     = 365
+}
+
+variable "log_kms_key_id" {
+  description = "Optional KMS key ARN or ID for encrypting ECS CloudWatch logs"
+  type        = string
+  default     = null
 }

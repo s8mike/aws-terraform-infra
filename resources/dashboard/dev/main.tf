@@ -45,7 +45,8 @@ module "ecs" {
   environment                 = var.environment
   aws_region                  = var.aws_region
   vpc_id                      = local.vpc_id
-  public_subnet_ids           = local.public_subnet_ids
+  subnet_ids                  = local.public_subnet_ids
+  assign_public_ip            = true
   ecs_security_group_id       = local.ecs_security_group_id
   ecs_task_execution_role_arn = local.ecs_task_execution_role_arn
   container_image             = var.container_image

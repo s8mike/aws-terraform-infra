@@ -63,6 +63,11 @@ resource "aws_dynamodb_table" "terraform_state_lock" {
     type = "S"
   }
 
+  # Enable point-in-time recovery for the state-lock table.
+  point_in_time_recovery {
+    enabled = true
+  }
+
   # lifecycle {
   #   prevent_destroy = true    # Prevent accidental deletion of lock table by terraform destroy
   # }

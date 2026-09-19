@@ -38,6 +38,15 @@ module "security" {
   aws_region       = var.aws_region
   vpc_id           = module.vpc.vpc_id
   allowed_ssh_cidr = var.allowed_ssh_cidr
+  # The shared ECS task execution role is currently consumed by School dev.
+  # These ARN patterns grant it access only to the School dev secrets required
+  # by its ECS task definition (DATABASE_URL and SECRET_KEY). Keep this access
+  # narrowly scoped; move to app-specific execution roles if additional apps
+  # require independent secret permissions.
+  secret_arns = [
+    "arn:aws:secretsmanager:${var.aws_region}:776735193826:secret:mecandjeo-school/dev/database-url-*",
+    "arn:aws:secretsmanager:${var.aws_region}:776735193826:secret:mecandjeo-school/dev/secret-key-*"
+  ]
 }
 
 module "compute" {

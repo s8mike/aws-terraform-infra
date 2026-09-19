@@ -124,3 +124,15 @@ variable "scale_in_cpu_threshold" {
   type        = number
   default     = 30
 }
+
+variable "database_url_secret_arn" {
+  description = "ARN of the production Secrets Manager secret containing DATABASE_URL"
+  type        = string
+  sensitive   = true
+}
+
+variable "secret_key_secret_arn" {
+  description = "ARN of the production Secrets Manager secret containing SECRET_KEY"
+  type        = string
+  sensitive   = true
+}
