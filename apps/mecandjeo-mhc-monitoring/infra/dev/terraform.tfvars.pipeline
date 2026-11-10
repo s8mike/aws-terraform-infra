@@ -1,0 +1,11 @@
+# Phase 9: non-sensitive development defaults used by local and CI Terraform plans.
+aws_region             = "us-east-1"
+environment            = "dev"
+container_port         = 8004
+task_cpu               = 256
+task_memory            = 512
+desired_count          = 1
+min_capacity           = 1
+max_capacity           = 2
+rds_instance_class     = "db.t3.micro"
+rds_deletion_protection = false

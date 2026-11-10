@@ -1,0 +1,12 @@
+# Packages the application needs to run. These are the only ones installed in the container image.
+fastapi
+uvicorn
+SQLAlchemy
+psycopg2-binary
+pydantic
+python-dotenv
+passlib
+bcrypt==4.0.1
+PyJWT
+email-validator
+alembic

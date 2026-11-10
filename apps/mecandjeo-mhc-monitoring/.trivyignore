@@ -1,0 +1,4 @@
+# Findings we have looked at and deliberately accept. Each line is a check id; the comment says why.
+# DS-0026: no HEALTHCHECK instruction inside the Dockerfile. Health checks are defined where the container is run
+# (docker-compose.yml now; the ECS task definition and Kubernetes probes later), so the image does not carry its own.
+DS-0026

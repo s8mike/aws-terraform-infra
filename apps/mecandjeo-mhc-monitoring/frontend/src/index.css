@@ -1,0 +1,856 @@
+/* Global styles and color theme for the whole app. The accent colors at the top change per role. */
+:root {
+  /* Default accent (login page); the signed-in frame overrides it per role below. */
+  --accent: #12355b;
+  --accent-soft: #e3edf8;
+  --text: #1a202c;
+  --muted: #4a5568;
+  --border: #d5e0ec;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Soft blue-to-mint page background instead of flat white or grey. */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(180deg, #e3eefa 0%, #f2f7fc 45%, #e6f5ef 100%) fixed;
+}
+
+h1 {
+  margin: 0 0 0.5rem;
+  color: var(--accent);
+}
+
+h3 {
+  color: var(--accent);
+}
+
+/* Role accents: operator = blue, manager = teal, admin = indigo. */
+.app-shell[data-role='operator'] {
+  --accent: #1b5e9e;
+  --accent-soft: #e1eefb;
+}
+
+.app-shell[data-role='manager'] {
+  --accent: #0f766e;
+  --accent-soft: #dcf3ef;
+}
+
+.app-shell[data-role='admin'] {
+  --accent: #5b3fa0;
+  --accent-soft: #ebe5f7;
+}
+
+/* Signed-in page frame */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--accent);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+.app-user {
+  margin-left: auto;
+  font-size: 0.9rem;
+}
+
+.app-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+/* Admin navigation links in the header. */
+.app-nav {
+  display: flex;
+  gap: 1rem;
+  margin-left: 1rem;
+}
+
+.app-nav a {
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  padding-bottom: 2px;
+}
+
+.app-nav a.active {
+  color: #fff;
+  border-bottom: 2px solid #fff;
+}
+
+/* Buttons */
+.link-button {
+  padding: 0.3rem 0.7rem;
+  background: transparent;
+  color: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.link-button:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.primary-button {
+  width: 100%;
+  padding: 0.7rem;
+  background: var(--accent);
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.primary-button:hover:not(:disabled) {
+  filter: brightness(1.12);
+}
+
+.primary-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.retry-button {
+  width: auto;
+  padding: 0.6rem 1.2rem;
+}
+
+.danger-button {
+  padding: 0.6rem 1.2rem;
+  background: #c53030;
+  color: #fff;
+  border: 0;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.danger-button:hover:not(:disabled) {
+  filter: brightness(1.1);
+}
+
+.danger-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Messages */
+.status-message {
+  padding: 2rem;
+  text-align: center;
+  color: var(--muted);
+}
+
+.error-message {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.7rem;
+  background: #fed7d7;
+  color: #742a2a;
+  border-radius: 4px;
+}
+
+.success-message {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.7rem;
+  background: #c6f6d5;
+  color: #22543d;
+  border-radius: 4px;
+}
+
+/* Red notice explaining why an action is blocked (for example "End the active delay before ending the task"). */
+.blocked-notice {
+  margin: 0 0 1rem;
+  padding: 0.6rem 0.8rem;
+  background: #fff5f5;
+  color: #9b2c2c;
+  border-left: 4px solid #c53030;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.hint {
+  margin: 0 0 1rem;
+  color: var(--muted);
+}
+
+/* Login screen: navy-to-teal backdrop behind a white card. */
+.login-wrap {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: linear-gradient(135deg, #12355b 0%, #0f766e 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+  padding: 2rem;
+  background: #fff;
+  border-top: 5px solid #0f766e;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.login-card h1 {
+  margin: 0 0 0.25rem;
+  font-size: 1.4rem;
+}
+
+.login-card p {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+}
+
+/* Form fields */
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.form-field input,
+.form-field select {
+  padding: 0.6rem 0.7rem;
+  background: #fff;
+  border: 1px solid #b9c8d9;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  border-color: var(--accent);
+}
+
+.form-stack {
+  max-width: 420px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  column-gap: 1rem;
+  max-width: 720px;
+}
+
+.checkbox-field {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+/* Password field: the input with an eye button sitting inside its right edge. */
+.password-wrap {
+  position: relative;
+  display: flex;
+}
+
+.password-wrap input {
+  width: 100%;
+  padding-right: 2.75rem;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 2.5rem;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  color: var(--accent);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+  border-radius: 4px;
+}
+
+/* Small heading above each row of summary cards ("This shift", "All time"). */
+.cards-title {
+  margin: 1rem 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.cards-title + .card-grid {
+  margin-top: 0.5rem;
+}
+
+/* Headline number cards, tinted by meaning: blue = shifts and tasks, green = containers and productivity, amber = delays. */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin: 1rem 0 1.5rem;
+}
+
+.card {
+  padding: 1rem;
+  background: var(--card-bg, #edf1f6);
+  border-left: 5px solid var(--card-accent, #5a6b80);
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.card-tone-blue {
+  --card-accent: #2b6cb0;
+  --card-bg: #e8f1fc;
+}
+
+.card-tone-green {
+  --card-accent: #2f855a;
+  --card-bg: #e6f6ed;
+}
+
+.card-tone-amber {
+  --card-accent: #c05621;
+  --card-bg: #fdf0e1;
+}
+
+.card-tone-slate {
+  --card-accent: #5a6b80;
+  --card-bg: #edf1f6;
+}
+
+.card-value {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: var(--card-accent);
+}
+
+.card-label {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+/* Content blocks: lightly tinted, with a colored top edge in the role's accent. */
+.panel {
+  margin-bottom: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: #fcfdff;
+  background: color-mix(in srgb, var(--accent) 4%, white);
+  border: 1px solid var(--border);
+  border-top: 4px solid var(--accent);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(18, 53, 91, 0.08);
+}
+
+.panel h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  color: var(--accent);
+}
+
+/* Dimmed panel for a section that is waiting on an earlier step (a delay needs a running task). */
+.panel-muted {
+  background: #edf2f7;
+  border-top-color: #a0aec0;
+  box-shadow: none;
+}
+
+.panel-muted h2 {
+  color: var(--muted);
+}
+
+.panel-muted .hint {
+  margin-bottom: 0;
+}
+
+.detail-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin: 0 0 1rem;
+}
+
+.detail-list dt {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.detail-list dd {
+  margin: 0;
+  font-weight: 600;
+}
+
+/* Manager tabs. */
+.tab-bar {
+  display: flex;
+  gap: 0.25rem;
+  margin: 1rem 0 1.5rem;
+  border-bottom: 1px solid #b9c8d9;
+}
+
+.tab {
+  padding: 0.6rem 1.1rem;
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  font-family: inherit;
+  font-size: 1rem;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.tab:hover {
+  color: var(--accent);
+}
+
+.tab-active {
+  color: var(--accent);
+  font-weight: 600;
+  border-bottom-color: var(--accent);
+}
+
+/* Filters above a table. */
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.filter-row .form-field {
+  margin-bottom: 0;
+}
+
+/* Data tables scroll sideways inside their own box on narrow screens. */
+.table-wrap {
+  overflow-x: auto;
+  margin-bottom: 1.25rem;
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.data-table th,
+.data-table td {
+  padding: 0.5rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.data-table th {
+  color: var(--accent);
+  font-weight: 600;
+  background: var(--accent-soft);
+}
+
+.data-table tbody tr:nth-child(even) {
+  background: #f4f8fc;
+}
+
+.data-table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+/* Small status pill (for example the operator's live status). */
+.badge {
+  display: inline-block;
+  padding: 0.1rem 0.55rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: 0.8rem;
+}
+
+
+/* A heading with an action button on the right (for example "Users" and "Add user"). */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.toolbar h2 {
+  margin: 0;
+}
+
+/* Inline form for adding or editing a record, shown above the table. */
+.edit-panel {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.25rem;
+  background: #fff;
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+}
+
+.edit-panel h3 {
+  margin: 0 0 0.75rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+/* Outlined button for secondary actions such as Cancel. */
+.secondary-button {
+  padding: 0.6rem 1.2rem;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  background: var(--accent-soft);
+}
+
+/* Compact buttons inside table rows. */
+.small-button {
+  margin-right: 0.4rem;
+  padding: 0.2rem 0.6rem;
+  background: #fff;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.small-button:hover {
+  background: var(--accent-soft);
+}
+
+.small-button-danger {
+  color: #c53030;
+  border-color: #c53030;
+}
+
+.small-button-danger:hover {
+  background: #fff5f5;
+}
+
+/* Grey pill for inactive or retired records. */
+.badge-off {
+  background: #edf2f7;
+  color: #4a5568;
+}
+
+
+/* ===== Password checklist, locked fields and the theme picker ===== */
+
+/* Live password checklist: red until a rule is met, then green. */
+.rule-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  margin: 0 0 1rem;
+  padding: 0;
+  list-style: none;
+}
+
+.rule {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.rule-unmet {
+  color: #c53030;
+}
+
+.rule-met {
+  color: #2f855a;
+}
+
+/* Read-only fields look locked. */
+.form-field input[readonly] {
+  background: #edf2f7;
+  color: var(--muted);
+  cursor: not-allowed;
+}
+
+/* Theme dropdown in the header. */
+.theme-select {
+  padding: 0.25rem 0.5rem;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.theme-select option {
+  color: #1a202c;
+  background: #fff;
+}
+
+/* ===== Themes: set on <html> by the header dropdown. Soft (the default) is the styling above. ===== */
+
+/* Light: a clean white look. */
+html[data-theme='light'] body {
+  background: #f5f7fa;
+}
+
+html[data-theme='light'] .panel {
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme='light'] .data-table tbody tr:nth-child(even) {
+  background: #f8fafc;
+}
+
+/* Grey: a neutral, low-glare look. */
+html[data-theme='grey'] {
+  --border: #c9ced6;
+}
+
+html[data-theme='grey'] body {
+  background: #e5e7eb;
+}
+
+html[data-theme='grey'] .panel {
+  background: #f3f4f6;
+  border-color: var(--border);
+  border-top-color: var(--accent);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+html[data-theme='grey'] .panel-muted {
+  background: #e1e4e9;
+  border-top-color: #9aa3af;
+}
+
+html[data-theme='grey'] .edit-panel {
+  background: #fafbfc;
+}
+
+html[data-theme='grey'] .tab-bar {
+  border-bottom-color: var(--border);
+}
+
+html[data-theme='grey'] .data-table tbody tr:nth-child(even) {
+  background: #eceff3;
+}
+
+/* Dark: light text on dark panels. color-scheme also darkens date pickers, dropdown lists and scrollbars. */
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+}
+
+html[data-theme='dark'] body {
+  background: #0f172a;
+}
+
+/* In dark mode the accent used for text and borders is a lighter shade; --strong keeps the dark shade for headers and buttons. */
+html[data-theme='dark'] .app-shell[data-role='operator'] {
+  --accent: #7db4ea;
+  --accent-soft: #1d3550;
+  --strong: #1b5e9e;
+}
+
+html[data-theme='dark'] .app-shell[data-role='manager'] {
+  --accent: #5fd1c4;
+  --accent-soft: #14403c;
+  --strong: #0f766e;
+}
+
+html[data-theme='dark'] .app-shell[data-role='admin'] {
+  --accent: #b7a0f0;
+  --accent-soft: #2e2650;
+  --strong: #5b3fa0;
+}
+
+html[data-theme='dark'] .app-header,
+html[data-theme='dark'] .primary-button {
+  background: var(--strong);
+}
+
+html[data-theme='dark'] .panel {
+  background: #1e293b;
+  border-color: var(--border);
+  border-top-color: var(--accent);
+  box-shadow: none;
+}
+
+html[data-theme='dark'] .panel-muted {
+  background: #18212f;
+  border-top-color: #475569;
+}
+
+html[data-theme='dark'] .edit-panel {
+  background: #172033;
+}
+
+html[data-theme='dark'] .form-field input,
+html[data-theme='dark'] .form-field select {
+  background: #0f172a;
+  color: var(--text);
+  border-color: #475569;
+}
+
+html[data-theme='dark'] .form-field input[readonly] {
+  background: #1a2433;
+  color: var(--muted);
+}
+
+html[data-theme='dark'] .tab-bar {
+  border-bottom-color: var(--border);
+}
+
+html[data-theme='dark'] .data-table th,
+html[data-theme='dark'] .data-table td {
+  border-bottom-color: var(--border);
+}
+
+html[data-theme='dark'] .data-table tbody tr:nth-child(even) {
+  background: #233044;
+}
+
+html[data-theme='dark'] .data-table tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+html[data-theme='dark'] .card-tone-blue {
+  --card-accent: #7db4ea;
+  --card-bg: #1c2f48;
+}
+
+html[data-theme='dark'] .card-tone-green {
+  --card-accent: #6fcf97;
+  --card-bg: #173626;
+}
+
+html[data-theme='dark'] .card-tone-amber {
+  --card-accent: #f6ad55;
+  --card-bg: #3d2a16;
+}
+
+html[data-theme='dark'] .card-tone-slate {
+  --card-accent: #a0aec0;
+  --card-bg: #252f3f;
+}
+
+html[data-theme='dark'] .error-message {
+  background: #4a1d1d;
+  color: #fed7d7;
+}
+
+html[data-theme='dark'] .success-message {
+  background: #173d2a;
+  color: #c6f6d5;
+}
+
+html[data-theme='dark'] .blocked-notice {
+  background: #3b1a1a;
+  color: #feb2b2;
+  border-left-color: #fc8181;
+}
+
+html[data-theme='dark'] .rule-unmet {
+  color: #fc8181;
+}
+
+html[data-theme='dark'] .rule-met {
+  color: #68d391;
+}
+
+html[data-theme='dark'] .secondary-button,
+html[data-theme='dark'] .small-button {
+  background: transparent;
+}
+
+html[data-theme='dark'] .secondary-button:hover,
+html[data-theme='dark'] .small-button:hover {
+  background: var(--accent-soft);
+}
+
+html[data-theme='dark'] .small-button-danger {
+  color: #fc8181;
+  border-color: #fc8181;
+}
+
+html[data-theme='dark'] .small-button-danger:hover {
+  background: #3b1a1a;
+}
+
+html[data-theme='dark'] .badge-off {
+  background: #334155;
+  color: #cbd5e1;
+}
+
+
+/* ===== Change-password dialog ===== */
+
+/* Dimmed backdrop that centers the dialog and covers the page. */
+.dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.55);
+}
+
+/* The dialog is a normal panel (so every theme styles it) with its own sizing. */
+.dialog {
+  width: min(440px, 92vw);
+  max-height: 90vh;
+  margin: 0;
+  overflow-y: auto;
+}
+
+/* The header now holds more controls, so let it wrap on narrow screens. */
+.app-header {
+  flex-wrap: wrap;
+}

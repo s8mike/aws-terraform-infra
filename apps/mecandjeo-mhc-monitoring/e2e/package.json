@@ -1,0 +1,21 @@
+{
+  "name": "mhc-e2e",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Browser smoke tests for the Mecandjeo MHC Monitoring stack (Playwright).",
+  "scripts": {
+    "install:browser": "playwright install chromium",
+    "test": "playwright test",
+    "test:headed": "playwright test --headed",
+    "test:debug": "playwright test --debug",
+    "report": "playwright show-report",
+    "typecheck": "tsc --noEmit",
+    "test:ui": "playwright test --ui",
+    "codegen": "playwright codegen http://localhost:8080"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1",
+    "@types/node": "^24.13.3",
+    "typescript": "~6.0.2"
+  }
+}
