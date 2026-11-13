@@ -9,3 +9,11 @@ logs/
 *.log
 *.db
 Intent.md
+!docs/
+# Keep this application's documentation under version control.
+# The repository root ignores docs/ so other projects' documents stay private; this line re-includes only this app's docs/.
+!docs/
+
+# Keep this application's documentation under version control.
+# The repository root ignores docs/ so other projects' documents stay private; this line re-includes only this app's docs/.
+!docs/

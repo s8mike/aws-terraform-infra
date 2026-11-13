@@ -142,7 +142,7 @@ check "API answers through the web server (proxy)" "check frontend/nginx.conf an
 echo
 echo "Database"
 check "migrations are at the latest revision" "run: docker compose --env-file $ENV_FILE run --rm crane-migrate alembic upgrade head" migrations_at_head
-check "database matches the models (no drift)" "see docs/DATABASE-MIGRATIONS.md, section 13" database_matches_models
+check "database matches the models (no drift)" "see docs/PROJECT-PHASES/Phase-10.2-Database-Migrations-Explained.md, section 13" database_matches_models
 
 echo
 echo "Security"
